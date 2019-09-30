@@ -1,0 +1,18 @@
+#System files
+.DS_Store
+Thumbs.db
+
+# Editor directories and files
+/.settings
+/.project
+/.buildpath
+/.idea
+
+#DB files
+common/set.php
+common/config.php
+
+#Runtime
+app/Api/Runtime
+
+/vendor
