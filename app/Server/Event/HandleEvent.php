@@ -180,7 +180,7 @@ class HandleEvent
 
         //记录数据库
         $this->db = new WebSocketMongo();
-        $this->db->insert($toMessageObject->toArray());
+        $this->db->addOne($toMessageObject->toArray());
 
 
         //把发送者消息推入队列

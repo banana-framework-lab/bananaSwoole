@@ -8,8 +8,8 @@
 
 use App\Server\WebsocketServer;
 
-require dirname(__FILE__) . '/common/init.php';
-require dirname(__FILE__) . '/common/set.php';
+require dirname(__FILE__) . '/config/init.php';
+require dirname(__FILE__) . '/config/set.php';
 
 date_default_timezone_set('PRC');
 if (!DEBUG) {
