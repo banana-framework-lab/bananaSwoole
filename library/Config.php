@@ -20,10 +20,11 @@ class Config
     public static function instanceStart()
     {
         if (!self::$configPool) {
-            $handler = opendir(dirname(__FILE__) . '../config');
+            $handler = opendir(dirname(__FILE__) . '/../config');
             while (($fileName = readdir($handler)) !== false) {
                 if ($fileName != "." && $fileName != "..") {
-                    self::$configPool[$fileName] += require dirname(__FILE__) . '../config/' . $fileName;;
+                    $fileIndex = (explode('.',$fileName))[0];
+                    self::$configPool[$fileIndex] = require dirname(__FILE__) . '/../config/' . $fileName;
                 }
             }
             closedir($handler);
@@ -39,8 +40,12 @@ class Config
     {
         if ($param) {
             $paramArray = explode('.', $param);
-            $returnData = self::$configPool[$paramArray[0]];
-            $paramArray = array_shift($paramArray);
+            if(isset(self::$configPool[$paramArray[0]])){
+                $returnData = self::$configPool[$paramArray[0]];
+            }else{
+                return '';
+            }
+            array_shift($paramArray);
             foreach ($paramArray as $key => $value) {
                 if (isset($returnData[$value])) {
                     $returnData = $returnData[$value];

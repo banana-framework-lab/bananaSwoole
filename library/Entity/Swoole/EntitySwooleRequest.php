@@ -44,7 +44,7 @@ class EntitySwooleRequest
     public static function setInstance($instance)
     {
         $cid = Coroutine::getuid();
-        if (!static::$instancePool[EntitySwooleWebSever::getInstance()->worker_id][$cid]) {
+        if (!isset(static::$instancePool[EntitySwooleWebSever::getInstance()->worker_id][$cid])) {
             static::$instancePool[EntitySwooleWebSever::getInstance()->worker_id][$cid] = $instance;
         }
     }

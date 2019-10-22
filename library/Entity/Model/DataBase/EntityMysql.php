@@ -7,6 +7,7 @@
 
 namespace Library\Entity\Model\DataBase;
 
+use Exception;
 use Illuminate\Database\Capsule\Manager as MysqlClient;
 use Illuminate\Database\Connection;
 use Illuminate\Database\Query\Builder;
@@ -59,23 +60,28 @@ class EntityMysql
     public static function instanceStart()
     {
         if (!static::$instance) {
-            $mysqlClient = new MysqlClient;
+            try {
+                $mysqlClient = new MysqlClient;
 
-            //设置数据库的配置
-            $mysqlClient->addConnection(Config::get('app.is_server') ? Config::get('mysql.server') : Config::get('mysql.local'));
+                //设置数据库的配置
+                $mysqlClient->addConnection(Config::get('app.is_server') ? Config::get('mysql.server') : Config::get('mysql.local'));
 
-            // 使得数据库对象全局可用
-            $mysqlClient->setAsGlobal();
+                // 使得数据库对象全局可用
+                $mysqlClient->setAsGlobal();
 
-            //初始化mysql全局对象
-            self::setInstance($mysqlClient);
+                //初始化mysql全局对象
+                self::setInstance($mysqlClient);
 
-            //设置可用Eloquent
-            $mysqlClient->bootEloquent();
+                //设置可用Eloquent
+                $mysqlClient->bootEloquent();
 
-            //非服务器下开启日志
-            if (!Config::get('app.is_server')) {
-                self::connection()->enableQueryLog();
+                //非服务器下开启日志
+                if (!Config::get('app.is_server')) {
+                    self::connection()->enableQueryLog();
+                }
+            }catch (Exception $exception){
+                echo $exception->getMessage();
+                exit;
             }
         }
     }

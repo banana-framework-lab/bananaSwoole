@@ -4,15 +4,20 @@ namespace Library\Helper;
 
 use Library\Entity\Swoole\EntitySwooleRequest;
 
+use Library\Entity\Swoole\EntitySwooleWebSever;
+use Library\Object\RouterObject;
+use Library\Router;
 use Monolog\Logger;
 use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\RotatingFileHandler;
+use Swoole\Coroutine;
 
 /**
  * Class Log
  * @method static bool info(string $message = '', string $context = '', string $levelName = '')
  * @method static bool warning(string $message = '', string $context = '', string $levelName = '')
  * @method static bool error(string $message = '', string $context = '', string $levelName = '')
+ * @method static bool success(string $message = '', string $context = '', string $levelName = '')
  * @package Common\Library
  */
 class LogHelper
@@ -52,7 +57,9 @@ class LogHelper
      */
     public static function __callStatic($name, $arguments)
     {
-        self::$fileName = APP_DIR . '/Runtime/logs/' . date('Ymd') . '/' ;
+        /* @var RouterObject $routeObject */
+        $routeObject = Router::$routeObjectPool[EntitySwooleWebSever::getInstance()->worker_id][Coroutine::getuid()];
+        self::$fileName = dirname(__FILE__) . '/../../app/' . $routeObject->getProject() . '/Runtime/logs/' . date('Ymd') . '/';
 
         $logger = self::createLogger($name);
 

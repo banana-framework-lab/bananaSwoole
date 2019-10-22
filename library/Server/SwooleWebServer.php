@@ -1,6 +1,6 @@
 <?php
 
-namespace Library\Sever;
+namespace Library\Server;
 
 use Library\Config;
 use Library\WebServerApp;
@@ -58,9 +58,6 @@ class SwooleWebServer extends SwooleServer
      */
     public function onWorkerStart(SwooleHttpServer $server, int $workId)
     {
-        //注册自动加载类的函数
-        spl_autoload_register("Library\AutoLoad::autoload");
-
         //加载App类
         WebServerApp::init();
     }

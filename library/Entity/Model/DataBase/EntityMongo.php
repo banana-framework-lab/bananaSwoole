@@ -31,7 +31,7 @@ class EntityMongo
     public static function instanceStart()
     {
         if (!static::$instance) {
-            $uri = Config::get('app.is_server') ? Config::get('mongo.server') : Config::get('mongo.local');
+            $uri = Config::get('app.is_server') ? Config::get('mongo.server.url') : Config::get('mongo.local.url');
             self::setInstance(new MongoDbClient($uri));
         }
     }

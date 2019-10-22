@@ -1,6 +1,6 @@
 <?php
 
-namespace Library\Sever;
+namespace Library\Server;
 
 use Library\Config;
 

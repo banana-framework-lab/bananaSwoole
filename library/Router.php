@@ -2,7 +2,9 @@
 
 namespace Library;
 
+use Library\Entity\Swoole\EntitySwooleWebSever;
 use Library\Object\RouterObject;
+use Swoole\Coroutine;
 
 /**
  * Created by PhpStorm.
@@ -18,15 +20,20 @@ class Router
     public static $routePool = [];
 
     /**
+     * @var array $routeObjectPool
+     */
+    public static $routeObjectPool = [];
+
+    /**
      * 初始化Router类
      */
     public static function instanceStart()
     {
         if (!self::$routePool) {
-            $handler = opendir(dirname(__FILE__) . '../route');
+            $handler = opendir(dirname(__FILE__) . '/../route');
             while (($fileName = readdir($handler)) !== false) {
                 if ($fileName != "." && $fileName != "..") {
-                    self::$routePool[] += require dirname(__FILE__) . '../route/' . $fileName;;
+                    self::$routePool += require dirname(__FILE__) . '/../route/' . $fileName;
                 }
             }
             closedir($handler);
@@ -49,16 +56,22 @@ class Router
             $requestUrlArray[2] = $requestUrlArray[2] ?: 'index';
 
             $routerObject = new RouterObject();
-            $routerObject->setController("\\\{$requestUrlArray[0]}\\Controller\\{$requestUrlArray[1]}Controller");
+            $routerObject->setProject($requestUrlArray[0]);
+            $routerObject->setController("\\App\\{$requestUrlArray[0]}\\Controller\\{$requestUrlArray[1]}Controller");
             $routerObject->setMethod($requestUrlArray[2]);
+
+            self::$routeObjectPool[EntitySwooleWebSever::getInstance()->worker_id][Coroutine::getuid()] = $routerObject;
 
             return $routerObject;
         } else {
             $requestUrlArray = explode('@', $v);
 
             $routerObject = new RouterObject();
+            $routerObject->setProject((explode('\\', $requestUrlArray[0]))[2]);
             $routerObject->setController($requestUrlArray[0]);
             $routerObject->setMethod($requestUrlArray[1]);
+
+            self::$routeObjectPool[EntitySwooleWebSever::getInstance()->worker_id][Coroutine::getuid()] = $routerObject;
 
             return $routerObject;
         }

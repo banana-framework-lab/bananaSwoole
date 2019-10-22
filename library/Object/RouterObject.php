@@ -1,4 +1,5 @@
 <?php
+
 namespace Library\Object;
 
 /**
@@ -9,16 +10,36 @@ namespace Library\Object;
  */
 class RouterObject
 {
+    /**
+     * @var string $project 路由的项目
+     */
+    private $project = '';
 
     /**
-     * @var string 路由的控制器
+     * @var string $controller 路由的控制器
      */
     private $controller = '';
 
     /**
-     * @var string 路由的函数
+     * @var string $method 路由的函数
      */
     private $method = '';
+
+    /**
+     * @return string
+     */
+    public function getProject()
+    {
+        return $this->project;
+    }
+
+    /**
+     * @param $project
+     */
+    public function setProject($project)
+    {
+        $this->project = $project;
+    }
 
     /**
      * @return string

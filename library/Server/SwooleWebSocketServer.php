@@ -5,14 +5,13 @@
  * Date: 2019/08/22
  */
 
-namespace App\Server;
+namespace Library\Server;
 
 use App\Server\Event\ServerEvent;
 use Library\Entity\Model\Cache\EntityRedis;
 use Library\Entity\Model\DataBase\EntityMongo;
 use Library\Entity\Model\DataBase\EntityMysql;
 use Library\Entity\Swoole\EntitySwooleWebSocketSever;
-use Library\Sever\SwooleServer;
 use Swoole\Http\Request as SwooleHttpRequest;
 use Swoole\WebSocket\Frame as SwooleSocketFrame;
 use Swoole\WebSocket\Server as SwooleSocketServer;

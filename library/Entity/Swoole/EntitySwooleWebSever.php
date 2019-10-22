@@ -2,6 +2,7 @@
 
 namespace Library\Entity\Swoole;
 
+use Library\Config;
 use Swoole\Http\Server as SwooleHttpServer;
 
 /**
@@ -33,7 +34,7 @@ class EntitySwooleWebSever
     public static function instanceStart()
     {
         if (!static::$instance) {
-            $webServer = new SwooleHttpServer("0.0.0.0", WEB_SERVER_PORT);
+            $webServer = new SwooleHttpServer("0.0.0.0", Config::get('swoole.web.port'));
             static::$instance = $webServer;
         }
     }
