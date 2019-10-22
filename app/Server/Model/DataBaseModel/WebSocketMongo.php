@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Server\Model\DataBaseModel;
-use App\Library\Virtual\Model\DataBaseModel\AbstractMongoModel;
+use Library\Virtual\Model\DataBaseModel\AbstractMongoModel;
 
 /**
  * Created by PhpStorm.

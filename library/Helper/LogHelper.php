@@ -2,6 +2,7 @@
 
 namespace Library\Helper;
 
+use Library\Config;
 use Library\Entity\Swoole\EntitySwooleRequest;
 
 use Library\Entity\Swoole\EntitySwooleWebSever;
@@ -83,7 +84,7 @@ class LogHelper
         if (empty(self::$loggers[$name])) {
 
             // 根据业务域名与方法名进行日志名称的确定
-            $category = EntitySwooleRequest::server('server_name') ?: 'chat.ysdwat.com';
+            $category = EntitySwooleRequest::server('server_name') ?: Config::get('app.server_name');
             // 日志文件目录
             $fileName = self::$fileName;
             // 日志保存时间
@@ -107,6 +108,7 @@ class LogHelper
             $template = "\r\n---------------------------------------------------------------\r\n[%datetime%] {$requestInfo['ip']} {$requestInfo['method']} {$requestInfo['host']}{$requestInfo['uri']}";
             $template .= "\r\n[%channel%][%level_name%][MESSAGE]: %message%";
             $template .= "\r\n[%channel%][%level_name%][CONTEXT]: %context%";
+            $template .= "\r\n";
 
             // 组装跟踪栈信息
             // $backtrace数组第$idx元素是当前行，第$idx+1元素表示上一层，另外function、class需再往上取一个层次

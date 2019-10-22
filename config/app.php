@@ -6,5 +6,7 @@
  * Time: 17:27
  */
 return [
-    'debug' => true
+    'debug' => true,
+    'is_server' => false,
+    'server_name' => 'www.banana.com',
 ];

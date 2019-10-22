@@ -20,7 +20,7 @@ class TestController extends AbstractController
     public function index()
     {
         $start = json_encode(EntitySwooleRequest::server('request_time_float'));
-        co::sleep(3.0);
+        Co::sleep(3.0);
         $string =  'serverName '.EntitySwooleRequest::server('server_name').' cid ' . Coroutine::getuid() . '  start' . $start . '  end' . json_encode(EntitySwooleRequest::server('request_time_float')) . "";
         LogHelper::info($string);
     }
