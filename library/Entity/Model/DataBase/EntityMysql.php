@@ -11,6 +11,7 @@ use Illuminate\Database\Capsule\Manager as MysqlClient;
 use Illuminate\Database\Connection;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Database\Query\Expression;
+use Library\Config;
 
 /**
  * @method static Connection connection(string $name = null)
@@ -61,7 +62,7 @@ class EntityMysql
             $mysqlClient = new MysqlClient;
 
             //设置数据库的配置
-            $mysqlClient->addConnection(IS_SERVER ? DB_LIST['server'] : DB_LIST['local']);
+            $mysqlClient->addConnection(Config::get('app.is_server') ? Config::get('mysql.server') : Config::get('mysql.local'));
 
             // 使得数据库对象全局可用
             $mysqlClient->setAsGlobal();
@@ -73,7 +74,7 @@ class EntityMysql
             $mysqlClient->bootEloquent();
 
             //非服务器下开启日志
-            if (!IS_SERVER) {
+            if (!Config::get('app.is_server')) {
                 self::connection()->enableQueryLog();
             }
         }

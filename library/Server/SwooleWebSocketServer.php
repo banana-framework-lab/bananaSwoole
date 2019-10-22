@@ -12,11 +12,12 @@ use Library\Entity\Model\Cache\EntityRedis;
 use Library\Entity\Model\DataBase\EntityMongo;
 use Library\Entity\Model\DataBase\EntityMysql;
 use Library\Entity\Swoole\EntitySwooleWebSocketSever;
+use Library\Sever\SwooleServer;
 use Swoole\Http\Request as SwooleHttpRequest;
 use Swoole\WebSocket\Frame as SwooleSocketFrame;
 use Swoole\WebSocket\Server as SwooleSocketServer;
 
-class SwooleWebSocketServer
+class SwooleWebSocketServer extends SwooleServer
 {
 
     /**
@@ -36,6 +37,7 @@ class SwooleWebSocketServer
      */
     public function __construct()
     {
+        parent::__construct();
         EntitySwooleWebSocketSever::instanceStart();
         $this->server = EntitySwooleWebSocketSever::getInstance();
     }

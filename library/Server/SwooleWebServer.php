@@ -2,22 +2,24 @@
 
 namespace Library\Sever;
 
-use Library\App;
+use Library\Config;
+use Library\WebServerApp;
 use Library\Entity\Swoole\EntitySwooleWebSever;
 use Swoole\Http\Server as SwooleHttpServer;
 use Swoole\Http\Request as SwooleRequest;
 use Swoole\Http\Response as SwooleResponse;
 
-class SwooleWebServer
+class SwooleWebServer extends SwooleServer
 {
     /**
      * SwooleWebServer constructor.
      */
     public function __construct()
     {
+        parent::__construct();
         EntitySwooleWebSever::instanceStart();
         $this->server = EntitySwooleWebSever::getInstance();
-        $this->port = WEB_SERVER_PORT;
+        $this->port = Config::get('swoole.web.port');
     }
 
     /**
@@ -30,6 +32,9 @@ class SwooleWebServer
      */
     private $port;
 
+    /**
+     * 启动Swoole的http服务
+     */
     public function run()
     {
         $this->server->set([
@@ -51,20 +56,22 @@ class SwooleWebServer
      * @param SwooleHttpServer $server
      * @param int $workId
      */
-    public function onWorkerStart(SwooleHttpServer $server, $workId)
+    public function onWorkerStart(SwooleHttpServer $server, int $workId)
     {
         //注册自动加载类的函数
-        spl_autoload_register("App\Library\AutoLoad::autoload");
+        spl_autoload_register("Library\AutoLoad::autoload");
 
         //加载App类
-        App::init();
+        WebServerApp::init();
     }
 
     /**
+     * 处理Http的请求
+     *
      * @param SwooleRequest $request
      * @param SwooleResponse $response
      */
-    public function onRequest($request, $response)
+    public function onRequest(SwooleRequest $request, SwooleResponse $response)
     {
         // 屏蔽 favicon.ico
         $uri = $request->server['request_uri'];
@@ -85,6 +92,6 @@ class SwooleWebServer
             return;
         };
 
-        $response->end(App::run($request));
+        $response->end(WebServerApp::run($request));
     }
 }

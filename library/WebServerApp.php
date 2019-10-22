@@ -13,9 +13,11 @@ use Library\Entity\Model\DataBase\EntityMongo;
 use Library\Entity\Model\DataBase\EntityMysql;
 use Library\Helper\ResponseHelper;
 use Library\Entity\Swoole\EntitySwooleRequest;
+use Library\Object\RouterObject;
 use Library\Virtual\Middle\AbstractMiddleWare;
+use Swoole\Http\Request as SwooleRequest;
 
-class App
+class WebServerApp
 {
     /**
      * 初始化
@@ -36,25 +38,31 @@ class App
         EntityRedis::instanceStart();
 
         // Router初始化
-        Router::instanceStart();  
+        Router::instanceStart();
+
+        //开启php调试模式
+        if (Config::get('app.debug')) {
+            ini_set('display_errors', 'On');
+            error_reporting(E_ALL);
+        }
     }
 
     /**
      * 执行入口
-     * @param $request
+     * @param SwooleRequest $request
      * @return string
      */
-    public static function run($request)
+    public static function run(SwooleRequest $request)
     {
         //初始化请求实体类
         EntitySwooleRequest::setInstance($request);
 
-        //路由
-        $routeArr = self::route($request->server['request_uri']);
+        /* @var RouterObject $routeObject */
+        $routeObject = Router::route($request->server['request_uri']);
 
         //初始化方法
-        $methodName = $routeArr['method'];
-        $controllerClass = $routeArr['controller'];
+        $methodName = $routeObject->getMethod();
+        $controllerClass = $routeObject->getController();
 
         //初始化请求数据
         $getData = $request->get ?: [];
@@ -86,32 +94,6 @@ class App
             }
         } else {
             return ResponseHelper::responseFailed(['msg' => "找不到{$controllerClass}"]);
-        }
-    }
-
-    /**
-     * @param string $requestUrl
-     * @return array
-     */
-    private static function route($requestUrl)
-    {
-        $v = Router::$routePool[$requestUrl] ?? null;
-        if (is_null($v)) {
-            $requestUrl = trim($requestUrl, '/');
-            $requestUrlArray = explode('/', $requestUrl);
-            $requestUrlArray[0] = $requestUrlArray[0] ?: 'Api';
-            $requestUrlArray[1] = $requestUrlArray[1] ?: 'Index';
-            $requestUrlArray[2] = $requestUrlArray[2] ?: 'index';
-            return [
-                'controller' => "\\\{$requestUrlArray[0]}\\Controller\\{$requestUrlArray[1]}",
-                'method' => $requestUrlArray[2]
-            ];
-        } else {
-            $requestUrlArray = explode('@', $v);
-            return [
-                'controller' => $requestUrlArray[0],
-                'method' => $requestUrlArray[1]
-            ];
         }
     }
 }

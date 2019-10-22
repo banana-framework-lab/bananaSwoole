@@ -3,6 +3,7 @@
 namespace Library\Entity\Swoole;
 
 use Swoole\Coroutine;
+use Swoole\Http\Request as SwooleRequest;
 
 /**
  * @method static mixed header(string $name = '')
@@ -38,7 +39,7 @@ class EntitySwooleRequest
     }
 
     /**
-     * @param  \Swoole\Http\Request $instance
+     * @param  SwooleRequest $instance
      */
     public static function setInstance($instance)
     {

@@ -7,6 +7,7 @@
 
 namespace Library\Entity\Model\Cache;
 
+use Library\Config;
 use Redis as RedisClient;
 
 class EntityRedis
@@ -30,7 +31,7 @@ class EntityRedis
     public static function instanceStart()
     {
         if (!static::$instance) {
-            $redisConf = IS_SERVER ? REDIS_LIST['server'] : REDIS_LIST['local'];
+            $redisConf = Config::get('app.is_server') ? Config::get('redis.server') :Config::get('redis.local');
             $redisServer = new RedisClient();
             $redisServer->connect($redisConf['host'], $redisConf['port'], 0.0);
             $redisServer->auth($redisConf['auth']);

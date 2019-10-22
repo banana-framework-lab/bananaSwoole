@@ -7,6 +7,7 @@
 
 namespace Library\Entity\Model\DataBase;
 
+use Library\Config;
 use MongoDB\Client as MongoDbClient;
 
 class EntityMongo
@@ -30,7 +31,7 @@ class EntityMongo
     public static function instanceStart()
     {
         if (!static::$instance) {
-            $uri = IS_SERVER ? MONGO_LIST['server'] : MONGO_LIST['local'];
+            $uri = Config::get('app.is_server') ? Config::get('mongo.server') : Config::get('mongo.local');
             self::setInstance(new MongoDbClient($uri));
         }
     }
@@ -52,7 +53,8 @@ class EntityMongo
      * 返回当前实体类实例
      * @return MongoDbClient
      */
-    public static function getInstance(){
+    public static function getInstance()
+    {
         return self::$instance;
     }
 
