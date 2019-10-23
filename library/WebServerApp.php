@@ -19,6 +19,11 @@ use Swoole\Http\Request as SwooleRequest;
 
 class WebServerApp
 {
+    public static function reRestart()
+    {
+
+    }
+
     /**
      * 初始化
      */
@@ -96,9 +101,14 @@ class WebServerApp
         } else {
             $result = ResponseHelper::responseFailed(['msg' => "找不到{$controllerClass}"]);
         }
-
+        
+        var_dump(EntitySwooleRequest::$instancePool);
         EntitySwooleRequest::recoverInstance();
+        var_dump(EntitySwooleRequest::$instancePool);
+        echo "\n";
+        var_dump(Router::$routeObjectPool);
         Router::recoverInstance();
+        var_dump(Router::$routeObjectPool);
         return $result;
     }
 }

@@ -37,17 +37,17 @@ class SwooleWebServer extends SwooleServer
      */
     public function run()
     {
-        $this->server->set([
-            'worker_num' => 4,
-        ]);
-        $this->server->on('Request', [$this, 'onRequest']);
-        $this->server->on('WorkerStart', [$this, 'onWorkerStart']);
-        $this->server->start();
-
         echo "\n";
         echo "************************************************************************\n";
         echo "*  httpServer服务启动于：http://0.0.0.0:{$this->port} 时间:" . date('Y-m-d H:i:s') . "  *\n";
         echo "************************************************************************\n";
+
+        $this->server->set([
+            'worker_num' => Config::get('swoole.worker_num'),
+        ]);
+        $this->server->on('Request', [$this, 'onRequest']);
+        $this->server->on('WorkerStart', [$this, 'onWorkerStart']);
+        $this->server->start();
     }
 
     /**

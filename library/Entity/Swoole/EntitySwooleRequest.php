@@ -16,7 +16,7 @@ use Swoole\Http\Request as SwooleRequest;
  */
 class EntitySwooleRequest
 {
-    private static $instancePool = [];
+    public static $instancePool = [];
 
     private function __construct()
     {
@@ -34,6 +34,7 @@ class EntitySwooleRequest
     public static function delInstance()
     {
         foreach (static::$instancePool as & $workerInstance) {
+            EntitySwooleWebSever::getInstance()->master_pid;
             unset($workerInstance);
         }
     }

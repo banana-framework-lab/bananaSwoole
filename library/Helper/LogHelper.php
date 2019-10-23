@@ -15,10 +15,10 @@ use Swoole\Coroutine;
 
 /**
  * Class Log
- * @method static bool info(string $message = '', string $context = '', string $levelName = '')
- * @method static bool warning(string $message = '', string $context = '', string $levelName = '')
- * @method static bool error(string $message = '', string $context = '', string $levelName = '')
- * @method static bool success(string $message = '', string $context = '', string $levelName = '')
+ * @method static bool info(string $message = '', array $context = [], string $levelName = '')
+ * @method static bool warning(string $message = '', array $context = [], string $levelName = '')
+ * @method static bool error(string $message = '', array $context = [], string $levelName = '')
+ * @method static bool success(string $message = '', array $context = [], string $levelName = '')
  * @package Common\Library
  */
 class LogHelper
