@@ -34,7 +34,7 @@ class EntitySwooleRequest
     public static function delInstance()
     {
         foreach (static::$instancePool as & $workerInstance) {
-           unset($workerInstance);
+            unset($workerInstance);
         }
     }
 
@@ -44,9 +44,20 @@ class EntitySwooleRequest
     public static function setInstance($instance)
     {
         $cid = Coroutine::getuid();
-        if (!isset(static::$instancePool[EntitySwooleWebSever::getInstance()->worker_id][$cid])) {
-            static::$instancePool[EntitySwooleWebSever::getInstance()->worker_id][$cid] = $instance;
+        $workId = EntitySwooleWebSever::getInstance()->worker_id;
+        if (!isset(static::$instancePool[$workId][$cid])) {
+            static::$instancePool[$workId][$cid] = $instance;
         }
+    }
+
+    /**
+     * 回收指定协程内的对象
+     */
+    public static function recoverInstance()
+    {
+        $cid = Coroutine::getuid();
+        $workId = EntitySwooleWebSever::getInstance()->worker_id;
+        unset(static::$instancePool[$workId][$cid]);
     }
 
     /**

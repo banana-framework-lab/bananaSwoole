@@ -41,6 +41,29 @@ class Router
     }
 
     /**
+     * 删除路由对象
+     */
+    public static function delInstance()
+    {
+        foreach (static::$routePool as & $routeInstance) {
+            unset($routeInstance);
+        }
+        foreach (static::$routeObjectPool as & $routeObjectInstance) {
+            unset($routeObjectInstance);
+        }
+    }
+
+    /**
+     * 回收指定协程内的对象
+     */
+    public static function recoverInstance()
+    {
+        $cid = Coroutine::getuid();
+        $workId = EntitySwooleWebSever::getInstance()->worker_id;
+        unset(static::$routeObjectPool[$workId][$cid]);
+    }
+
+    /**
      * 路由
      * @param string $requestUrl
      * @return RouterObject

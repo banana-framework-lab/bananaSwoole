@@ -26,6 +26,7 @@ class WebServerApp
     {
         //若是重启先删除单例实体对象
         EntitySwooleRequest::delInstance();
+        Router::delInstance();
         EntityMysql::delInstance();
         EntityMongo::delInstance();
         EntityRedis::delInstance();
@@ -88,12 +89,16 @@ class WebServerApp
         if (class_exists($controllerClass)) {
             $controller = new $controllerClass($requestData);
             if (method_exists($controller, $methodName)) {
-                return $controller->$methodName();
+                $result = $controller->$methodName();
             } else {
-                return ResponseHelper::responseFailed(['msg' => "找不到{$methodName}"]);
+                $result = ResponseHelper::responseFailed(['msg' => "找不到{$methodName}"]);
             }
         } else {
-            return ResponseHelper::responseFailed(['msg' => "找不到{$controllerClass}"]);
+            $result = ResponseHelper::responseFailed(['msg' => "找不到{$controllerClass}"]);
         }
+
+        EntitySwooleRequest::recoverInstance();
+        Router::recoverInstance();
+        return $result;
     }
 }
