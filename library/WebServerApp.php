@@ -15,7 +15,6 @@ use Library\Helper\RequestHelper;
 use Library\Helper\ResponseHelper;
 use Library\Object\RouterObject;
 use Library\Virtual\Middle\AbstractMiddleWare;
-use Swoole\ExitException;
 use Swoole\Http\Request as SwooleRequest;
 use Swoole\Http\Response as SwooleResponse;
 
