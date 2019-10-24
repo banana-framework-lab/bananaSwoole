@@ -11,11 +11,13 @@ namespace Library;
 use Library\Entity\Model\Cache\EntityRedis;
 use Library\Entity\Model\DataBase\EntityMongo;
 use Library\Entity\Model\DataBase\EntityMysql;
+use Library\Helper\RequestHelper;
 use Library\Helper\ResponseHelper;
-use Library\Entity\Swoole\EntitySwooleRequest;
 use Library\Object\RouterObject;
 use Library\Virtual\Middle\AbstractMiddleWare;
+use Swoole\ExitException;
 use Swoole\Http\Request as SwooleRequest;
+use Swoole\Http\Response as SwooleResponse;
 
 class WebServerApp
 {
@@ -30,7 +32,7 @@ class WebServerApp
     public static function init()
     {
         //若是重启先删除单例实体对象
-        EntitySwooleRequest::delInstance();
+        RequestHelper::delInstance();
         Router::delInstance();
         EntityMysql::delInstance();
         EntityMongo::delInstance();
@@ -56,12 +58,11 @@ class WebServerApp
     /**
      * 执行入口
      * @param SwooleRequest $request
-     * @return string
      */
-    public static function run(SwooleRequest $request)
+    public static function run(SwooleRequest $request, SwooleResponse $response)
     {
         //初始化请求实体类
-        EntitySwooleRequest::setInstance($request);
+        RequestHelper::setInstance($request);
 
         /* @var RouterObject $routeObject */
         $routeObject = Router::route($request->server['request_uri']);
@@ -87,28 +88,30 @@ class WebServerApp
                 }
             }
         } catch (\Exception $e) {
-            return ResponseHelper::responseFailed(['msg' => $e->getMessage()]);
+            ResponseHelper::json(['msg' => $e->getMessage()]);
         }
 
         //初始化控制器
         if (class_exists($controllerClass)) {
             $controller = new $controllerClass($requestData);
             if (method_exists($controller, $methodName)) {
-                $result = $controller->$methodName();
+                $controller->$methodName();
             } else {
-                $result = ResponseHelper::responseFailed(['msg' => "找不到{$methodName}"]);
+                ResponseHelper::json(['msg' => "找不到{$methodName}"]);
             }
         } else {
-            $result = ResponseHelper::responseFailed(['msg' => "找不到{$controllerClass}"]);
+            ResponseHelper::json(['msg' => "找不到{$controllerClass}"]);
         }
-        
-        var_dump(EntitySwooleRequest::$instancePool);
-        EntitySwooleRequest::recoverInstance();
-        var_dump(EntitySwooleRequest::$instancePool);
-        echo "\n";
-        var_dump(Router::$routeObjectPool);
+
+        $response->end(ResponseHelper::response());
+
+        //回收请求数据
+        RequestHelper::recoverInstance();
+
+        //回收路由数据
         Router::recoverInstance();
-        var_dump(Router::$routeObjectPool);
-        return $result;
+
+        //回收返回数据
+        ResponseHelper::recoverInstance();
     }
 }

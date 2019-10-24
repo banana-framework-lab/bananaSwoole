@@ -1,7 +1,8 @@
 <?php
 
-namespace Library\Entity\Swoole;
+namespace Library\Helper;
 
+use Library\Entity\Swoole\EntitySwooleWebSever;
 use Swoole\Coroutine;
 use Swoole\Http\Request as SwooleRequest;
 
@@ -14,9 +15,9 @@ use Swoole\Http\Request as SwooleRequest;
  * @method static mixed post(string $name = '')
  * @method static mixed files(string $name = '')
  */
-class EntitySwooleRequest
+class RequestHelper
 {
-    public static $instancePool = [];
+    private static $instancePool = [];
 
     private function __construct()
     {
@@ -34,7 +35,6 @@ class EntitySwooleRequest
     public static function delInstance()
     {
         foreach (static::$instancePool as & $workerInstance) {
-            EntitySwooleWebSever::getInstance()->master_pid;
             unset($workerInstance);
         }
     }
@@ -42,7 +42,7 @@ class EntitySwooleRequest
     /**
      * @param  SwooleRequest $instance
      */
-    public static function setInstance($instance)
+    public static function setInstance(SwooleRequest $instance)
     {
         $cid = Coroutine::getuid();
         $workId = EntitySwooleWebSever::getInstance()->worker_id;
@@ -52,13 +52,27 @@ class EntitySwooleRequest
     }
 
     /**
-     * 回收指定协程内的对象
+     * 获取整个请求对象
+     * @return array
      */
-    public static function recoverInstance()
+    public static function getInstance()
     {
-        $cid = Coroutine::getuid();
-        $workId = EntitySwooleWebSever::getInstance()->worker_id;
-        unset(static::$instancePool[$workId][$cid]);
+        return self::$instancePool;
+    }
+
+    /**
+     * 回收指定协程内的对象
+     * @param int $workId
+     */
+    public static function recoverInstance(int $workId = -1)
+    {
+        if ($workId == -1) {
+            $cid = Coroutine::getuid();
+            $workId = EntitySwooleWebSever::getInstance()->worker_id;
+            unset(static::$instancePool[$workId][$cid]);
+        } else {
+            unset(static::$instancePool[$workId]);
+        }
     }
 
     /**

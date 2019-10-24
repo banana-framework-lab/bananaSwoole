@@ -2,63 +2,69 @@
 
 namespace Library\Helper;
 
+use Library\Entity\Swoole\EntitySwooleWebSever;
+use Swoole\Coroutine;
+
 class ResponseHelper
 {
     /**
-     * @var int
+     * @var array $instancePool
      */
-    public $successCode = 1;
+    private static $instancePool = [];
+
+    private function __construct()
+    {
+
+    }
+
+    private function __clone()
+    {
+
+    }
 
     /**
-     * @var
+     * 获取整个请求对象
+     * @return array
      */
-    public $failCode = 0;
-
-    public static function responseSuccess($data = [])
+    public static function getInstance()
     {
-        //默认返回成功的数据
-        $res_data = [
-            'code' => 0,
-            'data' => [],
-            'msg' => '操作成功',
-        ];
-
-        foreach ($data as $key => $value) {
-            if (array_key_exists($key, $res_data)) {
-                $res_data[$key] = $value;
-            }
-        }
-
-        return json_encode($res_data, JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
+        return self::$instancePool;
     }
 
-    public static function responseFailed($data = [])
+    /**
+     * 回收指定协程内的对象
+     * @param int $workerId
+     */
+    public static function recoverInstance(int $workerId = -1)
     {
-        //默认返回失败的数据
-        $res_data = [
-            'code' => 40000,
-            'data' => [],
-            'msg' => '操作失败',
-        ];
-
-        foreach ($data as $key => $value) {
-            if (array_key_exists($key, $res_data)) {
-                $res_data[$key] = $value;
-            }
+        if ($workerId == -1) {
+            $cid = Coroutine::getuid();
+            $workerId = EntitySwooleWebSever::getInstance()->worker_id;
+            unset(static::$instancePool[$workerId][$cid]);
+        } else {
+            unset(static::$instancePool[$workerId]);
         }
-
-        return json_encode($res_data, JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
     }
 
-    public static function responseArray($data = [])
+    /**
+     * json格式的success
+     * @param array $jsonData
+     * @param int $options
+     */
+    public static function json(array $jsonData = [], int $options = (JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK))
     {
-        //返回数据json
-        $res_data = [
-            'code' => 0,
-            'data' => $data,
-            'msg' => '请求成功',
-        ];
+        $cid = Coroutine::getuid();
+        $workId = EntitySwooleWebSever::getInstance()->worker_id;
+        static::$instancePool[$workId][$cid] = json_encode($jsonData, $options);
+    }
 
-        return json_encode($res_data, JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
+    /**
+     * 获取当前协程的返回数据
+     */
+    public static function response()
+    {
+        $cid = Coroutine::getuid();
+        $workerId = EntitySwooleWebSever::getInstance()->worker_id;
+        return static::$instancePool[$workerId][$cid] ?? '';
     }
 }

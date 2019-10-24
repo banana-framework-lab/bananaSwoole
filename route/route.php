@@ -7,9 +7,6 @@
  */
 
 return [
-    '/chat/history' => '\App\Api\Controller\Chat@history',
-    '/chat/session' => '\App\Api\Controller\Chat@sessionList',
-    '/chat/session/title' => '\App\Api\Controller\Chat@sessionTitle',
-    '/chat/online' => '\App\Api\Controller\Chat@online',
-    '/chat/message/key' => '\App\Api\Controller\Chat@messageKey'
+    '/test/index' => '\App\Api\Controller\TestController@index',
+    '/test/indexError' => '\App\Api\Controller\TestController@indexError',
 ];

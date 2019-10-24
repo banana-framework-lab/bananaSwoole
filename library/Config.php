@@ -23,7 +23,7 @@ class Config
             $handler = opendir(dirname(__FILE__) . '/../config');
             while (($fileName = readdir($handler)) !== false) {
                 if ($fileName != "." && $fileName != "..") {
-                    $fileIndex = (explode('.',$fileName))[0];
+                    $fileIndex = (explode('.', $fileName))[0];
                     self::$configPool[$fileIndex] = require dirname(__FILE__) . '/../config/' . $fileName;
                 }
             }
@@ -34,28 +34,29 @@ class Config
     /**
      * 获取配置
      * @param string $param
+     * @param mixed $default
      * @return mixed
      */
-    public static function get(string $param)
+    public static function get(string $param, $default = "")
     {
         if ($param) {
             $paramArray = explode('.', $param);
-            if(isset(self::$configPool[$paramArray[0]])){
+            if (isset(self::$configPool[$paramArray[0]])) {
                 $returnData = self::$configPool[$paramArray[0]];
-            }else{
-                return '';
+            } else {
+                return $default;
             }
             array_shift($paramArray);
             foreach ($paramArray as $key => $value) {
                 if (isset($returnData[$value])) {
                     $returnData = $returnData[$value];
                 } else {
-                    return '';
+                    return $default;
                 }
             }
             return $returnData;
         } else {
-            return '';
+            return $default;
         }
     }
 
