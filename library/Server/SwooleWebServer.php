@@ -3,8 +3,6 @@
 namespace Library\Server;
 
 use Library\Config;
-use Library\Helper\RequestHelper;
-use Library\Helper\ResponseHelper;
 use Library\WebServerApp;
 use Library\Entity\Swoole\EntitySwooleWebSever;
 use Swoole\Http\Server as SwooleHttpServer;
@@ -23,9 +21,6 @@ class SwooleWebServer extends SwooleServer
         //初始化SwooleWebSever
         EntitySwooleWebSever::instanceStart();
 
-        //初始化App类
-        WebServerApp::init();
-
         $this->server = EntitySwooleWebSever::getInstance();
         $this->port = Config::get('swoole.web.port');
         $this->workerNum = Config::get('swoole.web.worker_num');
@@ -43,9 +38,11 @@ class SwooleWebServer extends SwooleServer
 
         //配置SwooleWebServer
         $this->server->set([
-            'worker_num' => $this->workerNum,
+//            'worker_num' => $this->workerNum,
+            'worker_num' => 1,
             'reload_async' => true
         ]);
+
         $this->server->on('Request', [$this, 'onRequest']);
         $this->server->on('WorkerStart', [$this, 'onWorkerStart']);
         $this->server->on('WorkerStop', [$this, 'onWorkerStop']);
@@ -61,6 +58,9 @@ class SwooleWebServer extends SwooleServer
      */
     public function onWorkerStart(SwooleHttpServer $server, int $workerId)
     {
+        //初始化App类
+        WebServerApp::init();
+
         echo "master_pid:{$server->master_pid}  worker_pid:{$server->worker_pid}  worker_id:{$workerId}  启动\n";
     }
 
@@ -111,7 +111,6 @@ class SwooleWebServer extends SwooleServer
             $response->status(404);
             $response->end();
         }
-
         // 支持跨域访问
         $response->header('Access-Control-Allow-Origin', implode(',', Config::get('app.allow_origin', ['*'])));
         $response->header('Access-Control-Allow-Credentials', 'true');
@@ -125,15 +124,5 @@ class SwooleWebServer extends SwooleServer
         };
 
         WebServerApp::run($request, $response);
-    }
-
-    /**
-     * 回收对象
-     * @param int $workerId
-     */
-    private function recoverInstance(int $workerId)
-    {
-        RequestHelper::recoverInstance($workerId);
-        ResponseHelper::recoverInstance($workerId);
     }
 }

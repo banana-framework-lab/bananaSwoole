@@ -10,8 +10,9 @@ return [
     'is_server' => false,
     'server_name' => 'www.banana.com',
     'allow_origin' => [
+        'http://www.bananaswoole.com',
+        'http://www.bananaphp.com',
         'http://www.banana.com',
-        'https://www.banana.com',
         'http://127.0.0.1'
     ],
     'success_code' => 1,

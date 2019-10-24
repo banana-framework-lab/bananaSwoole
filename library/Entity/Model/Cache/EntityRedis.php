@@ -31,13 +31,13 @@ class EntityRedis
     public static function instanceStart()
     {
         if (!static::$instance) {
-            $redisConf = Config::get('app.is_server') ? Config::get('redis.server') :Config::get('redis.local');
+            $redisConf = Config::get('app.is_server') ? Config::get('redis.server') : Config::get('redis.local');
             $redisServer = new RedisClient();
             $redisServer->connect($redisConf['host'], $redisConf['port'], 0.0);
             $redisServer->auth($redisConf['auth']);
             $redisServer->select($redisConf['database']);
 
-            self::setInstance($redisServer);
+            static::setInstance($redisServer);
         }
     }
 
@@ -82,7 +82,7 @@ class EntityRedis
         $instance = self::$instance;
 
         if (!$instance) {
-            throw new \Exception('找不到数据库对象');
+            throw new \Exception('找不到redis对象');
         }
 
         return $instance->$method(...$args);

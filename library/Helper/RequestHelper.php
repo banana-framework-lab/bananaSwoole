@@ -30,16 +30,6 @@ class RequestHelper
     }
 
     /**
-     * 重启回收对象
-     */
-    public static function delInstance()
-    {
-        foreach (static::$instancePool as & $workerInstance) {
-            unset($workerInstance);
-        }
-    }
-
-    /**
      * @param  SwooleRequest $instance
      */
     public static function setInstance(SwooleRequest $instance)
@@ -57,14 +47,14 @@ class RequestHelper
      */
     public static function getInstance()
     {
-        return self::$instancePool;
+        return static::$instancePool;
     }
 
     /**
-     * 回收指定协程内的对象
+     * 回收对象
      * @param int $workId
      */
-    public static function recoverInstance(int $workId = -1)
+    public static function delInstance(int $workId = -1)
     {
         if ($workId == -1) {
             $cid = Coroutine::getuid();
@@ -83,7 +73,7 @@ class RequestHelper
     public static function __callStatic($method, $args)
     {
         $cid = Coroutine::getuid();
-        $instance = self::$instancePool[EntitySwooleWebSever::getInstance()->worker_id][$cid];
+        $instance = static::$instancePool[EntitySwooleWebSever::getInstance()->worker_id][$cid];
 
         if (!$instance) {
             return '';

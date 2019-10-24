@@ -32,10 +32,10 @@ class ResponseHelper
     }
 
     /**
-     * 回收指定协程内的对象
+     * 回收对象
      * @param int $workerId
      */
-    public static function recoverInstance(int $workerId = -1)
+    public static function delInstance(int $workerId = -1)
     {
         if ($workerId == -1) {
             $cid = Coroutine::getuid();

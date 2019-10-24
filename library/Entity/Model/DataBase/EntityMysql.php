@@ -126,7 +126,7 @@ class EntityMysql
         $instance = self::$instance;
 
         if (!$instance) {
-            throw new \Exception('找不到数据库对象');
+            throw new \Exception('找不到Mysql数据库对象');
         }
 
         return $instance->$method(...$args);

@@ -15,52 +15,63 @@ use Swoole\Coroutine;
 class Router
 {
     /**
+     * 路由对象
      * @var array $routePool
      */
-    public static $routePool = [];
+    private static $routePool = [];
 
     /**
-     * @var array $routeObjectPool
+     * 路由规则对象
+     * @var array $routerPool
      */
-    public static $routeObjectPool = [];
+    private static $routerPool = [];
 
     /**
      * 初始化Router类
      */
     public static function instanceStart()
     {
-        if (!self::$routePool) {
-            $handler = opendir(dirname(__FILE__) . '/../route');
-            while (($fileName = readdir($handler)) !== false) {
-                if ($fileName != "." && $fileName != "..") {
-                    self::$routePool += require dirname(__FILE__) . '/../route/' . $fileName;
-                }
+        $handler = opendir(dirname(__FILE__) . '/../route');
+        while (($fileName = readdir($handler)) !== false) {
+            if ($fileName != "." && $fileName != "..") {
+                $fileData = require dirname(__FILE__) . '/../route/' . $fileName;
+                self::$routerPool = array_merge(self::$routerPool, $fileData);
             }
-            closedir($handler);
+        }
+        closedir($handler);
+    }
+
+    /**
+     * @return array
+     */
+    public static function getRouteInstance()
+    {
+        return static::$routePool;
+    }
+
+    /**
+     * 删除当前路由对象
+     * @param int $workerId
+     */
+    public static function delRouteInstance(int $workerId = -1)
+    {
+        if ($workerId == -1) {
+            $cid = Coroutine::getuid();
+            $workerId = EntitySwooleWebSever::getInstance()->worker_id;
+            unset(static::$routePool[$workerId][$cid]);
+        } else {
+            unset(static::$routePool[$workerId]);
         }
     }
 
     /**
-     * 删除路由对象
+     * 删除路由规则对象
      */
-    public static function delInstance()
+    public static function delRouterInstance()
     {
-        foreach (static::$routePool as & $routeInstance) {
-            unset($routeInstance);
+        foreach (self::$routerPool as &$router) {
+            unset($router);
         }
-        foreach (static::$routeObjectPool as & $routeObjectInstance) {
-            unset($routeObjectInstance);
-        }
-    }
-
-    /**
-     * 回收指定协程内的对象
-     */
-    public static function recoverInstance()
-    {
-        $cid = Coroutine::getuid();
-        $workId = EntitySwooleWebSever::getInstance()->worker_id;
-        unset(static::$routeObjectPool[$workId][$cid]);
     }
 
     /**
@@ -68,10 +79,10 @@ class Router
      * @param string $requestUrl
      * @return RouterObject
      */
-    public static function route(string $requestUrl)
+    public static function router(string $requestUrl)
     {
-        $v = self::$routePool[$requestUrl] ?? null;
-        if (is_null($v)) {
+        $route = self::$routerPool[$requestUrl] ?? null;
+        if (is_null($route)) {
             $requestUrl = trim($requestUrl, '/');
             $requestUrlArray = explode('/', $requestUrl);
             $requestUrlArray[0] = isset($requestUrlArray[0]) && $requestUrlArray[0] ? $requestUrlArray[0] : 'Api';
@@ -83,18 +94,18 @@ class Router
             $routerObject->setController("\\App\\{$requestUrlArray[0]}\\Controller\\{$requestUrlArray[1]}Controller");
             $routerObject->setMethod($requestUrlArray[2]);
 
-            self::$routeObjectPool[EntitySwooleWebSever::getInstance()->worker_id][Coroutine::getuid()] = $routerObject;
+            static::$routePool[EntitySwooleWebSever::getInstance()->worker_id][Coroutine::getuid()] = $routerObject;
 
             return $routerObject;
         } else {
-            $requestUrlArray = explode('@', $v);
+            $requestUrlArray = explode('@', $route);
 
             $routerObject = new RouterObject();
             $routerObject->setProject((explode('\\', $requestUrlArray[0]))[2]);
             $routerObject->setController($requestUrlArray[0]);
             $routerObject->setMethod($requestUrlArray[1]);
 
-            self::$routeObjectPool[EntitySwooleWebSever::getInstance()->worker_id][Coroutine::getuid()] = $routerObject;
+            static::$routePool[EntitySwooleWebSever::getInstance()->worker_id][Coroutine::getuid()] = $routerObject;
 
             return $routerObject;
         }

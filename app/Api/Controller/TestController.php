@@ -13,6 +13,7 @@ use Co;
 use Library\Helper\LogHelper;
 use Library\Helper\RequestHelper;
 use Library\Helper\ResponseHelper;
+use Library\Router;
 use Library\Virtual\Controller\AbstractController;
 use Swoole\Coroutine;
 
@@ -35,6 +36,9 @@ class TestController extends AbstractController
      */
     public function indexError()
     {
+        var_dump(RequestHelper::getInstance());
+        var_dump(ResponseHelper::getInstance());
+        var_dump(Router::getRouteInstance());
         $this->test(1);
 
     }

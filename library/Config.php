@@ -12,22 +12,45 @@ class Config
     /**
      * @var array $configPool
      */
-    public static $configPool = [];
+    private static $configPool = [];
 
     /**
-     * 初始化Router类
+     * 初始化Config类
      */
     public static function instanceStart()
     {
-        if (!self::$configPool) {
-            $handler = opendir(dirname(__FILE__) . '/../config');
-            while (($fileName = readdir($handler)) !== false) {
-                if ($fileName != "." && $fileName != "..") {
-                    $fileIndex = (explode('.', $fileName))[0];
-                    self::$configPool[$fileIndex] = require dirname(__FILE__) . '/../config/' . $fileName;
+        $handler = opendir(dirname(__FILE__) . '/../config');
+        while (($fileName = readdir($handler)) !== false) {
+            if ($fileName != "." && $fileName != "..") {
+                $fileIndex = (explode('.', $fileName))[0];
+                if ($fileIndex != 'swoole') {
+                    $fileData = include dirname(__FILE__) . '/../config/' . $fileName;
+                    static::$configPool[$fileIndex] = $fileData;
                 }
             }
-            closedir($handler);
+        }
+        closedir($handler);
+    }
+
+    /**
+     * 初始化swooleConfig类
+     */
+    public static function instanceSwooleStart()
+    {
+        if (file_exists(dirname(__FILE__) . '/../config/swoole.php')) {
+            $fileData = include dirname(__FILE__) . '/../config/swoole.php';
+            static::$configPool['swoole'] = $fileData;
+        } else {
+            static::$configPool['swoole'] = [
+                'web' => [
+                    'port' => 9501,
+                    'worker_num' => 1
+                ],
+                'socket' => [
+                    'port' => 9502,
+                    'worker_num' => 1
+                ]
+            ];
         }
     }
 
@@ -41,8 +64,8 @@ class Config
     {
         if ($param) {
             $paramArray = explode('.', $param);
-            if (isset(self::$configPool[$paramArray[0]])) {
-                $returnData = self::$configPool[$paramArray[0]];
+            if (isset(static::$configPool[$paramArray[0]])) {
+                $returnData = static::$configPool[$paramArray[0]];
             } else {
                 return $default;
             }

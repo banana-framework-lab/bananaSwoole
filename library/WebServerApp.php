@@ -31,11 +31,9 @@ class WebServerApp
     public static function init()
     {
         //若是重启先删除单例实体对象
-        RequestHelper::delInstance();
-        Router::delInstance();
-        EntityMysql::delInstance();
-        EntityMongo::delInstance();
-        EntityRedis::delInstance();
+
+        // 配置文件初始化
+        Config::instanceStart();
 
         // 数据库初始化
         EntityMysql::instanceStart();
@@ -57,6 +55,7 @@ class WebServerApp
     /**
      * 执行入口
      * @param SwooleRequest $request
+     * @param SwooleResponse $response
      */
     public static function run(SwooleRequest $request, SwooleResponse $response)
     {
@@ -64,7 +63,7 @@ class WebServerApp
         RequestHelper::setInstance($request);
 
         /* @var RouterObject $routeObject */
-        $routeObject = Router::route($request->server['request_uri']);
+        $routeObject = Router::router($request->server['request_uri']);
 
         //初始化方法
         $methodName = $routeObject->getMethod();
@@ -89,7 +88,6 @@ class WebServerApp
         } catch (\Exception $e) {
             ResponseHelper::json(['msg' => $e->getMessage()]);
         }
-
         //初始化控制器
         if (class_exists($controllerClass)) {
             $controller = new $controllerClass($requestData);
@@ -105,12 +103,13 @@ class WebServerApp
         $response->end(ResponseHelper::response());
 
         //回收请求数据
-        RequestHelper::recoverInstance();
-
-        //回收路由数据
-        Router::recoverInstance();
+        RequestHelper::delInstance();
 
         //回收返回数据
-        ResponseHelper::recoverInstance();
+        ResponseHelper::delInstance();
+
+        //回收路由数据
+        Router::delRouteInstance();
+
     }
 }

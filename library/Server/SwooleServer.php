@@ -3,6 +3,9 @@
 namespace Library\Server;
 
 use Library\Config;
+use Library\Helper\RequestHelper;
+use Library\Helper\ResponseHelper;
+use Library\Router;
 use Swoole\Http\Server as SwooleHttpServer;
 use Swoole\WebSocket\Server as SwooleWebSocketServer;
 
@@ -35,7 +38,20 @@ class SwooleServer
     public function __construct()
     {
         // Config初始化
-        Config::instanceStart();
+        Config::instanceSwooleStart();
     }
 
+    /**
+     * 回收对象
+     * @param int $workerId
+     */
+    protected function recoverInstance(int $workerId)
+    {
+        var_dump(RequestHelper::getInstance());
+        var_dump(ResponseHelper::getInstance());
+        var_dump(Router::getRouteInstance());
+        RequestHelper::delInstance($workerId);
+        ResponseHelper::delInstance($workerId);
+        Router::delRouteInstance($workerId);
+    }
 }
