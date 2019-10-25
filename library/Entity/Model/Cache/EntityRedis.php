@@ -8,6 +8,7 @@
 namespace Library\Entity\Model\Cache;
 
 use Library\Config;
+use Library\Entity\Swoole\EntitySwooleWebSever;
 use Redis as RedisClient;
 
 class EntityRedis
@@ -27,17 +28,18 @@ class EntityRedis
 
     /**
      * 初始化Redis实体对象
+     * @param int $workerId
      */
-    public static function instanceStart()
+    public static function instanceStart(int $workerId)
     {
-        if (!static::$instance) {
+        if (!static::$instance[$workerId]) {
             $redisConf = Config::get('app.is_server') ? Config::get('redis.server') : Config::get('redis.local');
             $redisServer = new RedisClient();
             $redisServer->connect($redisConf['host'], $redisConf['port'], 0.0);
             $redisServer->auth($redisConf['auth']);
             $redisServer->select($redisConf['database']);
 
-            static::setInstance($redisServer);
+            static::setInstance($workerId, $redisServer);
         }
     }
 
@@ -47,11 +49,9 @@ class EntityRedis
      * @param  RedisClient $instance
      * @return void
      */
-    public static function setInstance(RedisClient $instance)
+    public static function setInstance(int $workerId, RedisClient $instance)
     {
-        if (!static::$instance) {
-            static::$instance = $instance;
-        }
+        static::$instance[$workerId] = $instance;
     }
 
     /**
@@ -79,7 +79,8 @@ class EntityRedis
      */
     public static function __callStatic($method, $args)
     {
-        $instance = self::$instance;
+        $workId = EntitySwooleWebSever::getInstance()->worker_id;
+        $instance = self::$instance[$workId];
 
         if (!$instance) {
             throw new \Exception('找不到redis对象');

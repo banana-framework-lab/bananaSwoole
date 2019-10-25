@@ -13,6 +13,7 @@ use Illuminate\Database\Connection;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Database\Query\Expression;
 use Library\Config;
+use Library\Entity\Swoole\EntitySwooleWebSever;
 
 /**
  * @method static Connection connection(string $name = null)
@@ -56,10 +57,11 @@ class EntityMysql
 
     /**
      * 初始化Mysql实体对象
+     * @param int $workerId
      */
-    public static function instanceStart()
+    public static function instanceStart(int $workerId)
     {
-        if (!static::$instance) {
+        if (!static::$instance[$workerId]) {
             try {
                 $mysqlClient = new MysqlClient;
 
@@ -70,7 +72,7 @@ class EntityMysql
                 $mysqlClient->setAsGlobal();
 
                 //初始化mysql全局对象
-                self::setInstance($mysqlClient);
+                self::setInstance($workerId, $mysqlClient);
 
                 //设置可用Eloquent
                 $mysqlClient->bootEloquent();
@@ -79,7 +81,7 @@ class EntityMysql
                 if (!Config::get('app.is_server')) {
                     self::connection()->enableQueryLog();
                 }
-            }catch (Exception $exception){
+            } catch (Exception $exception) {
                 echo $exception->getMessage();
                 exit;
             }
@@ -89,14 +91,13 @@ class EntityMysql
     /**
      * Set the application instance.
      *
+     * @param int $workerId
      * @param MysqlClient $instance
      * @return void
      */
-    public static function setInstance(MysqlClient $instance)
+    public static function setInstance(int $workerId, MysqlClient $instance)
     {
-        if (!static::$instance) {
-            static::$instance = $instance;
-        }
+        static::$instance[$workerId] = $instance;
     }
 
     /**
@@ -123,7 +124,8 @@ class EntityMysql
      */
     public static function __callStatic($method, $args)
     {
-        $instance = self::$instance;
+        $workId = EntitySwooleWebSever::getInstance()->worker_id;
+        $instance = self::$instance[$workId];
 
         if (!$instance) {
             throw new \Exception('找不到Mysql数据库对象');

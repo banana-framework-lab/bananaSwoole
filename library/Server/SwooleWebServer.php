@@ -2,6 +2,7 @@
 
 namespace Library\Server;
 
+use Co;
 use Library\Config;
 use Library\WebServerApp;
 use Library\Entity\Swoole\EntitySwooleWebSever;
@@ -38,8 +39,8 @@ class SwooleWebServer extends SwooleServer
 
         //配置SwooleWebServer
         $this->server->set([
-//            'worker_num' => $this->workerNum,
-            'worker_num' => 1,
+            'worker_num' => $this->workerNum,
+//            'worker_num' => 1,
             'reload_async' => true
         ]);
 
@@ -59,10 +60,11 @@ class SwooleWebServer extends SwooleServer
     public function onWorkerStart(SwooleHttpServer $server, int $workerId)
     {
         //初始化App类
-        WebServerApp::init();
+        WebServerApp::init($workerId);
 
         echo "master_pid:{$server->master_pid}  worker_pid:{$server->worker_pid}  worker_id:{$workerId}  启动\n";
     }
+
 
     /**
      * onWorkerError事件
@@ -106,6 +108,20 @@ class SwooleWebServer extends SwooleServer
      */
     public function onRequest(SwooleRequest $request, SwooleResponse $response)
     {
+        defer(function () use ($response) {
+            if (Config::get('app.debug')) {
+                echo "这里已经跳出协程了\n";
+                $response->status(200);
+                $data['cid'] = Co::getuid();
+                $data['worker_id'] = EntitySwooleWebSever::getInstance()->worker_id;
+                $data['debug'] = print_r(Co::getBackTrace(), true);
+                $response->end(json_encode($data));
+            } else {
+                $response->status(500);
+                $response->end();
+            }
+        });
+
         // 屏蔽 favicon.ico
         if ($request->server['request_uri'] == '/favicon.ico') {
             $response->status(404);

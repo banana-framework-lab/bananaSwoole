@@ -10,10 +10,10 @@ namespace App\Api\Controller;
 
 
 use Co;
+use Exception;
 use Library\Helper\LogHelper;
 use Library\Helper\RequestHelper;
 use Library\Helper\ResponseHelper;
-use Library\Router;
 use Library\Virtual\Controller\AbstractController;
 use Swoole\Coroutine;
 
@@ -36,10 +36,15 @@ class TestController extends AbstractController
      */
     public function indexError()
     {
-        var_dump(RequestHelper::getInstance());
-        var_dump(ResponseHelper::getInstance());
-        var_dump(Router::getRouteInstance());
-        $this->test(1);
+        try {
+            $this->test(1);
+        } catch (Exception $e) {
+            echo 1;
+        }
+//        var_dump(RequestHelper::getInstance());
+//        var_dump(ResponseHelper::getInstance());
+//        var_dump(Router::getRouteInstance());
+
 
     }
 

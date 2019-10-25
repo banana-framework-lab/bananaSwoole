@@ -8,6 +8,7 @@
 
 namespace Library;
 
+use Exception;
 use Library\Entity\Model\Cache\EntityRedis;
 use Library\Entity\Model\DataBase\EntityMongo;
 use Library\Entity\Model\DataBase\EntityMysql;
@@ -20,34 +21,27 @@ use Swoole\Http\Response as SwooleResponse;
 
 class WebServerApp
 {
-    public static function reRestart()
-    {
-
-    }
-
     /**
      * 初始化
+     * @param int $workerId
      */
-    public static function init()
+    public static function init(int $workerId)
     {
-        //若是重启先删除单例实体对象
-
         // 配置文件初始化
         Config::instanceStart();
 
         // 数据库初始化
-        EntityMysql::instanceStart();
-        EntityMongo::instanceStart();
+        EntityMysql::instanceStart($workerId);
+        EntityMongo::instanceStart($workerId);
 
         // Redis初始化
-        EntityRedis::instanceStart();
+        EntityRedis::instanceStart($workerId);
 
         // Router初始化
         Router::instanceStart();
 
         //开启php调试模式
         if (Config::get('app.debug')) {
-            ini_set('display_errors', 'On');
             error_reporting(E_ALL);
         }
     }
@@ -85,19 +79,23 @@ class WebServerApp
                     $requestData = $middleWare->takeMiddleData();
                 }
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             ResponseHelper::json(['msg' => $e->getMessage()]);
         }
-        //初始化控制器
-        if (class_exists($controllerClass)) {
-            $controller = new $controllerClass($requestData);
-            if (method_exists($controller, $methodName)) {
-                $controller->$methodName();
+        try {
+            //初始化控制器
+            if (class_exists($controllerClass)) {
+                $controller = new $controllerClass($requestData);
+                if (method_exists($controller, $methodName)) {
+                    $controller->$methodName();
+                } else {
+                    ResponseHelper::json(['msg' => "找不到{$methodName}"]);
+                }
             } else {
-                ResponseHelper::json(['msg' => "找不到{$methodName}"]);
+                ResponseHelper::json(['msg' => "找不到{$controllerClass}"]);
             }
-        } else {
-            ResponseHelper::json(['msg' => "找不到{$controllerClass}"]);
+        } catch (Exception $e) {
+            ResponseHelper::json(['msg' => $e->getMessage()]);
         }
 
         $response->end(ResponseHelper::response());

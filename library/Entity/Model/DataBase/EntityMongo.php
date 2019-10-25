@@ -8,6 +8,7 @@
 namespace Library\Entity\Model\DataBase;
 
 use Library\Config;
+use Library\Entity\Swoole\EntitySwooleWebSever;
 use MongoDB\Client as MongoDbClient;
 
 class EntityMongo
@@ -27,26 +28,26 @@ class EntityMongo
 
     /**
      * 初始化Mongo实体对象
+     * @param int $workerId
      */
-    public static function instanceStart()
+    public static function instanceStart(int $workerId)
     {
-        if (!static::$instance) {
+        if (!static::$instance[$workerId]) {
             $uri = Config::get('app.is_server') ? Config::get('mongo.server.url') : Config::get('mongo.local.url');
-            self::setInstance(new MongoDbClient($uri));
+            self::setInstance($workerId, new MongoDbClient($uri));
         }
     }
 
     /**
      * Set the application instance.
      *
+     * @param int $workerId
      * @param  MongoDbClient $instance
      * @return void
      */
-    public static function setInstance(MongoDbClient $instance)
+    public static function setInstance(int $workerId, MongoDbClient $instance)
     {
-        if (!static::$instance) {
-            static::$instance = $instance;
-        }
+        static::$instance[$workerId] = $instance;
     }
 
     /**
@@ -74,7 +75,8 @@ class EntityMongo
      */
     public static function __callStatic($method, $args)
     {
-        $instance = self::$instance;
+        $workId = EntitySwooleWebSever::getInstance()->worker_id;
+        $instance = self::$instance[$workId];
 
         if (!$instance) {
             throw new \Exception('找不到Mongo数据库对象');

@@ -47,9 +47,9 @@ class SwooleServer
      */
     protected function recoverInstance(int $workerId)
     {
-        var_dump(RequestHelper::getInstance());
-        var_dump(ResponseHelper::getInstance());
-        var_dump(Router::getRouteInstance());
+//        var_dump(RequestHelper::getInstance());
+//        var_dump(ResponseHelper::getInstance());
+//        var_dump(Router::getRouteInstance());
         RequestHelper::delInstance($workerId);
         ResponseHelper::delInstance($workerId);
         Router::delRouteInstance($workerId);

@@ -8,10 +8,10 @@
 return [
     'web' => [
         'port' => 9501,
-        'worker_num' => 4
+        'worker_num' => 5
     ],
     'socket' => [
         'port' => 9502,
-        'worker_num' => 4
+        'worker_num' => 5
     ]
 ];
