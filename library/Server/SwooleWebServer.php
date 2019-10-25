@@ -4,6 +4,9 @@ namespace Library\Server;
 
 use Co;
 use Library\Config;
+use Library\Helper\RequestHelper;
+use Library\Helper\ResponseHelper;
+use Library\Router;
 use Library\WebServerApp;
 use Library\Entity\Swoole\EntitySwooleWebSever;
 use Swoole\Http\Server as SwooleHttpServer;
@@ -109,18 +112,15 @@ class SwooleWebServer extends SwooleServer
     public function onRequest(SwooleRequest $request, SwooleResponse $response)
     {
         defer(function () use ($response) {
-            if (Config::get('app.debug')) {
-                echo "这里已经跳出协程了\n";
-                $response->status(200);
-                $data['cid'] = Co::getuid();
-                $data['worker_id'] = EntitySwooleWebSever::getInstance()->worker_id;
-                $data['debugTrace'] = print_r(Co::getBackTrace(), true);
-                $data['errorInfo'] = print_r(error_get_last(), true);
-                $response->end(json_encode($data));
-            } else {
-                $response->status(500);
-                $response->end();
-            }
+            echo "这里已经跳出协程了,此处需要清理session和路由\n";
+            //回收请求数据
+            RequestHelper::delInstance();
+
+            //回收返回数据
+            ResponseHelper::delInstance();
+
+            //回收路由数据
+            Router::delRouteInstance();
         });
 
         // 屏蔽 favicon.ico
@@ -128,17 +128,18 @@ class SwooleWebServer extends SwooleServer
             $response->status(404);
             $response->end();
         }
-        // 支持跨域访问
-        $response->header('Access-Control-Allow-Origin', implode(',', Config::get('app.allow_origin', ['*'])));
-        $response->header('Access-Control-Allow-Credentials', 'true');
-        $response->header('Access-Control-Allow-Methods', 'GET, POST, DELETE, PUT, PATCH, OPTIONS');
-        $response->header('Access-Control-Allow-Headers', 'x-requested-with,User-Platform,Content-Type,X-Token');
-        $response->header('Content-type', 'application/json');
+
         if ($request->server['request_method'] == 'OPTIONS') {
             $response->status(200);
             $response->end();
             return;
         };
+
+        $response->header('Access-Control-Allow-Origin', implode(',', Config::get('app.allow_origin', ['*'])));
+        $response->header('Access-Control-Allow-Credentials', 'true');
+        $response->header('Access-Control-Allow-Methods', 'GET, POST, DELETE, PUT, PATCH, OPTIONS');
+        $response->header('Access-Control-Allow-Headers', 'x-requested-with,User-Platform,Content-Type,X-Token');
+        $response->header('Content-type', 'application/json');
 
         WebServerApp::run($request, $response);
     }

@@ -8,7 +8,6 @@
 
 namespace Library;
 
-use Exception;
 use Library\Entity\Model\Cache\EntityRedis;
 use Library\Entity\Model\DataBase\EntityMongo;
 use Library\Entity\Model\DataBase\EntityMysql;
@@ -18,6 +17,7 @@ use Library\Object\RouterObject;
 use Library\Virtual\Middle\AbstractMiddleWare;
 use Swoole\Http\Request as SwooleRequest;
 use Swoole\Http\Response as SwooleResponse;
+use Throwable;
 
 class WebServerApp
 {
@@ -79,7 +79,7 @@ class WebServerApp
                     $requestData = $middleWare->takeMiddleData();
                 }
             }
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             ResponseHelper::json(['msg' => $e->getMessage()]);
         }
         try {
@@ -94,10 +94,19 @@ class WebServerApp
             } else {
                 ResponseHelper::json(['msg' => "找不到{$controllerClass}"]);
             }
-        } catch (Exception $e) {
-            ResponseHelper::json(['msg' => $e->getMessage()]);
+        } catch (Throwable $e) {
+            if (Config::get('app.debug')) {
+                $response->status(200);
+                $response->end(json_encode($e->getTrace()));
+            } else {
+                $response->status(500);
+                $response->end();
+            }
+            return;
         }
 
+        // 支持跨域访问
+        $response->status(200);
         $response->end(ResponseHelper::response());
 
         //回收请求数据
