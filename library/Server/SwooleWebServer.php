@@ -114,7 +114,8 @@ class SwooleWebServer extends SwooleServer
                 $response->status(200);
                 $data['cid'] = Co::getuid();
                 $data['worker_id'] = EntitySwooleWebSever::getInstance()->worker_id;
-                $data['debug'] = print_r(Co::getBackTrace(), true);
+                $data['debugTrace'] = print_r(Co::getBackTrace(), true);
+                $data['errorInfo'] = print_r(error_get_last(), true);
                 $response->end(json_encode($data));
             } else {
                 $response->status(500);
