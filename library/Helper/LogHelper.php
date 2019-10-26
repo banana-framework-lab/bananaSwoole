@@ -3,10 +3,8 @@
 namespace Library\Helper;
 
 use Library\Config;
-use Library\Entity\Swoole\EntitySwooleRequest;
-
 use Library\Entity\Swoole\EntitySwooleWebSever;
-use Library\Object\RouterObject;
+use Library\Object\RouteObject;
 use Library\Router;
 use Monolog\Logger;
 use Monolog\Formatter\LineFormatter;
@@ -58,8 +56,13 @@ class LogHelper
      */
     public static function __callStatic($name, $arguments)
     {
-        /* @var RouterObject $routeObject */
-        $routeObject = Router::$routeObjectPool[EntitySwooleWebSever::getInstance()->worker_id][Coroutine::getuid()];
+        $port = EntitySwooleWebSever::getInstance()->port;
+        $workerId = EntitySwooleWebSever::getInstance()->worker_id;
+        $cid = Coroutine::getuid();
+
+        /* @var RouteObject $routeObject */
+        $routeObject = (Router::getRouteInstance())[$port][$workerId][$cid];
+
         self::$fileName = dirname(__FILE__) . '/../../app/' . $routeObject->getProject() . '/Runtime/logs/' . date('Ymd') . '/';
 
         $logger = self::createLogger($name);
@@ -84,7 +87,7 @@ class LogHelper
         if (empty(self::$loggers[$name])) {
 
             // 根据业务域名与方法名进行日志名称的确定
-            $category = EntitySwooleRequest::server('server_name') ?: Config::get('app.server_name');
+            $category = RequestHelper::server('server_name') ?: Config::get('app.server_name');
             // 日志文件目录
             $fileName = self::$fileName;
             // 日志保存时间
@@ -100,10 +103,10 @@ class LogHelper
 
             // 组装请求信息
             $requestInfo = [
-                'ip' => EntitySwooleRequest::server('remote_addr'),
-                'method' => EntitySwooleRequest::server('request_method'),
-                'host' => EntitySwooleRequest::server('http_host'),
-                'uri' => EntitySwooleRequest::server('request_uri')
+                'ip' => RequestHelper::server('remote_addr'),
+                'method' => RequestHelper::server('request_method'),
+                'host' => RequestHelper::server('http_host'),
+                'uri' => RequestHelper::server('request_uri')
             ];
             $template = "\r\n---------------------------------------------------------------\r\n[%datetime%] {$requestInfo['ip']} {$requestInfo['method']} {$requestInfo['host']}{$requestInfo['uri']}";
             $template .= "\r\n[%channel%][%level_name%][MESSAGE]: %message%";

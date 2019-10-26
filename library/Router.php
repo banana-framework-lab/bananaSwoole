@@ -3,7 +3,7 @@
 namespace Library;
 
 use Library\Entity\Swoole\EntitySwooleWebSever;
-use Library\Object\RouterObject;
+use Library\Object\RouteObject;
 use Swoole\Coroutine;
 
 /**
@@ -77,7 +77,7 @@ class Router
     /**
      * 路由
      * @param string $requestUrl
-     * @return RouterObject
+     * @return RouteObject
      */
     public static function router(string $requestUrl)
     {
@@ -89,7 +89,7 @@ class Router
             $requestUrlArray[1] = isset($requestUrlArray[1]) && $requestUrlArray[1] ? $requestUrlArray[1] : 'Index';
             $requestUrlArray[2] = isset($requestUrlArray[2]) && $requestUrlArray[2] ? $requestUrlArray[2] : 'index';
 
-            $routerObject = new RouterObject();
+            $routerObject = new RouteObject();
             $routerObject->setProject($requestUrlArray[0]);
             $routerObject->setController("\\App\\{$requestUrlArray[0]}\\Controller\\{$requestUrlArray[1]}Controller");
             $routerObject->setMethod($requestUrlArray[2]);
@@ -100,7 +100,7 @@ class Router
         } else {
             $requestUrlArray = explode('@', $route);
 
-            $routerObject = new RouterObject();
+            $routerObject = new RouteObject();
             $routerObject->setProject((explode('\\', $requestUrlArray[0]))[2]);
             $routerObject->setController($requestUrlArray[0]);
             $routerObject->setMethod($requestUrlArray[1]);

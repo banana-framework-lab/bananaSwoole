@@ -8,7 +8,7 @@ namespace Library\Object;
  * Date: 2019/10/22
  * Time: 16:43
  */
-class RouterObject
+class RouteObject
 {
     /**
      * @var string $project 路由的项目

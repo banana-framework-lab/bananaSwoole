@@ -13,7 +13,7 @@ use Library\Entity\Model\DataBase\EntityMongo;
 use Library\Entity\Model\DataBase\EntityMysql;
 use Library\Helper\RequestHelper;
 use Library\Helper\ResponseHelper;
-use Library\Object\RouterObject;
+use Library\Object\RouteObject;
 use Library\Virtual\Middle\AbstractMiddleWare;
 use Swoole\Http\Request as SwooleRequest;
 use Swoole\Http\Response as SwooleResponse;
@@ -23,27 +23,29 @@ class WebServerApp
 {
     /**
      * 初始化
+     * @param int $port
      * @param int $workerId
+     * @throws \Exception
      */
-    public static function init(int $workerId)
+    public static function init(int $port, int $workerId)
     {
-        // 配置文件初始化
-        Config::instanceStart();
-
-        // 数据库初始化
-        EntityMysql::instanceStart($workerId);
-        EntityMongo::instanceStart($workerId);
-
-        // Redis初始化
-        EntityRedis::instanceStart($workerId);
-
-        // Router初始化
-        Router::instanceStart();
-
         //开启php调试模式
         if (Config::get('app.debug')) {
             error_reporting(E_ALL);
         }
+
+        // 配置文件初始化
+        Config::instanceStart();
+
+        // Router初始化
+        Router::instanceStart();
+
+        // 数据库初始化
+        EntityMysql::instanceStart($port, $workerId);
+        EntityMongo::instanceStart($port, $workerId);
+
+        // Redis初始化
+        EntityRedis::instanceStart($port, $workerId);
     }
 
     /**
@@ -56,7 +58,7 @@ class WebServerApp
         //初始化请求实体类
         RequestHelper::setInstance($request);
 
-        /* @var RouterObject $routeObject */
+        /* @var RouteObject $routeObject */
         $routeObject = Router::router($request->server['request_uri']);
 
         //初始化方法
@@ -87,7 +89,10 @@ class WebServerApp
             if (class_exists($controllerClass)) {
                 $controller = new $controllerClass($requestData);
                 if (method_exists($controller, $methodName)) {
-                    $controller->$methodName();
+                    $returnData = $controller->$methodName();
+                    if ($returnData) {
+                        ResponseHelper::json($returnData);
+                    }
                 } else {
                     ResponseHelper::json(['msg' => "找不到{$methodName}"]);
                 }

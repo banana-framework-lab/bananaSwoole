@@ -28,26 +28,34 @@ class EntityMongo
 
     /**
      * 初始化Mongo实体对象
+     * @param int $port
      * @param int $workerId
      */
-    public static function instanceStart(int $workerId)
+    public static function instanceStart(int $port, int $workerId)
     {
-        if (!static::$instance[$workerId]) {
-            $uri = Config::get('app.is_server') ? Config::get('mongo.server.url') : Config::get('mongo.local.url');
-            self::setInstance($workerId, new MongoDbClient($uri));
+        if (!static::$instance[$port][$workerId]) {
+            if (Config::get('app.is_server')) {
+                $uri = Config::get('mongo.server.url', '');
+            } else {
+                $uri = Config::get('mongo.local.url', '');
+            }
+            if ($uri) {
+                self::setInstance($port, $workerId, new MongoDbClient($uri));
+            }
         }
     }
 
     /**
      * Set the application instance.
      *
+     * @param int $port
      * @param int $workerId
      * @param  MongoDbClient $instance
      * @return void
      */
-    public static function setInstance(int $workerId, MongoDbClient $instance)
+    public static function setInstance(int $port, int $workerId, MongoDbClient $instance)
     {
-        static::$instance[$workerId] = $instance;
+        static::$instance[$port][$workerId] = $instance;
     }
 
     /**

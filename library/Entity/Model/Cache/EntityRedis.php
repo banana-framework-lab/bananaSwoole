@@ -28,30 +28,33 @@ class EntityRedis
 
     /**
      * 初始化Redis实体对象
+     * @param int $port
      * @param int $workerId
      */
-    public static function instanceStart(int $workerId)
+    public static function instanceStart(int $port, int $workerId)
     {
-        if (!static::$instance[$workerId]) {
+        if (!static::$instance[$port][$workerId]) {
             $redisConf = Config::get('app.is_server') ? Config::get('redis.server') : Config::get('redis.local');
             $redisServer = new RedisClient();
             $redisServer->connect($redisConf['host'], $redisConf['port'], 0.0);
             $redisServer->auth($redisConf['auth']);
             $redisServer->select($redisConf['database']);
 
-            static::setInstance($workerId, $redisServer);
+            static::setInstance($port, $workerId, $redisServer);
         }
     }
 
     /**
      * Set the application instance.
      *
+     * @param int $port
+     * @param int $workerId
      * @param  RedisClient $instance
      * @return void
      */
-    public static function setInstance(int $workerId, RedisClient $instance)
+    public static function setInstance(int $port, int $workerId, RedisClient $instance)
     {
-        static::$instance[$workerId] = $instance;
+        static::$instance[$port][$workerId] = $instance;
     }
 
     /**

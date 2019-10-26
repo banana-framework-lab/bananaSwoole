@@ -57,33 +57,36 @@ class EntityMysql
 
     /**
      * 初始化Mysql实体对象
+     * @param int $port
      * @param int $workerId
+     * @throws Exception
      */
-    public static function instanceStart(int $workerId)
+    public static function instanceStart(int $port, int $workerId)
     {
-        if (!static::$instance[$workerId]) {
+        if (!static::$instance[$port][$workerId]) {
             try {
-                $mysqlClient = new MysqlClient;
-
-                //设置数据库的配置
-                $mysqlClient->addConnection(Config::get('app.is_server') ? Config::get('mysql.server') : Config::get('mysql.local'));
-
-                // 使得数据库对象全局可用
-                $mysqlClient->setAsGlobal();
-
-                //初始化mysql全局对象
-                self::setInstance($workerId, $mysqlClient);
-
-                //设置可用Eloquent
-                $mysqlClient->bootEloquent();
-
-                //非服务器下开启日志
-                if (!Config::get('app.is_server')) {
-                    self::connection()->enableQueryLog();
+                if (Config::get('app.is_server')) {
+                    $configData = Config::get('mysql.server', []);
+                } else {
+                    $configData = Config::get('mysql.local', []);
+                }
+                if ($configData) {
+                    $mysqlClient = new MysqlClient;
+                    //设置数据库的配置
+                    $mysqlClient->addConnection($configData);
+                    // 使得数据库对象全局可用
+                    $mysqlClient->setAsGlobal();
+                    //设置可用Eloquent
+                    $mysqlClient->bootEloquent();
+                    //非服务器下开启日志
+                    if (!Config::get('app.is_server')) {
+                        $mysqlClient->connection()->enableQueryLog();
+                    }
+                    //初始化mysql全局对象
+                    self::setInstance($port, $workerId, $mysqlClient);
                 }
             } catch (Exception $exception) {
-                echo $exception->getMessage();
-                exit;
+                throw $exception;
             }
         }
     }
@@ -91,13 +94,14 @@ class EntityMysql
     /**
      * Set the application instance.
      *
+     * @param int $port
      * @param int $workerId
      * @param MysqlClient $instance
      * @return void
      */
-    public static function setInstance(int $workerId, MysqlClient $instance)
+    public static function setInstance(int $port, int $workerId, MysqlClient $instance)
     {
-        static::$instance[$workerId] = $instance;
+        static::$instance[$port][$workerId] = $instance;
     }
 
     /**

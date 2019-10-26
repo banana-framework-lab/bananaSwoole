@@ -2,7 +2,6 @@
 
 namespace Library\Server;
 
-use Co;
 use Library\Config;
 use Library\Helper\RequestHelper;
 use Library\Helper\ResponseHelper;
@@ -21,10 +20,6 @@ class SwooleWebServer extends SwooleServer
     public function __construct()
     {
         parent::__construct();
-
-        //初始化SwooleWebSever
-        EntitySwooleWebSever::instanceStart();
-
         $this->server = EntitySwooleWebSever::getInstance();
         $this->port = Config::get('swoole.web.port');
         $this->workerNum = Config::get('swoole.web.worker_num');
@@ -63,44 +58,14 @@ class SwooleWebServer extends SwooleServer
     public function onWorkerStart(SwooleHttpServer $server, int $workerId)
     {
         //初始化App类
-        WebServerApp::init($workerId);
-
+        try {
+            WebServerApp::init($server->port, $workerId);
+        } catch (\Exception $e) {
+            echo "master_pid:{$server->master_pid}  worker_pid:{$server->worker_pid}  worker_id:{$workerId}  启动报错\n";
+            echo $e->getTraceAsString() . "\n";
+            return;
+        }
         echo "master_pid:{$server->master_pid}  worker_pid:{$server->worker_pid}  worker_id:{$workerId}  启动\n";
-    }
-
-
-    /**
-     * onWorkerError事件
-     *
-     * @param SwooleHttpServer $server
-     * @param int $workerId
-     * @param int $workerPid
-     * @param int $exitCode
-     * @param int $signal
-     */
-    public function onWorkerError(SwooleHttpServer $server, int $workerId, int $workerPid, int $exitCode, int $signal)
-    {
-        echo "master_id:{$server->master_pid}  worker_pid:{$workerPid}  worker_id:{$workerId}  异常关闭:错误码 {$exitCode},信号 {$signal}\n";
-
-        $this->recoverInstance($workerId);
-
-        echo "master_id:{$server->master_pid}  worker_pid:{$workerPid}  worker_id:{$workerId}  异常关闭 回收对象\n";
-
-    }
-
-    /**
-     * onWorkerStop事件
-     *
-     * @param SwooleHttpServer $server
-     * @param int $workerId
-     */
-    public function onWorkerStop(SwooleHttpServer $server, int $workerId)
-    {
-        echo "master_id:{$server->master_pid}  worker_pid:{$server->worker_pid}  worker_id:{$workerId}  正常关闭\n";
-
-        $this->recoverInstance($workerId);
-
-        echo "master_id:{$server->master_pid}  worker_pid:{$server->worker_pid}  worker_id:{$workerId}  正常关闭  回收对象\n";
     }
 
     /**
@@ -112,7 +77,6 @@ class SwooleWebServer extends SwooleServer
     public function onRequest(SwooleRequest $request, SwooleResponse $response)
     {
         defer(function () use ($response) {
-            echo "这里已经跳出协程了,此处需要清理session和路由\n";
             //回收请求数据
             RequestHelper::delInstance();
 
@@ -142,5 +106,30 @@ class SwooleWebServer extends SwooleServer
         $response->header('Content-type', 'application/json');
 
         WebServerApp::run($request, $response);
+    }
+
+    /**
+     * onWorkerError事件
+     *
+     * @param SwooleHttpServer $server
+     * @param int $workerId
+     * @param int $workerPid
+     * @param int $exitCode
+     * @param int $signal
+     */
+    public function onWorkerError(SwooleHttpServer $server, int $workerId, int $workerPid, int $exitCode, int $signal)
+    {
+        echo "master_id:{$server->master_pid}  worker_pid:{$workerPid}  worker_id:{$workerId}  异常关闭:错误码 {$exitCode},信号 {$signal}\n";
+    }
+
+    /**
+     * onWorkerStop事件
+     *
+     * @param SwooleHttpServer $server
+     * @param int $workerId
+     */
+    public function onWorkerStop(SwooleHttpServer $server, int $workerId)
+    {
+        echo "master_id:{$server->master_pid}  worker_pid:{$server->worker_pid}  worker_id:{$workerId}  正常关闭\n";
     }
 }
