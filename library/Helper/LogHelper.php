@@ -11,13 +11,14 @@ use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\RotatingFileHandler;
 use Swoole\Coroutine;
 
+
 /**
- * Class Log
+ * Class LogHelper
+ * @package Library\Helper
  * @method static bool info(string $message = '', array $context = [], string $levelName = '')
  * @method static bool warning(string $message = '', array $context = [], string $levelName = '')
  * @method static bool error(string $message = '', array $context = [], string $levelName = '')
  * @method static bool success(string $message = '', array $context = [], string $levelName = '')
- * @package Common\Library
  */
 class LogHelper
 {
@@ -56,12 +57,7 @@ class LogHelper
      */
     public static function __callStatic($name, $arguments)
     {
-        $port = EntitySwooleWebSever::getInstance()->port;
-        $workerId = EntitySwooleWebSever::getInstance()->worker_id;
-        $cid = Coroutine::getuid();
-
-        /* @var RouteObject $routeObject */
-        $routeObject = (Router::getRouteInstance())[$port][$workerId][$cid];
+        $routeObject = (Router::getRouteInstance());
 
         self::$fileName = dirname(__FILE__) . '/../../app/' . $routeObject->getProject() . '/Runtime/logs/' . date('Ymd') . '/';
 

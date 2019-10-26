@@ -19,6 +19,11 @@ use Illuminate\Database\Connection;
  * @property String tableName
  * @property Connection connection
  */
+
+/**
+ * Class AbstractMySqlModel
+ * @package Library\Virtual\Model\DataBaseModel
+ */
 abstract class AbstractMySqlModel extends Model
 {
     /**

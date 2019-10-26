@@ -19,15 +19,18 @@ use Swoole\Http\Request as SwooleRequest;
 use Swoole\Http\Response as SwooleResponse;
 use Throwable;
 
+/**
+ * Class WebServerApp
+ * @package Library
+ */
 class WebServerApp
 {
     /**
      * 初始化
-     * @param int $port
      * @param int $workerId
      * @throws \Exception
      */
-    public static function init(int $port, int $workerId)
+    public static function init(int $workerId)
     {
         //开启php调试模式
         if (Config::get('app.debug')) {
@@ -41,11 +44,11 @@ class WebServerApp
         Router::instanceStart();
 
         // 数据库初始化
-        EntityMysql::instanceStart($port, $workerId);
-        EntityMongo::instanceStart($port, $workerId);
+        EntityMysql::instanceStart($workerId);
+        EntityMongo::instanceStart($workerId);
 
         // Redis初始化
-        EntityRedis::instanceStart($port, $workerId);
+        EntityRedis::instanceStart($workerId);
     }
 
     /**
@@ -113,15 +116,5 @@ class WebServerApp
         // 支持跨域访问
         $response->status(200);
         $response->end(ResponseHelper::response());
-
-        //回收请求数据
-        RequestHelper::delInstance();
-
-        //回收返回数据
-        ResponseHelper::delInstance();
-
-        //回收路由数据
-        Router::delRouteInstance();
-
     }
 }

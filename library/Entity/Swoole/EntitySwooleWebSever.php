@@ -11,6 +11,11 @@ use Swoole\Http\Server as SwooleHttpServer;
  * Date: 2019/9/24
  * Time: 10:59
  */
+
+/**
+ * Class EntitySwooleWebSever
+ * @package Library\Entity\Swoole
+ */
 class EntitySwooleWebSever
 {
     /**

@@ -12,6 +12,10 @@ use Swoole\Http\Server as SwooleHttpServer;
 use Swoole\Http\Request as SwooleRequest;
 use Swoole\Http\Response as SwooleResponse;
 
+/**
+ * Class SwooleWebServer
+ * @package Library\Server
+ */
 class SwooleWebServer extends SwooleServer
 {
     /**
@@ -59,7 +63,7 @@ class SwooleWebServer extends SwooleServer
     {
         //初始化App类
         try {
-            WebServerApp::init($server->port, $workerId);
+            WebServerApp::init($workerId);
         } catch (\Exception $e) {
             echo "master_pid:{$server->master_pid}  worker_pid:{$server->worker_pid}  worker_id:{$workerId}  启动报错\n";
             echo $e->getTraceAsString() . "\n";
@@ -89,8 +93,15 @@ class SwooleWebServer extends SwooleServer
 
         // 屏蔽 favicon.ico
         if ($request->server['request_uri'] == '/favicon.ico') {
-            $response->status(404);
-            $response->end();
+            if (file_exists(dirname(__FILE__) . "/../../public/favicon.ico")) {
+                $response->status(200);
+                $response->header('Content-Type', 'image/x-icon');
+                $response->sendfile(dirname(__FILE__) . "/../../public/favicon.ico");
+            } else {
+                $response->status(404);
+                $response->end();
+            }
+            return;
         }
 
         if ($request->server['request_method'] == 'OPTIONS') {

@@ -11,6 +11,10 @@ use Library\Config;
 use Library\Entity\Swoole\EntitySwooleWebSever;
 use MongoDB\Client as MongoDbClient;
 
+/**
+ * Class EntityMongo
+ * @package Library\Entity\Model\DataBase
+ */
 class EntityMongo
 {
     /**
@@ -18,44 +22,47 @@ class EntityMongo
      */
     private static $instance;
 
+    /**
+     * EntityMongo constructor.
+     */
     private function __construct()
     {
     }
 
+    /**
+     *  EntityMongo clone
+     */
     private function __clone()
     {
     }
 
     /**
      * 初始化Mongo实体对象
-     * @param int $port
      * @param int $workerId
      */
-    public static function instanceStart(int $port, int $workerId)
+    public static function instanceStart(int $workerId)
     {
-        if (!static::$instance[$port][$workerId]) {
+        if (!static::$instance[$workerId]) {
             if (Config::get('app.is_server')) {
                 $uri = Config::get('mongo.server.url', '');
             } else {
                 $uri = Config::get('mongo.local.url', '');
             }
             if ($uri) {
-                self::setInstance($port, $workerId, new MongoDbClient($uri));
+                self::setInstance($workerId, new MongoDbClient($uri));
             }
         }
     }
 
     /**
-     * Set the application instance.
-     *
-     * @param int $port
+     * 保存Mongo实体对象
      * @param int $workerId
      * @param  MongoDbClient $instance
      * @return void
      */
-    public static function setInstance(int $port, int $workerId, MongoDbClient $instance)
+    private static function setInstance(int $workerId, MongoDbClient $instance)
     {
-        static::$instance[$port][$workerId] = $instance;
+        static::$instance[$workerId] = $instance;
     }
 
     /**
@@ -64,18 +71,12 @@ class EntityMongo
      */
     public static function getInstance()
     {
-        return self::$instance;
+        $workerId = EntitySwooleWebSever::getInstance()->worker_id;
+        return self::$instance[$workerId];
     }
 
     /**
-     * 删除mysql单例
-     */
-    public static function delInstance()
-    {
-        static::$instance = null;
-    }
-
-    /**
+     * 静态调用Mongo方法
      * @param $method
      * @param $args
      * @return mixed
@@ -88,8 +89,12 @@ class EntityMongo
 
         if (!$instance) {
             throw new \Exception('找不到Mongo数据库对象');
+        } else {
+            if (method_exists($instance, $method)) {
+                return $instance->$method(...$args);
+            } else {
+                throw new \Exception("Mongo数据库对象没有方法{$method}");
+            }
         }
-
-        return $instance->$method(...$args);
     }
 }

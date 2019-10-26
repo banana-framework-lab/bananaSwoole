@@ -14,6 +14,11 @@ use Redis;
 /**
  * @property Redis redis
  */
+
+/**
+ * Class AbstractRedisModel
+ * @package Library\Virtual\Model\CacheModel
+ */
 abstract class AbstractRedisModel
 {
     /**

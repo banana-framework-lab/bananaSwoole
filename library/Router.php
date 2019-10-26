@@ -12,6 +12,11 @@ use Swoole\Coroutine;
  * Date: 2019/10/20
  * Time: 16:55
  */
+
+/**
+ * Class Router
+ * @package Library
+ */
 class Router
 {
     /**
@@ -42,11 +47,14 @@ class Router
     }
 
     /**
-     * @return array
+     * 获取当前处理的匹配出的路由
+     * @return RouteObject
      */
     public static function getRouteInstance()
     {
-        return static::$routePool;
+        $workerId = EntitySwooleWebSever::getInstance()->worker_id;
+        $cid = Coroutine::getuid();
+        return static::$routePool[$workerId][$cid];
     }
 
     /**
@@ -61,16 +69,6 @@ class Router
             unset(static::$routePool[$workerId][$cid]);
         } else {
             unset(static::$routePool[$workerId]);
-        }
-    }
-
-    /**
-     * 删除路由规则对象
-     */
-    public static function delRouterInstance()
-    {
-        foreach (self::$routerPool as &$router) {
-            unset($router);
         }
     }
 

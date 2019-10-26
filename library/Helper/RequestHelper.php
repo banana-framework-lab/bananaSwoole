@@ -7,6 +7,8 @@ use Swoole\Coroutine;
 use Swoole\Http\Request as SwooleRequest;
 
 /**
+ * Class RequestHelper
+ * @package Library\Helper
  * @method static mixed header(string $name = '')
  * @method static mixed server(string $name = '')
  * @method static mixed request(string $name = '')
@@ -17,19 +19,29 @@ use Swoole\Http\Request as SwooleRequest;
  */
 class RequestHelper
 {
+    /**
+     * @var array $instancePool
+     */
     private static $instancePool = [];
 
+    /**
+     * RequestHelper constructor.
+     */
     private function __construct()
     {
 
     }
 
+    /**
+     * RequestHelper clone.
+     */
     private function __clone()
     {
 
     }
 
     /**
+     * 保存SwooleRequest请求对象
      * @param  SwooleRequest $instance
      */
     public static function setInstance(SwooleRequest $instance)

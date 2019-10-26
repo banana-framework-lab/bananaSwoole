@@ -10,6 +10,11 @@ use Swoole\WebSocket\Server as SwooleWebSocketServer;
  * Date: 2019/9/24
  * Time: 10:59
  */
+
+/**
+ * Class EntitySwooleWebSocketSever
+ * @package Library\Entity\Swoole
+ */
 class EntitySwooleWebSocketSever
 {
     /**

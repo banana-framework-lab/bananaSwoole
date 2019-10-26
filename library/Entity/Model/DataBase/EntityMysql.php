@@ -16,6 +16,9 @@ use Library\Config;
 use Library\Entity\Swoole\EntitySwooleWebSever;
 
 /**
+ * Class EntityMysql
+ * @package Library\Entity\Model\DataBase
+ *
  * @method static Connection connection(string $name = null)
  * @method static string getDefaultConnection()
  * @method static void setDefaultConnection(string $name)
@@ -47,23 +50,28 @@ class EntityMysql
      */
     private static $instance;
 
+    /**
+     * EntityMysql constructor.
+     */
     private function __construct()
     {
     }
 
+    /**
+     * EntityMysql clone.
+     */
     private function __clone()
     {
     }
 
     /**
      * 初始化Mysql实体对象
-     * @param int $port
      * @param int $workerId
      * @throws Exception
      */
-    public static function instanceStart(int $port, int $workerId)
+    public static function instanceStart(int $workerId)
     {
-        if (!static::$instance[$port][$workerId]) {
+        if (!static::$instance[$workerId]) {
             try {
                 if (Config::get('app.is_server')) {
                     $configData = Config::get('mysql.server', []);
@@ -83,7 +91,7 @@ class EntityMysql
                         $mysqlClient->connection()->enableQueryLog();
                     }
                     //初始化mysql全局对象
-                    self::setInstance($port, $workerId, $mysqlClient);
+                    self::setInstance($workerId, $mysqlClient);
                 }
             } catch (Exception $exception) {
                 throw $exception;
@@ -92,16 +100,14 @@ class EntityMysql
     }
 
     /**
-     * Set the application instance.
-     *
-     * @param int $port
+     * 保存Mysql实体对象
      * @param int $workerId
      * @param MysqlClient $instance
      * @return void
      */
-    public static function setInstance(int $port, int $workerId, MysqlClient $instance)
+    private static function setInstance(int $workerId, MysqlClient $instance)
     {
-        static::$instance[$port][$workerId] = $instance;
+        static::$instance[$workerId] = $instance;
     }
 
     /**
@@ -109,15 +115,8 @@ class EntityMysql
      */
     public static function getInstance()
     {
-        return self::$instance;
-    }
-
-    /**
-     * 删除mysql单例
-     */
-    public static function delInstance()
-    {
-        static::$instance = null;
+        $workerId = EntitySwooleWebSever::getInstance()->worker_id;
+        return self::$instance[$workerId];
     }
 
     /**
@@ -128,13 +127,18 @@ class EntityMysql
      */
     public static function __callStatic($method, $args)
     {
-        $workId = EntitySwooleWebSever::getInstance()->worker_id;
-        $instance = self::$instance[$workId];
+        $workerId = EntitySwooleWebSever::getInstance()->worker_id;
+        $instance = self::$instance[$workerId];
 
         if (!$instance) {
             throw new \Exception('找不到Mysql数据库对象');
+        } else {
+            if (method_exists($instance, $method)) {
+                return $instance->$method(...$args);
+            } else {
+                throw new \Exception("Mysql数据库对象没有方法$method");
+            }
         }
 
-        return $instance->$method(...$args);
     }
 }

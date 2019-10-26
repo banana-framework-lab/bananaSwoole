@@ -7,6 +7,10 @@ namespace Library;
  * Date: 2019/10/20
  * Time: 16:55
  */
+/**
+ * Class Config
+ * @package Library
+ */
 class Config
 {
     /**

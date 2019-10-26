@@ -2,7 +2,10 @@
 
 namespace Library\Virtual\Middle;
 
-
+/**
+ * Class AbstractMiddleWare
+ * @package Library\Virtual\Middle
+ */
 abstract class AbstractMiddleWare
 {
     /**

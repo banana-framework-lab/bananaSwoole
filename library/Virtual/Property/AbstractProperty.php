@@ -4,6 +4,10 @@ namespace Library\Virtual\Property;
 
 use stdClass;
 
+/**
+ * Class AbstractProperty
+ * @package Library\Virtual\Property
+ */
 abstract class AbstractProperty
 {
     /**

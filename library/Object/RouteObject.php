@@ -8,6 +8,10 @@ namespace Library\Object;
  * Date: 2019/10/22
  * Time: 16:43
  */
+/**
+ * Class RouteObject
+ * @package Library\Object
+ */
 class RouteObject
 {
     /**

@@ -16,6 +16,11 @@ use Swoole\WebSocket\Server as SwooleWebSocketServer;
  * Date: 2019/10/22
  * Time: 16:35
  */
+
+/**
+ * Class SwooleServer
+ * @package Library\Server
+ */
 class SwooleServer
 {
     /**

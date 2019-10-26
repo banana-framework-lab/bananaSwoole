@@ -8,10 +8,10 @@
 
 namespace Library\Virtual\Controller;
 
-
-
-use Library\Entity\Response;
-
+/**
+ * Class AbstractController
+ * @package Library\Virtual\Controller
+ */
 class AbstractController {
 
     /**
@@ -27,46 +27,5 @@ class AbstractController {
     public function __construct($request)
     {
         $this->request = $request;
-    }
-
-    /**
-     * 自动匹配-用什么返回方式
-     * @param $res
-     * @param array $data
-     * @return false|string
-     */
-    public function autoResponse($res, $data = [])
-    {
-        return $res ? $this->responseSuccess($data) : $this->responseFailed();
-    }
-
-    /**
-     * 操作成功json返回
-     * @param array $data
-     * @return false|string
-     */
-    public function responseSuccess($data = [])
-    {
-        return Response::instance()->responseSuccess($data);
-    }
-
-    /**
-     * 操作失败json返回
-     * @param array $data
-     * @return false|string
-     */
-    public function responseFailed($data = [])
-    {
-        return Response::instance()->responseFailed($data);
-    }
-
-    /**
-     * 普通数据json返回
-     * @param array $data
-     * @return false|string
-     */
-    public function responseArray($data = [])
-    {
-        return Response::instance()->responseArray($data);
     }
 }

@@ -5,6 +5,10 @@ namespace Library\Helper;
 use Library\Entity\Swoole\EntitySwooleWebSever;
 use Swoole\Coroutine;
 
+/**
+ * Class ResponseHelper
+ * @package Library\Helper
+ */
 class ResponseHelper
 {
     /**
@@ -12,11 +16,17 @@ class ResponseHelper
      */
     private static $instancePool = [];
 
+    /**
+     * ResponseHelper constructor.
+     */
     private function __construct()
     {
 
     }
 
+    /**
+     * ResponseHelper clone.
+     */
     private function __clone()
     {
 
@@ -47,7 +57,7 @@ class ResponseHelper
     }
 
     /**
-     * json格式的success
+     * json格式的返回
      * @param array $jsonData
      * @param int $options
      */

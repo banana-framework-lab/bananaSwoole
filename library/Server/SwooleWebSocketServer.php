@@ -16,6 +16,10 @@ use Swoole\Http\Request as SwooleHttpRequest;
 use Swoole\WebSocket\Frame as SwooleSocketFrame;
 use Swoole\WebSocket\Server as SwooleSocketServer;
 
+/**
+ * Class SwooleWebSocketServer
+ * @package Library\Server
+ */
 class SwooleWebSocketServer extends SwooleServer
 {
 

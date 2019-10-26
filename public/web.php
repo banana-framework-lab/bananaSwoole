@@ -1,7 +1,7 @@
 <?php
 /**
- * #平滑重启所有worker进程
- * kill -USR1 主进程PID
+ * 平滑重启所有worker进程
+ * kill -USR1 master的PID
  */
 
 use Library\Server\SwooleWebServer;

@@ -11,6 +11,13 @@ use Library\Config;
 use Library\Entity\Swoole\EntitySwooleWebSever;
 use Redis as RedisClient;
 
+/**
+ * Class EntityRedis
+ * @package Library\Entity\Model\Cache
+ *
+ * @method static string|bool get(string $key)
+ * @method static bool set(string $key, string $value, int $timeout = 0)
+ */
 class EntityRedis
 {
     /**
@@ -18,51 +25,46 @@ class EntityRedis
      */
     private static $instance;
 
+    /**
+     * EntityRedis constructor.
+     */
     private function __construct()
     {
     }
 
+    /**
+     * EntityRedis clone.
+     */
     private function __clone()
     {
     }
 
     /**
      * 初始化Redis实体对象
-     * @param int $port
      * @param int $workerId
      */
-    public static function instanceStart(int $port, int $workerId)
+    public static function instanceStart(int $workerId)
     {
-        if (!static::$instance[$port][$workerId]) {
+        if (!static::$instance[$workerId]) {
             $redisConf = Config::get('app.is_server') ? Config::get('redis.server') : Config::get('redis.local');
             $redisServer = new RedisClient();
             $redisServer->connect($redisConf['host'], $redisConf['port'], 0.0);
             $redisServer->auth($redisConf['auth']);
             $redisServer->select($redisConf['database']);
 
-            static::setInstance($port, $workerId, $redisServer);
+            self::setInstance($workerId, $redisServer);
         }
     }
 
     /**
-     * Set the application instance.
-     *
-     * @param int $port
+     * 保存Redis实体对象
      * @param int $workerId
      * @param  RedisClient $instance
      * @return void
      */
-    public static function setInstance(int $port, int $workerId, RedisClient $instance)
+    private static function setInstance(int $workerId, RedisClient $instance)
     {
-        static::$instance[$port][$workerId] = $instance;
-    }
-
-    /**
-     * 删除mysql单例
-     */
-    public static function delInstance()
-    {
-        static::$instance = null;
+        static::$instance[$workerId] = $instance;
     }
 
     /**
@@ -71,7 +73,8 @@ class EntityRedis
      */
     public static function getInstance()
     {
-        return self::$instance;
+        $workerId = EntitySwooleWebSever::getInstance()->worker_id;
+        return self::$instance[$workerId];
     }
 
     /**
