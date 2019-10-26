@@ -3,6 +3,7 @@
 namespace App\Api\Logic;
 
 use App\Api\Model\DataBaseModel\AdminModel;
+use App\Api\Model\DataBaseModel\NumberModel;
 
 /**
  * Created by PhpStorm.
@@ -22,5 +23,14 @@ class TestLogic
     {
         $adminModel = new AdminModel();
         return $adminModel->login($username, $password);
+    }
+
+    /**
+     * @return array
+     */
+    public function getNumber()
+    {
+        $numberModel = new NumberModel();
+        return $numberModel->getList();
     }
 }

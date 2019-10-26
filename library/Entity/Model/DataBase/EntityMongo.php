@@ -49,6 +49,8 @@ class EntityMongo
                 $uri = Config::get('mongo.local.url', '');
             }
             if ($uri) {
+                $mongodbInstance = new MongoDbClient($uri);
+                var_dump($mongodbInstance->getManager()->getServers());
                 self::setInstance($workerId, new MongoDbClient($uri));
             }
         }

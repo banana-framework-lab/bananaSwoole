@@ -14,10 +14,8 @@ use MongoDB\Driver\Manager;
 use MongoDB\Operation\FindOneAndUpdate;
 
 /**
- * @property Manager mongo
- */
-/**
  * Class AbstractMongoModel
+ * @property Manager mongo
  * @package Library\Virtual\Model\DataBaseModel
  */
 abstract class AbstractMongoModel

@@ -93,6 +93,7 @@ class EntityMysql
                     }
                     //真正连接数据库
                     $mysqlClient->connection()->getPdo();
+
                     //初始化mysql全局对象
                     self::setInstance($workerId, $mysqlClient);
                 }

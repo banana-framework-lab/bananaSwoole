@@ -7,9 +7,9 @@
  */
 return [
     'server' => [
-        'url' => 'mongodb://tanwange:tanwangemongo888@101.132.105.248:27017/tanwange'
+        'url' => 'mongodb://192.168.0.115:27017/'
     ],
     'local' => [
-        'url' => 'mongodb://tanwange:tanwangemongo888@101.132.105.248:27017/tanwange'
+        'url' => 'mongodb://192.168.0.115:27015/'
     ]
 ];
