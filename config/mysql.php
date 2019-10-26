@@ -9,7 +9,7 @@ return [
     'server' => [
         'driver' => 'mysql',
         'host' => '127.0.0.1',
-        'database' => 'tanwange_socket',
+        'database' => 'swooleWebSocketFramework',
         'username' => 'root',
         'password' => '123456',
         'charset' => 'utf8mb4',
@@ -19,11 +19,11 @@ return [
     'local' => [
         'driver' => 'mysql',
         'host' => '127.0.0.1',
-        'database' => 'tanwange_socket',
-        'username' => 'root',
+        'database' => 'swooleWebSocketFramework',
+        'username' => 'zhangzhonghao',
         'password' => '123456',
         'charset' => 'utf8mb4',
         'collation' => 'utf8mb4_general_ci',
-        'prefix' => 'twg_',
+        'prefix' => '',
     ]
 ];

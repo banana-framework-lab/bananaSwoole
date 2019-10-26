@@ -9,6 +9,7 @@
 namespace App\Api\Controller;
 
 
+use App\Api\Logic\TestLogic;
 use Co;
 use Exception;
 use Library\Helper\LogHelper;
@@ -51,5 +52,11 @@ class TestController extends AbstractController
     private function test(array $a)
     {
 
+    }
+
+    public function login()
+    {
+        $return = (new TestLogic())->login('zhangzhonghao', '123456');
+        ResponseHelper::json(['data' => $return]);
     }
 }

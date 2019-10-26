@@ -14,6 +14,7 @@ use Illuminate\Database\Query\Builder;
 use Illuminate\Database\Query\Expression;
 use Library\Config;
 use Library\Entity\Swoole\EntitySwooleWebSever;
+use Throwable;
 
 /**
  * Class EntityMysql
@@ -67,7 +68,7 @@ class EntityMysql
     /**
      * 初始化Mysql实体对象
      * @param int $workerId
-     * @throws Exception
+     * @throws Throwable
      */
     public static function instanceStart(int $workerId)
     {
@@ -90,10 +91,12 @@ class EntityMysql
                     if (!Config::get('app.is_server')) {
                         $mysqlClient->connection()->enableQueryLog();
                     }
+                    //真正连接数据库
+                    $mysqlClient->connection()->getPdo();
                     //初始化mysql全局对象
                     self::setInstance($workerId, $mysqlClient);
                 }
-            } catch (Exception $exception) {
+            } catch (Throwable $exception) {
                 throw $exception;
             }
         }

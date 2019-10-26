@@ -28,7 +28,6 @@ class WebServerApp
     /**
      * 初始化
      * @param int $workerId
-     * @throws \Exception
      */
     public static function init(int $workerId)
     {
@@ -37,18 +36,26 @@ class WebServerApp
             error_reporting(E_ALL);
         }
 
-        // 配置文件初始化
-        Config::instanceStart();
 
-        // Router初始化
-        Router::instanceStart();
+        try {
+            // 配置文件初始化
+            Config::instanceStart();
 
-        // 数据库初始化
-        EntityMysql::instanceStart($workerId);
-        EntityMongo::instanceStart($workerId);
+            // Router初始化
+            Router::instanceStart();
 
-        // Redis初始化
-        EntityRedis::instanceStart($workerId);
+            // 数据库初始化
+            EntityMysql::instanceStart($workerId);
+
+            EntityMongo::instanceStart($workerId);
+
+            // Redis初始化
+            EntityRedis::instanceStart($workerId);
+        } catch (Throwable $e) {
+            echo "worker_id:{$workerId}  启动时报错  ".$e->getMessage()."\n";
+            return;
+        }
+
     }
 
     /**
@@ -105,7 +112,10 @@ class WebServerApp
         } catch (Throwable $e) {
             if (Config::get('app.debug')) {
                 $response->status(200);
-                $response->end(json_encode($e->getTrace()));
+                $response->end(json_encode([
+                    'msg' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString()
+                ]));
             } else {
                 $response->status(500);
                 $response->end();

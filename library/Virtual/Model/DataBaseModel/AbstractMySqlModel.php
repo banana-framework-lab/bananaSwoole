@@ -15,13 +15,10 @@ use Illuminate\Database\Query\Builder;
 use Illuminate\Database\Connection;
 
 /**
+ * Class AbstractMySqlModel
  * @property Builder builder
  * @property String tableName
  * @property Connection connection
- */
-
-/**
- * Class AbstractMySqlModel
  * @package Library\Virtual\Model\DataBaseModel
  */
 abstract class AbstractMySqlModel extends Model
@@ -38,9 +35,9 @@ abstract class AbstractMySqlModel extends Model
     protected $dateFormat = 'U';
 
     /**
-     * @var string getList中需要查询的列名
+     * @var array getList中需要查询的列名
      */
-    private $listColumns = '*';
+    private $listColumns = ['*'];
 
     /**
      * 获取数据库对象
@@ -49,7 +46,7 @@ abstract class AbstractMySqlModel extends Model
      */
     public function __get($name)
     {
-        switch ($name){
+        switch ($name) {
             case 'connection':
                 return EntityMysql::connection();
             case 'builder':
@@ -70,11 +67,15 @@ abstract class AbstractMySqlModel extends Model
 
     /**
      * 设置getList中需要查询的列名
-     * @param string $columns
+     * @param string|array $columns
      */
     public function setListColumns($columns)
     {
-        $this->listColumns = $columns;
+        if (is_array($columns)) {
+            $this->listColumns = $columns;
+        } elseif (is_string($columns)) {
+            $this->listColumns = explode(',', $columns);
+        }
     }
 
     /**
@@ -86,8 +87,9 @@ abstract class AbstractMySqlModel extends Model
     public function getList($where = [], $orderBy = [])
     {
         $builder = $this->getCondition($where, $orderBy);
-        if ($this->listColumns != '*') {
-            $builder->select(explode(',', $this->listColumns));
+        if ($this->listColumns != ['*']) {
+            $builder->select($this->listColumns);
+            $this->listColumns = ['*'];
         }
         return $builder->get();
     }
@@ -95,15 +97,16 @@ abstract class AbstractMySqlModel extends Model
     /**
      * 根据条件筛选一个
      * @param array $where
-     * @param string $columns
+     * @param array $columns
      * @return Model|Builder|null|object
      */
-    public function getFirst($where, $columns = '*')
+    public function getFirst($where, $columns = ['*'])
     {
         unset($where['page'], $where['limit']);
         $builder = $this->getCondition($where);
-        if ($this->listColumns != '*') {
-            $builder->select(explode(',', $this->listColumns));
+        if ($columns == ['*'] && $this->listColumns != ['*']) {
+            $columns = $this->listColumns;
+            $this->listColumns = ['*'];
         }
         return $builder->first($columns);
     }

@@ -11,6 +11,7 @@ use Library\Entity\Swoole\EntitySwooleWebSever;
 use Swoole\Http\Server as SwooleHttpServer;
 use Swoole\Http\Request as SwooleRequest;
 use Swoole\Http\Response as SwooleResponse;
+use Throwable;
 
 /**
  * Class SwooleWebServer
@@ -62,13 +63,8 @@ class SwooleWebServer extends SwooleServer
     public function onWorkerStart(SwooleHttpServer $server, int $workerId)
     {
         //初始化App类
-        try {
-            WebServerApp::init($workerId);
-        } catch (\Exception $e) {
-            echo "master_pid:{$server->master_pid}  worker_pid:{$server->worker_pid}  worker_id:{$workerId}  启动报错\n";
-            echo $e->getTraceAsString() . "\n";
-            return;
-        }
+        WebServerApp::init($workerId);
+
         echo "master_pid:{$server->master_pid}  worker_pid:{$server->worker_pid}  worker_id:{$workerId}  启动\n";
     }
 
