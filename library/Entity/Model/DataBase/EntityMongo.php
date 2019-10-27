@@ -50,8 +50,11 @@ class EntityMongo
             }
             if ($uri) {
                 $mongodbInstance = new MongoDbClient($uri);
-                var_dump($mongodbInstance->getManager()->getServers());
-                self::setInstance($workerId, new MongoDbClient($uri));
+                //访问数据库，确认连接成功
+                $mongodbInstance->listDatabases();
+
+                //设置mongo全局对象
+                self::setInstance($workerId, $mongodbInstance);
             }
         }
     }

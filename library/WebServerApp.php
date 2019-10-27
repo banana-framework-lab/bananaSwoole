@@ -36,7 +36,6 @@ class WebServerApp
             error_reporting(E_ALL);
         }
 
-
         try {
             // 配置文件初始化
             Config::instanceStart();
@@ -44,12 +43,13 @@ class WebServerApp
             // Router初始化
             Router::instanceStart();
 
-            // 数据库初始化
+            // mysql数据库初始化
             EntityMysql::instanceStart($workerId);
 
+            // mongo数据库初始化
             EntityMongo::instanceStart($workerId);
 
-            // Redis初始化
+            // Redis缓存初始化
             EntityRedis::instanceStart($workerId);
         } catch (Throwable $e) {
             echo "worker_id:{$workerId}  启动时报错  ".$e->getMessage()."\n";
