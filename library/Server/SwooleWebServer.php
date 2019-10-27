@@ -11,7 +11,6 @@ use Library\Entity\Swoole\EntitySwooleWebSever;
 use Swoole\Http\Server as SwooleHttpServer;
 use Swoole\Http\Request as SwooleRequest;
 use Swoole\Http\Response as SwooleResponse;
-use Throwable;
 
 /**
  * Class SwooleWebServer
@@ -25,6 +24,10 @@ class SwooleWebServer extends SwooleServer
     public function __construct()
     {
         parent::__construct();
+
+        //初始化SwooleWebSever
+        EntitySwooleWebSever::instanceStart();
+
         $this->server = EntitySwooleWebSever::getInstance();
         $this->port = Config::get('swoole.web.port');
         $this->workerNum = Config::get('swoole.web.worker_num');

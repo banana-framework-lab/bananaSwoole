@@ -2,6 +2,7 @@
 
 namespace Library\Entity\Swoole;
 
+use Library\Config;
 use Swoole\WebSocket\Server as SwooleWebSocketServer;
 
 /**
@@ -22,11 +23,17 @@ class EntitySwooleWebSocketSever
      */
     private static $instance = null;
 
+    /**
+     * EntitySwooleWebSocketSever constructor.
+     */
     private function __construct()
     {
 
     }
 
+    /**
+     * EntitySwooleWebSocketSever clone.
+     */
     private function __clone()
     {
 
@@ -38,19 +45,8 @@ class EntitySwooleWebSocketSever
     public static function instanceStart()
     {
         if (!static::$instance) {
-            $webServer = new SwooleWebSocketServer("0.0.0.0", WEB_SOCKET_SERVER_PORT);
+            $webServer = new SwooleWebSocketServer("0.0.0.0", Config::get('swoole.socket.port'));
             static::$instance = $webServer;
-        }
-    }
-
-    /**
-     * @param  SwooleWebSocketServer $instance
-     * @return void
-     */
-    public static function setInstance(SwooleWebSocketServer $instance)
-    {
-        if (!static::$instance) {
-            static::$instance = $instance;
         }
     }
 

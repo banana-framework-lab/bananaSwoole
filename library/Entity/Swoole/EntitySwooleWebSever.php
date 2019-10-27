@@ -23,11 +23,17 @@ class EntitySwooleWebSever
      */
     private static $instance = null;
 
+    /**
+     * EntitySwooleWebSever constructor.
+     */
     private function __construct()
     {
 
     }
 
+    /**
+     * EntitySwooleWebSever clone.
+     */
     private function __clone()
     {
 
@@ -41,17 +47,6 @@ class EntitySwooleWebSever
         if (!static::$instance) {
             $webServer = new SwooleHttpServer("0.0.0.0", Config::get('swoole.web.port'));
             static::$instance = $webServer;
-        }
-    }
-
-    /**
-     * @param  SwooleHttpServer $instance
-     * @return void
-     */
-    public static function setInstance(SwooleHttpServer $instance)
-    {
-        if (!static::$instance) {
-            static::$instance = $instance;
         }
     }
 

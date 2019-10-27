@@ -9,5 +9,4 @@ use Library\Server\SwooleWebServer;
 require dirname(__FILE__) . '/../vendor/autoload.php';
 
 // 运行http server
-$server = new SwooleWebServer();
-$server->run();
+(new SwooleWebServer())->run();

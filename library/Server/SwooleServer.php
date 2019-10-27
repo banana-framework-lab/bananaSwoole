@@ -45,19 +45,5 @@ class SwooleServer
     {
         // Config初始化
         Config::instanceSwooleStart();
-
-        //初始化SwooleWebSever
-        EntitySwooleWebSever::instanceStart();
-    }
-
-    /**
-     * 回收对象
-     * @param int $workerId
-     */
-    protected function recoverInstance(int $workerId)
-    {
-        RequestHelper::delInstance($workerId);
-        ResponseHelper::delInstance($workerId);
-        Router::delRouteInstance($workerId);
     }
 }
