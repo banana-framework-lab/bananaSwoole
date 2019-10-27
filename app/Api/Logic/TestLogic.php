@@ -4,6 +4,7 @@ namespace App\Api\Logic;
 
 use App\Api\Model\DataBaseModel\AdminModel;
 use App\Api\Model\DataBaseModel\NumberModel;
+use Error;
 
 /**
  * Created by PhpStorm.

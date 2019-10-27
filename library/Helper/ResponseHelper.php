@@ -2,6 +2,7 @@
 
 namespace Library\Helper;
 
+use Error;
 use Library\Entity\Swoole\EntitySwooleWebSever;
 use Swoole\Coroutine;
 
@@ -15,6 +16,11 @@ class ResponseHelper
      * @var array $instancePool
      */
     private static $instancePool = [];
+
+    /**
+     * @var array $dumpPool
+     */
+    private static $dumpPool = [];
 
     /**
      * ResponseHelper constructor.
@@ -51,8 +57,10 @@ class ResponseHelper
             $cid = Coroutine::getuid();
             $workerId = EntitySwooleWebSever::getInstance()->worker_id;
             unset(static::$instancePool[$workerId][$cid]);
+            unset(static::$dumpPool[$workerId][$cid]);
         } else {
             unset(static::$instancePool[$workerId]);
+            unset(static::$dumpPool[$workerId]);
         }
     }
 
@@ -75,6 +83,50 @@ class ResponseHelper
     {
         $cid = Coroutine::getuid();
         $workerId = EntitySwooleWebSever::getInstance()->worker_id;
-        return static::$instancePool[$workerId][$cid] ?? '';
+        return ((static::dumpResponse() ?? "") . (static::$instancePool[$workerId][$cid] ?? ''));
     }
+
+
+
+    /*******************************************************************************************************************/
+    /*                                                 var_dump模块
+    /*******************************************************************************************************************/
+
+    /**
+     * var_dump出去的数据
+     * @param mixed $content
+     */
+    public static function dump($content)
+    {
+        $cid = Coroutine::getuid();
+        $workId = EntitySwooleWebSever::getInstance()->worker_id;
+        static::$dumpPool[$workId][$cid][] = print_r($content, true);
+    }
+
+    /**
+     * 获取dump的返回值
+     * @return string
+     */
+    public static function dumpResponse()
+    {
+        $cid = Coroutine::getuid();
+        $workerId = EntitySwooleWebSever::getInstance()->worker_id;
+        $dumpData = static::$dumpPool[$workerId][$cid] ?? [];
+        $dumpString = '';
+        foreach ($dumpData as $key => $value) {
+            $dumpString .= $value;
+        }
+        return $dumpString;
+    }
+
+    /**
+     * var_dump推出协程
+     * @throws Error
+     */
+    public static function exit()
+    {
+        throw new Error('exit to get dump data', 888);
+    }
+
+
 }

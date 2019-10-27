@@ -52,7 +52,7 @@ class WebServerApp
             // Redis缓存初始化
             EntityRedis::instanceStart($workerId);
         } catch (Throwable $e) {
-            echo "worker_id:{$workerId}  启动时报错  ".$e->getMessage()."\n";
+            echo "worker_id:{$workerId}  启动时报错  " . $e->getMessage() . "\n";
             return;
         }
 
@@ -111,11 +111,13 @@ class WebServerApp
             }
         } catch (Throwable $e) {
             if (Config::get('app.debug')) {
-                $response->status(200);
-                $response->end(json_encode([
-                    'msg' => $e->getMessage(),
-                    'trace' => $e->getTraceAsString()
-                ]));
+                if ($e->getCode() != 888) {
+                    $response->status(200);
+                    $response->end($e->getMessage() . $e->getTraceAsString());
+                } else {
+                    $response->status(200);
+                    $response->end(ResponseHelper::dumpResponse());
+                }
             } else {
                 $response->status(500);
                 $response->end();

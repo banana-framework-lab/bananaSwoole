@@ -65,4 +65,12 @@ class TestController extends AbstractController
         $return = (new TestLogic())->getNumber();
         ResponseHelper::json(['data' => $return]);
     }
+
+    public function testVarDump()
+    {
+//        ResponseHelper::dump([1, 2, 3, 4, 5, 6, 7, 8]);
+//        ResponseHelper::dump([1, 2, 3, 4, 5, 6, 7, 8]);
+        ResponseHelper::json(['msg' => 'success']);
+//        ResponseHelper::exit();
+    }
 }
