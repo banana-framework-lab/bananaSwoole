@@ -8,17 +8,22 @@
 
 namespace Library;
 
-use Library\Object\WebSocket\SocketGetDataObject;
+use Library\Object\ChannelObject;
 
 class Channel
 {
     /**
      * 初始化Router类
-     * @param SocketGetDataObject $getData
-     * @return string
+     * @param array $requestData
+     * @return ChannelObject
      */
-    public static function route(SocketGetDataObject $getData)
+    public static function route(array $requestData): ChannelObject
     {
-        return "\\App\\{$getData->channel}\\Event\\{$getData->event}Event";
+        $channel = (isset($requestData['channel']) && $requestData['channel']) ? $requestData['channel'] : 'Api';
+        $event = (isset($requestData['event']) && $requestData['event']) ? $requestData['event'] : 'Api';
+        $channelObject = new ChannelObject();
+        $channelObject->setChannel($channel);
+        $channelObject->setEvent("\\App\\{$channel}\\Event\\{$event}Event");
+        return $channelObject;
     }
 }

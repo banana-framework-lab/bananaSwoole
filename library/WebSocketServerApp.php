@@ -11,13 +11,10 @@ namespace Library;
 use Library\Entity\Model\Cache\EntityRedis;
 use Library\Entity\Model\DataBase\EntityMongo;
 use Library\Entity\Model\DataBase\EntityMysql;
-use Library\Helper\ResponseHelper;
-use Library\Object\WebSocket\SocketGetDataObject;
-use Library\Object\WebSocket\SocketUserObject;
 use Throwable;
 use Swoole\Http\Request as SwooleHttpRequest;
-use Swoole\WebSocket\Frame as SwooleSocketFrame;
 use Swoole\WebSocket\Server as SwooleSocketServer;
+use Swoole\WebSocket\Frame as SwooleSocketFrame;
 
 
 /**
@@ -27,9 +24,9 @@ use Swoole\WebSocket\Server as SwooleSocketServer;
 class WebSocketServerApp
 {
     /**
-     * @param $workerId
+     * @param int $workerId
      */
-    public static function init($workerId)
+    public static function init(int $workerId)
     {
         //开启php调试模式
         if (Config::get('app.debug')) {
@@ -60,39 +57,30 @@ class WebSocketServerApp
     }
 
     /**
+     * 连接webSocket客户端
      * @param SwooleSocketServer $server
      * @param SwooleHttpRequest $request
      */
     public static function open(SwooleSocketServer $server, SwooleHttpRequest $request)
     {
-        $getData = new SocketGetDataObject($request->get);
-
-        // 检查用户连接socket时的参数
-        if (!Validate::checkSocketOpen($getData)) {
-            $server->disconnect($getData->fd, 1000, '传参错误');
-        }
-
-        // 检查用户连接socket是的加密参数
-        if (!Validate::checkSocketOpenSecret($getData)) {
-            $server->disconnect($getData->fd, 1000, '校验秘钥错误');
-        }
-
-        // 组装用户数据
-        $userData = new SocketUserObject($getData->id, $getData->appId, $getData->username, $getData->fd);
+        $openData = ($request->get) + ($request->post);
 
         // 选出所需通道
-        $eventClass = Channel::route($getData);
+        $channelObject = Channel::route($openData);
+
+        //初始化Event
+        $eventClass = $channelObject->getEvent();
 
         // 初始化事件器
         if (class_exists($eventClass)) {
-            $event = new $eventClass($getData, $userData);
-            if (method_exists($event, $getData->event)) {
-                $event->{$getData->event}();
+            $event = new $eventClass();
+            if (method_exists($event, 'open')) {
+                $event->open($server, $request);
             } else {
-                $server->disconnect($getData->fd, 1000, "找不到{$getData->event}");
+                $server->disconnect($request->fd, 1000, "找不到open方法");
             }
         } else {
-            $server->disconnect($getData->fd, 1000, "找不到{$eventClass}");
+            $server->disconnect($request->fd, 1000, "找不到{$eventClass}");
         }
     }
 

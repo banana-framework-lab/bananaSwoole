@@ -8,36 +8,28 @@
 
 namespace Library\Virtual\Event;
 
-use Library\Object\WebSocket\SocketGetDataObject;
-use Library\Object\WebSocket\SocketUserObject;
+use Swoole\Http\Request as SwooleHttpRequest;
+use Swoole\WebSocket\Server as SwooleSocketServer;
 
+/**
+ * Class AbstractEvent
+ * @package Library\Virtual\Event
+ */
 abstract class AbstractEvent
 {
     /**
-     * @var SocketGetDataObject $getData
-     */
-    public $getData;
-
-    /**
-     * @var SocketUserObject $userData
-     */
-    public $userData;
-
-    /**
      * AbstractEvent constructor.
-     * @param SocketGetDataObject $getData
-     * @param SocketUserObject $userData
      */
-    public function __construct(SocketGetDataObject $getData, SocketUserObject $userData)
+    public function __construct()
     {
-        $this->getData = $getData;
-        $this->userData = $userData;
     }
 
     /**
-     * @param SocketUserObject $userData
+     * 用户连接webSocket事件
+     * @param SwooleSocketServer $server
+     * @param SwooleHttpRequest $request
      */
-    abstract public function open(SocketUserObject $userData);
+    abstract public function open(SwooleSocketServer $server, SwooleHttpRequest $request);
 
     /**
      * @return mixed

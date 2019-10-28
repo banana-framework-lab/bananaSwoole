@@ -6,7 +6,7 @@
  * Time: 16:43
  */
 
-namespace Library\Object\Web;
+namespace Library\Object;
 
 /**
  * Class RouteObject
