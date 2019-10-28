@@ -80,7 +80,7 @@ class SwooleWebSocketServer extends SwooleServer
      */
     public function onMessage(SwooleSocketServer $server, SwooleSocketFrame $frame)
     {
-        var_dump('onMessage');
+        WebSocketServerApp::message($server, $frame);
     }
 
     /**
@@ -90,6 +90,6 @@ class SwooleWebSocketServer extends SwooleServer
      */
     public function onClose(SwooleSocketServer $server, int $fd)
     {
-        var_dump('onClose');
+        WebSocketServerApp::close($server, $fd);
     }
 }

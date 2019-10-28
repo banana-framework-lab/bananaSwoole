@@ -37,9 +37,6 @@ class WebSocketServerApp
             // 配置文件初始化
             Config::instanceStart();
 
-            // Validate初始化
-            Validate::instanceStart();
-
             // mysql数据库初始化
             EntityMysql::instanceStart($workerId);
 
@@ -48,8 +45,6 @@ class WebSocketServerApp
 
             // Redis缓存初始化
             EntityRedis::instanceStart($workerId);
-
-
         } catch (Throwable $e) {
             echo "worker_id:{$workerId}  启动时报错  " . $e->getMessage() . "\n";
             return;
@@ -71,31 +66,51 @@ class WebSocketServerApp
         //初始化Event
         $eventClass = $channelObject->getEvent();
 
-        // 初始化事件器
-        if (class_exists($eventClass)) {
-            $event = new $eventClass();
-            if (method_exists($event, 'open')) {
-                $event->open($server, $request);
+        try {
+            // 初始化事件器
+            if (class_exists($eventClass)) {
+                $event = new $eventClass();
+                if (method_exists($event, 'open')) {
+                    $event->open($server, $request);
+                } else {
+                    if (Config::get('app.debug')) {
+                        $server->disconnect($request->fd, 1000, "找不到open方法");
+                    } else {
+                        $server->disconnect($request->fd, 1000, "已断开连接");
+                    }
+                }
             } else {
-                $server->disconnect($request->fd, 1000, "找不到open方法");
+                if (Config::get('app.debug')) {
+                    $server->disconnect($request->fd, 1000, "找不到{$eventClass}");
+                } else {
+                    $server->disconnect($request->fd, 1000, "已断开连接!");
+                }
             }
-        } else {
-            $server->disconnect($request->fd, 1000, "找不到{$eventClass}");
+        } catch (Throwable $e) {
+            if (Config::get('app.debug')) {
+                $server->disconnect($request->fd, 1000, $e->getMessage() . "\n" . $e->getTraceAsString());
+            } else {
+                $server->disconnect($request->fd, 1000, "已断开连接.");
+            }
         }
     }
 
     /**
-     *
+     * 收到消息
+     * @param SwooleSocketServer $server
+     * @param SwooleSocketFrame $frame
      */
-    public static function message()
+    public static function message(SwooleSocketServer $server, SwooleSocketFrame $frame)
     {
 
     }
 
     /**
-     *
+     * 关闭连接
+     * @param SwooleSocketServer $server
+     * @param int $fd
      */
-    public static function close()
+    public static function close(SwooleSocketServer $server, int $fd)
     {
 
     }
