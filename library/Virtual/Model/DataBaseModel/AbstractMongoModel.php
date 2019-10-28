@@ -75,7 +75,7 @@ abstract class AbstractMongoModel
      */
     public function __get($name)
     {
-        switch ($name){
+        switch ($name) {
             case 'mongo':
                 return EntityMongo::getInstance();
             case 'db':
@@ -92,14 +92,14 @@ abstract class AbstractMongoModel
      * @param array $filter 筛选条件
      * @return array $filter
      */
-    abstract protected function getFilter($filter = []);
+    abstract protected function getFilter($filter = []): array;
 
     /**
      * 获取选择器结果
      * @param array $options 选择条件
      * @return array $options
      */
-    abstract protected function getOptions($options = []);
+    abstract protected function getOptions($options = []): array;
 
     /**
      * 获取默认的分页选择器
@@ -107,7 +107,7 @@ abstract class AbstractMongoModel
      * @param $limit
      * @return array
      */
-    protected function getDefaultPageOption($page, $limit)
+    protected function getDefaultPageOption($page, $limit): array
     {
         return [
             'skip' => $page > 0 ? (int)(($page - 1) * $limit) : 0,
@@ -121,7 +121,7 @@ abstract class AbstractMongoModel
      * @param array $options 选择器
      * @return array
      */
-    public function getList($filter = [], $options = [])
+    public function getList($filter = [], $options = []): array
     {
         $lastFilter = $this->getFilter($filter);
         $lastOptions = $this->getOptions($options) + ['projection' => ['_id' => 0]];
@@ -134,7 +134,7 @@ abstract class AbstractMongoModel
      * @param array $options
      * @return int
      */
-    public function getCount($filter = [], $options = [])
+    public function getCount($filter = [], $options = []): int
     {
         $lastFilter = $this->getFilter($filter);
         $lastOptions = $this->getOptions($options);
@@ -151,7 +151,7 @@ abstract class AbstractMongoModel
      * @param int $limit
      * @return array
      */
-    public function paginate($filter = [], $options = [], $page = 1, $limit = 10)
+    public function paginate($filter = [], $options = [], $page = 1, $limit = 10): array
     {
         // 格式化数据
         $page = (int)$page;
@@ -187,7 +187,7 @@ abstract class AbstractMongoModel
      * 获取当前集合的自增ID
      * @return int
      */
-    public function increaseId()
+    public function increaseId(): int
     {
         /**@var Collection $collection */
         $collection = $this->mongo->{$this->dbName}->{$this->increaseCollection};
@@ -235,9 +235,9 @@ abstract class AbstractMongoModel
      * @param array $option
      * @return int|null
      */
-    public function updateOne($filter, $update, $option = [])
+    public function updateOne($filter, $update, $option = []): int
     {
         $updateRes = $this->collection->updateOne($filter, ['$set' => $update], $option);
-        return $updateRes->getModifiedCount();
+        return (int)$updateRes->getModifiedCount();
     }
 }

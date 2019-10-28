@@ -13,7 +13,7 @@ use Library\Entity\Model\DataBase\EntityMongo;
 use Library\Entity\Model\DataBase\EntityMysql;
 use Library\Helper\RequestHelper;
 use Library\Helper\ResponseHelper;
-use Library\Object\RouteObject;
+use Library\Object\Web\RouteObject;
 use Library\Virtual\Middle\AbstractMiddleWare;
 use Swoole\Http\Request as SwooleRequest;
 use Swoole\Http\Response as SwooleResponse;
@@ -104,16 +104,28 @@ class WebServerApp
                         ResponseHelper::json($returnData);
                     }
                 } else {
-                    ResponseHelper::json(['msg' => "找不到{$methodName}"]);
+                    if (Config::get('app.debug')) {
+                        ResponseHelper::json(['msg' => "找不到{$methodName}"]);
+                    } else {
+                        $response->status(404);
+                        $response->end();
+                        return;
+                    }
                 }
             } else {
-                ResponseHelper::json(['msg' => "找不到{$controllerClass}"]);
+                if (Config::get('app.debug')) {
+                    ResponseHelper::json(['msg' => "找不到{$controllerClass}"]);
+                } else {
+                    $response->status(404);
+                    $response->end();
+                    return;
+                }
             }
         } catch (Throwable $e) {
             if (Config::get('app.debug')) {
                 if ($e->getCode() != 888) {
                     $response->status(200);
-                    $response->end($e->getMessage() . $e->getTraceAsString());
+                    $response->end($e->getMessage() . "\n" . $e->getTraceAsString());
                 } else {
                     $response->status(200);
                     $response->end(ResponseHelper::dumpResponse());

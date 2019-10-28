@@ -10,8 +10,8 @@ namespace App\Api\Controller;
 
 
 use App\Api\Logic\TestLogic;
+use App\Api\Model\DataBaseModel\AdminModel;
 use Co;
-use Exception;
 use Library\Helper\LogHelper;
 use Library\Helper\RequestHelper;
 use Library\Helper\ResponseHelper;
@@ -24,7 +24,7 @@ class TestController extends AbstractController
     {
         $start = json_encode(RequestHelper::server('request_time_float'));
         Co::sleep(3.0);
-        $string = 'serverName ' . RequestHelper::server('server_name') . ' cid ' . Coroutine::getuid() . '  start' . $start . '  end' . json_encode(EntitySwooleRequest::server('request_time_float')) . "";
+        $string = 'serverName ' . RequestHelper::server('server_name') . ' cid ' . Coroutine::getuid() . '  start' . $start . '  end' . json_encode(RequestHelper::server('request_time_float')) . "";
         LogHelper::info($string, ['msg' => 'swoole并发测试']);
     }
 
@@ -34,19 +34,11 @@ class TestController extends AbstractController
     }
 
     /**
+     *
      */
     public function indexError()
     {
-        try {
-            $this->test(1);
-        } catch (Exception $e) {
-            echo 1;
-        }
-//        var_dump(RequestHelper::getInstance());
-//        var_dump(ResponseHelper::getInstance());
-//        var_dump(Router::getRouteInstance());
-
-
+        $this->test(1);
     }
 
     private function test(array $a)
@@ -68,9 +60,14 @@ class TestController extends AbstractController
 
     public function testVarDump()
     {
+        ResponseHelper::dump([1, 2, 3, 4, 5, 6, 7, 8]);
 //        ResponseHelper::dump([1, 2, 3, 4, 5, 6, 7, 8]);
-//        ResponseHelper::dump([1, 2, 3, 4, 5, 6, 7, 8]);
-        ResponseHelper::json(['msg' => 'success']);
+//        ResponseHelper::json(['msg' => 'success']);
 //        ResponseHelper::exit();
+    }
+
+    public function testLongCheck()
+    {
+        (new AdminModel())->longCheck();
     }
 }

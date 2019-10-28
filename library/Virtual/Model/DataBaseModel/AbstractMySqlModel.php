@@ -8,6 +8,7 @@
 
 namespace Library\Virtual\Model\DataBaseModel;
 
+use Illuminate\Support\Collection;
 use Library\Entity\Model\DataBase\EntityMysql;
 use Library\Virtual\Property\AbstractProperty;
 use Illuminate\Database\Eloquent\Model;
@@ -61,9 +62,9 @@ abstract class AbstractMySqlModel extends Model
     /**
      * @param array $where 查询条件
      * @param array $orderBy 排序条件
-     * @return \Illuminate\Database\Query\Builder 查询构造器对象
+     * @return Builder 查询构造器对象
      */
-    abstract protected function getCondition($where, $orderBy = []);
+    abstract protected function getCondition($where, $orderBy = []): Builder;
 
     /**
      * 设置getList中需要查询的列名
@@ -82,9 +83,9 @@ abstract class AbstractMySqlModel extends Model
      * 根据条件筛选列表
      * @param array $where
      * @param array $orderBy
-     * @return \Illuminate\Support\Collection
+     * @return Collection
      */
-    public function getList($where = [], $orderBy = [])
+    public function getList($where = [], $orderBy = []): Collection
     {
         $builder = $this->getCondition($where, $orderBy);
         if ($this->listColumns != ['*']) {
@@ -116,7 +117,7 @@ abstract class AbstractMySqlModel extends Model
      * @param $where
      * @return int
      */
-    public function getCount($where)
+    public function getCount($where): int
     {
         unset($where['page'], $where['limit']);
         return $this->getCondition($where)->count();
@@ -127,7 +128,7 @@ abstract class AbstractMySqlModel extends Model
      * @param AbstractProperty $addObject
      * @return bool
      */
-    public function addOne($addObject)
+    public function addOne($addObject): bool
     {
         foreach ($addObject->toArray() as $key => $value) {
             if ($key != 'id') {
@@ -142,7 +143,7 @@ abstract class AbstractMySqlModel extends Model
      * @param AbstractProperty $updateInfo
      * @return int
      */
-    public function updateOne($updateInfo)
+    public function updateOne($updateInfo): int
     {
         foreach ($updateInfo->toArray() as $key => $value) {
             $this->$key = $value;
@@ -158,7 +159,7 @@ abstract class AbstractMySqlModel extends Model
      * @param string $whereField
      * @return int
      */
-    function updateBatch($update, $whenField = 'id', $whereField = 'id')
+    function updateBatch($update, $whenField = 'id', $whereField = 'id'): int
     {
         $when = [];
         $ids = [];

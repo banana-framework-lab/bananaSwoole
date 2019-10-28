@@ -1,16 +1,16 @@
 <?php
-
-namespace Library\Object;
-
 /**
  * Created by PhpStorm.
  * User: Administrator
  * Date: 2019/10/22
  * Time: 16:43
  */
+
+namespace Library\Object\Web;
+
 /**
  * Class RouteObject
- * @package Library\Object
+ * @package Library\Object\Web
  */
 class RouteObject
 {
@@ -32,7 +32,7 @@ class RouteObject
     /**
      * @return string
      */
-    public function getProject()
+    public function getProject(): string
     {
         return $this->project;
     }
@@ -48,7 +48,7 @@ class RouteObject
     /**
      * @return string
      */
-    public function getController()
+    public function getController(): string
     {
         return $this->controller;
     }
@@ -64,7 +64,7 @@ class RouteObject
     /**
      * @return string
      */
-    public function getMethod()
+    public function getMethod(): string
     {
         return $this->method;
     }

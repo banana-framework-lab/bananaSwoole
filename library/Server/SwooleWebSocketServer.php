@@ -2,7 +2,6 @@
 
 namespace Library\Server;
 
-use App\Server\Event\ServerEvent;
 use Library\Config;
 use Library\Entity\Swoole\EntitySwooleWebSocketSever;
 use Library\WebSocketServerApp;
@@ -66,11 +65,11 @@ class SwooleWebSocketServer extends SwooleServer
     /**
      * open事件回调
      * @param SwooleSocketServer $server
-     * @param SwooleHttpRequest $req
+     * @param SwooleHttpRequest $request
      */
-    public function onOpen(SwooleSocketServer $server, SwooleHttpRequest $req)
+    public function onOpen(SwooleSocketServer $server, SwooleHttpRequest $request)
     {
-        var_dump('onOpen');
+        WebSocketServerApp::open($server, $request);
     }
 
 

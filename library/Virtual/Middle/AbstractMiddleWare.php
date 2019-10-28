@@ -116,7 +116,7 @@ abstract class AbstractMiddleWare
      * @return array
      * @throws \Exception
      */
-    public function takeMiddleData()
+    public function takeMiddleData(): array
     {
         $httpData = [];
         foreach ($this->requestField as $key => $field_name) {

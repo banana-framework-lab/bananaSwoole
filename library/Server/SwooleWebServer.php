@@ -45,8 +45,8 @@ class SwooleWebServer extends SwooleServer
 
         //配置SwooleWebServer
         $this->server->set([
-//            'worker_num' => $this->workerNum,
-            'worker_num' => 1,
+            'worker_num' => $this->workerNum,
+//            'worker_num' => 1,
             'reload_async' => true
         ]);
 

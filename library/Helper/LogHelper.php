@@ -4,7 +4,7 @@ namespace Library\Helper;
 
 use Library\Config;
 use Library\Entity\Swoole\EntitySwooleWebSever;
-use Library\Object\RouteObject;
+use Library\Object\Web\RouteObject;
 use Library\Router;
 use Monolog\Logger;
 use Monolog\Formatter\LineFormatter;
@@ -57,9 +57,9 @@ class LogHelper
      */
     public static function __callStatic($name, $arguments)
     {
-        $routeObject = (Router::getRouteInstance());
+        $logObject = ((Router::getRouteInstance())->getProject()) ?: null;
 
-        self::$fileName = dirname(__FILE__) . '/../../app/' . $routeObject->getProject() . '/Runtime/logs/' . date('Ymd') . '/';
+        self::$fileName = dirname(__FILE__) . '/../../app/' . $logObject . '/Runtime/logs/' . date('Ymd') . '/';
 
         $logger = self::createLogger($name);
 

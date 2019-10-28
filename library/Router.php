@@ -3,7 +3,7 @@
 namespace Library;
 
 use Library\Entity\Swoole\EntitySwooleWebSever;
-use Library\Object\RouteObject;
+use Library\Object\Web\RouteObject;
 use Swoole\Coroutine;
 
 /**
@@ -50,16 +50,15 @@ class Router
      * 获取当前处理的匹配出的路由
      * @return RouteObject
      */
-    public static function getRouteInstance()
+    public static function getRouteInstance(): RouteObject
     {
         $workerId = EntitySwooleWebSever::getInstance()->worker_id;
         $cid = Coroutine::getuid();
-        return static::$routePool[$workerId][$cid];
+        return static::$routePool[$workerId][$cid]?:(new RouteObject());
     }
 
     /**
      * 删除当前路由对象
-     * @param int $workerId
      */
     public static function delRouteInstance(int $workerId = -1)
     {
@@ -77,7 +76,7 @@ class Router
      * @param string $requestUrl
      * @return RouteObject
      */
-    public static function router(string $requestUrl)
+    public static function router(string $requestUrl): RouteObject
     {
         $route = self::$routerPool[$requestUrl] ?? null;
         if (is_null($route)) {

@@ -25,7 +25,7 @@ class NumberModel extends AbstractMongoModel
      * @param array $filter 筛选条件
      * @return array $filter
      */
-    protected function getFilter($filter = [])
+    protected function getFilter($filter = []): array
     {
         // TODO: Implement getFilter() method.
         return [];
@@ -36,7 +36,7 @@ class NumberModel extends AbstractMongoModel
      * @param array $options 选择条件
      * @return array $options
      */
-    protected function getOptions($options = [])
+    protected function getOptions($options = []): array
     {
         // TODO: Implement getOptions() method.
         return [];

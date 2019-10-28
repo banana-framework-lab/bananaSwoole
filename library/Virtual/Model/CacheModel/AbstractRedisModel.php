@@ -23,7 +23,7 @@ abstract class AbstractRedisModel
 {
     /**
      * @param $name
-     * @return Redis
+     * @return null|Redis
      */
     public function __get($name)
     {

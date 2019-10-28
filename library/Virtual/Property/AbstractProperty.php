@@ -16,7 +16,7 @@ abstract class AbstractProperty
      * @return AbstractProperty
      * @throws \Exception
      */
-    public function setProperty($params)
+    public function setProperty(array $params)
     {
         $needParams = get_object_vars($this);
         foreach ($needParams as $key => $value) {
@@ -33,7 +33,7 @@ abstract class AbstractProperty
      * 生成数组
      * @return array
      */
-    public function toArray()
+    public function toArray(): array
     {
         $result = [];
         $ref = null;
@@ -57,7 +57,7 @@ abstract class AbstractProperty
      * 生成集合
      * @return stdClass
      */
-    public function toObject()
+    public function toObject(): stdClass
     {
         $collect = new stdClass();
         $ref = null;

@@ -2,6 +2,8 @@
 
 namespace App\Api\Model\DataBaseModel;
 
+use Illuminate\Database\Query\Builder;
+use Library\Helper\ResponseHelper;
 use Library\Virtual\Model\DataBaseModel\AbstractMySqlModel;
 
 /**
@@ -25,9 +27,9 @@ class AdminModel extends AbstractMySqlModel
     /**
      * @param array $where 查询条件
      * @param array $orderBy 排序条件
-     * @return \Illuminate\Database\Query\Builder 查询构造器对象
+     * @return Builder 查询构造器对象
      */
-    protected function getCondition($where, $orderBy = [])
+    protected function getCondition($where, $orderBy = []): Builder
     {
         $builder = $this->builder;
         if (isset($where['username'])) {
@@ -52,6 +54,11 @@ class AdminModel extends AbstractMySqlModel
             'username' => $username,
             'password' => $password
         ]);
+    }
+
+    public function longCheck()
+    {
+        ResponseHelper::dump($this->builder->selectRaw('count(id)')->get());
     }
 
 }
