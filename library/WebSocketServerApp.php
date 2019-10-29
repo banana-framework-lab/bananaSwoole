@@ -79,25 +79,26 @@ class WebSocketServerApp
                     //fd打开事件
                     $handler->open($server, $request);
                 } else {
-//                    if (Config::get('app.debug')) {
-//                        $server->disconnect($request->fd, 1000, "找不到open方法");
-//                    } else {
-                    $server->disconnect($request->fd, 1000, "close");
-//                    }
+                    if (Config::get('app.debug')) {
+                        $server->disconnect($request->fd, 1000, "找不到open方法");
+                    } else {
+                        $server->disconnect($request->fd, 1000, "close");
+                    }
                 }
             } else {
-//                if (Config::get('app.debug')) {
-//                    $server->disconnect($request->fd, 1000, "找不到{$handlerClass}");
-//                } else {
-                $server->disconnect($request->fd, 1000, "close!");
-//                }
+                if (Config::get('app.debug')) {
+                    $server->disconnect($request->fd, 1000, "找不到{$handlerClass}");
+                } else {
+                    $server->disconnect($request->fd, 1000, "close!");
+                }
             }
         } catch (Throwable $e) {
-//            if (Config::get('app.debug')) {
-//                $server->disconnect($request->fd, 1000, $e->getMessage() . "\n" . $e->getTraceAsString());
-//            } else {
-            $server->disconnect($request->fd, 1000, "close.");
-//            }
+            if (Config::get('app.debug')) {
+                echo $e->getMessage() . "\n" . $e->getTraceAsString();
+                $server->disconnect($request->fd, 1000, "已断开连接.");
+            } else {
+                $server->disconnect($request->fd, 1000, "close.");
+            }
         }
     }
 
@@ -141,7 +142,7 @@ class WebSocketServerApp
             }
         } catch (Throwable $e) {
             if (Config::get('app.debug')) {
-//                $server->disconnect($frame->fd, 1000, $e->getMessage() . "\n" . $e->getTraceAsString());
+                echo $e->getMessage() . "\n" . $e->getTraceAsString();
                 $server->disconnect($frame->fd, 1000, "已断开连接.");
             } else {
                 $server->disconnect($frame->fd, 1000, "已断开连接.");
