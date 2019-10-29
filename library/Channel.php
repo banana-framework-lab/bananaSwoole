@@ -10,6 +10,10 @@ namespace Library;
 
 use Library\Object\ChannelObject;
 
+/**
+ * Class Channel
+ * @package Library
+ */
 class Channel
 {
     /**
@@ -20,10 +24,10 @@ class Channel
     public static function route(array $requestData): ChannelObject
     {
         $channel = (isset($requestData['channel']) && $requestData['channel']) ? $requestData['channel'] : 'Api';
-        $event = (isset($requestData['event']) && $requestData['event']) ? $requestData['event'] : 'Api';
+        $handler = (isset($requestData['handler']) && $requestData['handler']) ? $requestData['handler'] : 'Index';
         $channelObject = new ChannelObject();
         $channelObject->setChannel($channel);
-        $channelObject->setEvent("\\App\\{$channel}\\Event\\{$event}Event");
+        $channelObject->setHandler("\\App\\{$channel}\\Handler\\{$handler}Handler");
         return $channelObject;
     }
 }

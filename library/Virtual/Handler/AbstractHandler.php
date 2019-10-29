@@ -6,16 +6,17 @@
  * Time: 16:29
  */
 
-namespace Library\Virtual\Event;
+namespace Library\Virtual\Handler;
 
 use Swoole\Http\Request as SwooleHttpRequest;
 use Swoole\WebSocket\Server as SwooleSocketServer;
+use Swoole\WebSocket\Frame as SwooleSocketFrame;
 
 /**
- * Class AbstractEvent
- * @package Library\Virtual\Event
+ * Class Handler
+ * @package Library\Virtual\Handler
  */
-abstract class AbstractEvent
+abstract class AbstractHandler
 {
     /**
      * AbstractEvent constructor.
@@ -32,12 +33,16 @@ abstract class AbstractEvent
     abstract public function open(SwooleSocketServer $server, SwooleHttpRequest $request);
 
     /**
-     * @return mixed
+     * 用户发送消息处理
+     * @param SwooleSocketServer $server
+     * @param SwooleSocketFrame $frame
      */
-    abstract public function message();
+    abstract public function message(SwooleSocketServer $server, SwooleSocketFrame $frame);
 
     /**
-     * @return mixed
+     * 用户关闭webSocket事件
+     * @param SwooleSocketServer $server
+     * @param int $fd
      */
-    abstract public function close();
+    abstract public function close(SwooleSocketServer $server, int $fd);
 }

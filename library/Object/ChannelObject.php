@@ -20,9 +20,9 @@ class ChannelObject
     private $channel;
 
     /**
-     * @var string $event
+     * @var string $handler
      */
-    private $event;
+    private $handler;
 
     /**
      * @return string
@@ -43,16 +43,16 @@ class ChannelObject
     /**
      * @return string
      */
-    public function getEvent(): string
+    public function getHandler(): string
     {
-        return $this->event;
+        return $this->handler;
     }
 
     /**
-     * @param string $event
+     * @param string $handler
      */
-    public function setEvent(string $event)
+    public function setHandler(string $handler)
     {
-        $this->event = $event;
+        $this->handler = $handler;
     }
 }

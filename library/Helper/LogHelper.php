@@ -104,7 +104,6 @@ class LogHelper
             $template = "\r\n---------------------------------------------------------------\r\n[%datetime%] {$requestInfo['ip']} {$requestInfo['method']} {$requestInfo['host']}{$requestInfo['uri']}";
             $template .= "\r\n[%channel%][%level_name%][MESSAGE]: %message%";
             $template .= "\r\n[%channel%][%level_name%][CONTEXT]: %context%";
-            $template .= "\r\n";
 
             // 组装跟踪栈信息
             // $backtrace数组第$idx元素是当前行，第$idx+1元素表示上一层，另外function、class需再往上取一个层次
@@ -124,6 +123,7 @@ class LogHelper
                 $trace .= $backtrace[$idx + 1]['function'];
             }
             $template .= "\r\n[%channel%][%level_name%][TRACE]: {$trace}";
+            $template .= "\r\n";
 
             // 日志格式
             $formatter = new LineFormatter($template, "Y-m-d H:i:s", true, true);

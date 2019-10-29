@@ -2,6 +2,7 @@
 
 namespace Library\Server;
 
+use Library\Binder;
 use Library\Config;
 use Library\Entity\Swoole\EntitySwooleWebSocketSever;
 use Library\WebSocketServerApp;
@@ -21,7 +22,10 @@ class SwooleWebSocketServer extends SwooleServer
     public function __construct()
     {
         parent::__construct();
+
         EntitySwooleWebSocketSever::instanceStart();
+        Binder::instanceStart();
+
         $this->server = EntitySwooleWebSocketSever::getInstance();
         $this->port = Config::get('swoole.socket.port');
     }
