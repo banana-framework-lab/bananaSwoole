@@ -2,6 +2,7 @@
 
 namespace Library\Helper;
 
+use Library\Binder;
 use Library\Config;
 use Library\Router;
 use Monolog\Logger;
@@ -12,20 +13,15 @@ use Monolog\Handler\RotatingFileHandler;
 /**
  * Class LogHelper
  * @package Library\Helper
- * @method static bool info(string $message = '', array $context = [], string $levelName = '')
- * @method static bool warning(string $message = '', array $context = [], string $levelName = '')
- * @method static bool error(string $message = '', array $context = [], string $levelName = '')
- * @method static bool success(string $message = '', array $context = [], string $levelName = '')
+ *
+ * @method static bool info(string $message = '', array $context = [], string $levelName = '', int $fd = 0)
+ * @method static bool warning(string $message = '', array $context = [], string $levelName = '', int $fd = 0)
+ * @method static bool error(string $message = '', array $context = [], string $levelName = '', int $fd = 0)
+ * @method static bool success(string $message = '', array $context = [], string $levelName = '', int $fd = 0)
  */
 class LogHelper
 {
     private static $loggers;
-
-    /**
-     * 日志默认保存路径
-     * @var string
-     */
-    private static $fileName = '';
 
     /**
      * 日志留存时间
@@ -54,11 +50,19 @@ class LogHelper
      */
     public static function __callStatic($name, $arguments)
     {
-        $logObject = ((Router::getRouteInstance())->getProject()) ?: null;
+        $logObject = ((Router::getRouteInstance())->getProject());
+        if (!$logObject) {
+            if (isset($arguments[4]) && is_numeric($arguments[4]) && $arguments > 0) {
+                $logObject = Binder::getChannelByFd($arguments[4])->getChannel();
+                $fileName = dirname(__FILE__) . '/../../app/' . $logObject . '/Runtime/logs/' . date('Ymd') . '/';
+            } else {
+                $fileName = dirname(__FILE__) . '/../../runtime/Runtime/logs/' . date('Ymd') . '/';
+            }
+        } else {
+            $fileName = dirname(__FILE__) . '/../../app/' . $logObject . '/Runtime/logs/' . date('Ymd') . '/';
+        }
 
-        self::$fileName = dirname(__FILE__) . '/../../app/' . $logObject . '/Runtime/logs/' . date('Ymd') . '/';
-
-        $logger = self::createLogger($name);
+        $logger = self::createLogger($name, $fileName);
 
         $message = empty($arguments[0]) ? '' : $arguments[0];
         $context = empty($arguments[1]) ? [] : $arguments[1];
@@ -72,17 +76,16 @@ class LogHelper
 
     /**
      * 创建日志对象
-     * @param $name
+     * @param string $name
+     * @param string $fileName
      * @return mixed
      */
-    private static function createLogger($name)
+    private static function createLogger(string $name, string $fileName)
     {
         if (empty(self::$loggers[$name])) {
 
             // 根据业务域名与方法名进行日志名称的确定
             $category = RequestHelper::server('server_name') ?: Config::get('app.server_name');
-            // 日志文件目录
-            $fileName = self::$fileName;
             // 日志保存时间
             $maxFiles = self::$maxFiles;
             // 日志等级
@@ -96,12 +99,13 @@ class LogHelper
 
             // 组装请求信息
             $requestInfo = [
-                'ip' => RequestHelper::server('remote_addr'),
-                'method' => RequestHelper::server('request_method'),
-                'host' => RequestHelper::server('http_host'),
-                'uri' => RequestHelper::server('request_uri')
+                'ip' => RequestHelper::server('remote_addr') ?: '',
+                'method' => RequestHelper::server('request_method') ?: '',
+                'host' => RequestHelper::server('http_host') ?: '',
+                'uri' => RequestHelper::server('request_uri') ?: ''
             ];
-            $template = "\r\n---------------------------------------------------------------\r\n[%datetime%] {$requestInfo['ip']} {$requestInfo['method']} {$requestInfo['host']}{$requestInfo['uri']}";
+            $template = "\r\n---------------------------------------------------------------";
+            $template .= "\r\n[%datetime%] {$requestInfo['ip']} {$requestInfo['method']} {$requestInfo['host']}{$requestInfo['uri']}";
             $template .= "\r\n[%channel%][%level_name%][MESSAGE]: %message%";
             $template .= "\r\n[%channel%][%level_name%][CONTEXT]: %context%";
 
@@ -129,6 +133,7 @@ class LogHelper
             $formatter = new LineFormatter($template, "Y-m-d H:i:s", true, true);
 
             $handler->setFormatter($formatter);
+
             $logger->pushHandler($handler);
 
             self::$loggers[$name] = $logger;

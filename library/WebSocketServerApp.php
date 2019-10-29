@@ -60,7 +60,7 @@ class WebSocketServerApp
      */
     public static function open(SwooleSocketServer $server, SwooleHttpRequest $request)
     {
-        $openData = ($request->get) + ($request->post);
+        $openData = ($request->get ?: []) + ($request->post ?: []);
 
         // 选出所需通道
         $channelObject = Channel::route($openData);
@@ -79,25 +79,25 @@ class WebSocketServerApp
                     //fd打开事件
                     $handler->open($server, $request);
                 } else {
-                    if (Config::get('app.debug')) {
-                        $server->disconnect($request->fd, 1000, "找不到open方法");
-                    } else {
-                        $server->disconnect($request->fd, 1000, "已断开连接");
-                    }
+//                    if (Config::get('app.debug')) {
+//                        $server->disconnect($request->fd, 1000, "找不到open方法");
+//                    } else {
+                    $server->disconnect($request->fd, 1000, "close");
+//                    }
                 }
             } else {
-                if (Config::get('app.debug')) {
-                    $server->disconnect($request->fd, 1000, "找不到{$handlerClass}");
-                } else {
-                    $server->disconnect($request->fd, 1000, "已断开连接!");
-                }
+//                if (Config::get('app.debug')) {
+//                    $server->disconnect($request->fd, 1000, "找不到{$handlerClass}");
+//                } else {
+                $server->disconnect($request->fd, 1000, "close!");
+//                }
             }
         } catch (Throwable $e) {
-            if (Config::get('app.debug')) {
-                $server->disconnect($request->fd, 1000, $e->getMessage() . "\n" . $e->getTraceAsString());
-            } else {
-                $server->disconnect($request->fd, 1000, "已断开连接.");
-            }
+//            if (Config::get('app.debug')) {
+//                $server->disconnect($request->fd, 1000, $e->getMessage() . "\n" . $e->getTraceAsString());
+//            } else {
+            $server->disconnect($request->fd, 1000, "close.");
+//            }
         }
     }
 
@@ -111,6 +111,10 @@ class WebSocketServerApp
         try {
             // 获取所需通道
             $channelObject = Binder::getChannelByFd($frame->fd);
+            if (!$channelObject) {
+                $server->disconnect($frame->fd, 1000, "找不到fd对应的Channel");
+                return;
+            }
 
             //初始化Handler
             $handlerClass = $channelObject->getHandler();
@@ -137,7 +141,8 @@ class WebSocketServerApp
             }
         } catch (Throwable $e) {
             if (Config::get('app.debug')) {
-                $server->disconnect($frame->fd, 1000, $e->getMessage() . "\n" . $e->getTraceAsString());
+//                $server->disconnect($frame->fd, 1000, $e->getMessage() . "\n" . $e->getTraceAsString());
+                $server->disconnect($frame->fd, 1000, "已断开连接.");
             } else {
                 $server->disconnect($frame->fd, 1000, "已断开连接.");
             }
@@ -154,6 +159,10 @@ class WebSocketServerApp
         try {
             // 获取所需通道
             $channelObject = Binder::getChannelByFd($fd);
+            if (!$channelObject) {
+                echo "找不到fd对应的Channel\n";
+                return;
+            }
 
             //初始化Handler
             $handlerClass = $channelObject->getHandler();
@@ -168,25 +177,13 @@ class WebSocketServerApp
                 if (method_exists($handlerClass, 'open')) {
                     $handler->close($server, $fd);
                 } else {
-                    if (Config::get('app.debug')) {
-                        $server->disconnect($fd, 1000, "找不到close方法");
-                    } else {
-                        $server->disconnect($fd, 1000, "已断开连接");
-                    }
+                    echo "找不到close方法\n";
                 }
             } else {
-                if (Config::get('app.debug')) {
-                    $server->disconnect($fd, 1000, "找不到{$handlerClass}");
-                } else {
-                    $server->disconnect($fd, 1000, "已断开连接!");
-                }
+                echo "找不到{$handlerClass}\n";
             }
         } catch (Throwable $e) {
-            if (Config::get('app.debug')) {
-                $server->disconnect($fd, 1000, $e->getMessage() . "\n" . $e->getTraceAsString());
-            } else {
-                $server->disconnect($fd, 1000, "已断开连接.");
-            }
+            echo $e->getMessage() . "\n" . $e->getTraceAsString() . "\n";
         }
     }
 

@@ -49,6 +49,8 @@ class SwooleWebSocketServer extends SwooleServer
         $this->server->on('Open', [$this, 'onOpen']);
         $this->server->on('Message', [$this, 'onMessage']);
         $this->server->on('Close', [$this, 'onClose']);
+        $this->server->on('WorkerStop', [$this, 'onWorkerStop']);
+        $this->server->on('WorkerError', [$this, 'onWorkerError']);
 
         $this->server->start();
     }
@@ -95,5 +97,30 @@ class SwooleWebSocketServer extends SwooleServer
     public function onClose(SwooleSocketServer $server, int $fd)
     {
         WebSocketServerApp::close($server, $fd);
+    }
+
+    /**
+     * onWorkerError事件
+     *
+     * @param SwooleSocketServer $server
+     * @param int $workerId
+     * @param int $workerPid
+     * @param int $exitCode
+     * @param int $signal
+     */
+    public function onWorkerError(SwooleSocketServer $server, int $workerId, int $workerPid, int $exitCode, int $signal)
+    {
+        echo "master_id:{$server->master_pid}  worker_pid:{$workerPid}  worker_id:{$workerId}  异常关闭:错误码 {$exitCode},信号 {$signal}\n";
+    }
+
+    /**
+     * onWorkerStop事件
+     *
+     * @param SwooleSocketServer $server
+     * @param int $workerId
+     */
+    public function onWorkerStop(SwooleSocketServer $server, int $workerId)
+    {
+        echo "master_id:{$server->master_pid}  worker_pid:{$server->worker_pid}  worker_id:{$workerId}  正常关闭\n";
     }
 }

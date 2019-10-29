@@ -40,11 +40,11 @@ class Binder
     /**
      * 获取通道对象
      * @param int $fd
-     * @return ChannelObject
+     * @return ChannelObject|null
      */
-    public static function getChannelByFd(int $fd): ChannelObject
+    public static function getChannelByFd(int $fd)
     {
-        return self::$bindMap["$fd"];
+        return self::$bindMap["$fd"] ?? null;
     }
 
     /**
