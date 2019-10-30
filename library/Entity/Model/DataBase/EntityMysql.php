@@ -140,7 +140,7 @@ class EntityMysql
             if (method_exists($instance, $method)) {
                 return $instance->$method(...$args);
             } else {
-                throw new \Exception("Mysql数据库对象没有方法$method");
+                throw new \Exception("Mysql数据库对象没有方法{$method}");
             }
         }
 

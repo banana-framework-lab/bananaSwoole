@@ -39,6 +39,9 @@ class WebSocketServerApp
             // 配置文件初始化
             Config::instanceStart();
 
+            // 通道配置
+            Channel::instanceStart();
+
             // mysql数据库初始化
             EntityMysql::instanceStart($workerId);
 
