@@ -11,13 +11,15 @@ return [
         'port' => 5672,
         'user' => 'admin',
         'password' => 'tanwan888',
-        'vhost' => 'tanwange_chat'
+        'vhost' => 'tanwange_chat',
+        'message_exchange' => 'webSocket_message_exchange'
     ],
     'server' => [
         'host' => '101.132.105.248',
         'port' => 5672,
         'user' => 'admin',
         'password' => 'tanwan888',
-        'vhost' => 'tanwange_chat'
+        'vhost' => 'tanwange_chat',
+        'message_exchange' => 'webSocket_message_exchange'
     ]
 ];

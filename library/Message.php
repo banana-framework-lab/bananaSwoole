@@ -10,6 +10,7 @@ namespace Library;
 
 use Library\Entity\MessageQueue\EntityRabbit;
 use Library\Entity\Swoole\EntitySwooleWebSocketSever;
+use Library\Virtual\Handler\AbstractHandler;
 use Library\Virtual\Object\AbstractMessageObject;
 use PhpAmqpLib\Channel\AMQPChannel;
 use PhpAmqpLib\Connection\AMQPSwooleConnection;
@@ -25,7 +26,7 @@ class Message
      * 发送消息到消息队列
      * @param AbstractMessageObject $messageObject
      */
-    public static function publishMessage(AbstractMessageObject $messageObject)
+    public static function publish(AbstractMessageObject $messageObject)
     {
         $connection = EntityRabbit::getInstance();
 
@@ -42,7 +43,7 @@ class Message
         $channel->queue_bind($queue, $exchangeName, $queue);
 
         $message = new AMQPMessage(
-            serialize($messageObject->toMessageData()),
+            serialize($messageObject),
             [
                 'content_type' => 'text/plain',
                 'delivery_mode' => AMQPMessage::DELIVERY_MODE_PERSISTENT
@@ -56,7 +57,7 @@ class Message
     /**
      * 消化消息队列的消息
      */
-    public static function consumeMessage()
+    public static function consume()
     {
         $channelList = Channel::getChannelList();
         foreach ($channelList as $key => $channel) {
@@ -90,16 +91,20 @@ class Message
                     $channel = $message->delivery_info['channel'];
 
                     $channel->basic_ack($message->delivery_info['delivery_tag']);
-                    // 消息体
+
+                    /* @var AbstractMessageObject $messageBody */
                     $messageBody = unserialize($message->body);
 
-                    // push判断一下
-                    if (EntitySwooleWebSocketSever::getInstance()->exist((int)($messageBody['toFd']))) {
-                        EntitySwooleWebSocketSever::getInstance()->push(
-                            $messageBody['toFd'],
-                            json_encode($messageBody, JSON_UNESCAPED_UNICODE),
-                            WEBSOCKET_OPCODE_TEXT
-                        );
+                    $channelObject = Channel::route(['channel' => $messageBody->channel]);
+
+                    $handlerClass = $channelObject->getHandler();
+
+                    /* @var AbstractHandler $handler */
+                    $handler = new $handlerClass();
+
+                    //fd存在则触发发送函数
+                    if (EntitySwooleWebSocketSever::getInstance()->exist((int)($messageBody->toFd))) {
+                        $handler->consume($messageBody);
                     }
                 };
 

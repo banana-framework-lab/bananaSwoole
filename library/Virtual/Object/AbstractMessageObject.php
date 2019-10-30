@@ -16,8 +16,7 @@ abstract class AbstractMessageObject
     public $channel;
 
     /**
-     * 设置字段值
-     * @return array
+     * @var int $toFd 发送到那个fd
      */
-    abstract public function toMessageData(): array;
+    public $toFd;
 }

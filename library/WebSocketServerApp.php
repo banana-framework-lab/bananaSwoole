@@ -50,6 +50,9 @@ class WebSocketServerApp
 
             // Redis缓存初始化
             EntityRedis::instanceStart($workerId);
+
+            // 消化消息队列的消息
+            Message::consume();
         } catch (Throwable $e) {
             echo "worker_id:{$workerId}  启动时报错  " . $e->getMessage() . "\n";
             return;

@@ -9,6 +9,7 @@
 namespace App\Api\Handler;
 
 use Library\Virtual\Handler\AbstractHandler;
+use Library\Virtual\Object\AbstractMessageObject;
 use Swoole\Http\Request as SwooleHttpRequest;
 use Swoole\WebSocket\Frame as SwooleSocketFrame;
 use Swoole\WebSocket\Server as SwooleSocketServer;
@@ -43,5 +44,15 @@ class TestHandler extends AbstractHandler
     public function close(SwooleSocketServer $server, int $fd)
     {
         echo "3\n";
+    }
+
+
+    /**
+     * 用户发消息消化
+     * @param AbstractMessageObject $messageObject
+     */
+    public function consume(AbstractMessageObject $messageObject)
+    {
+        echo "4\n";
     }
 }
