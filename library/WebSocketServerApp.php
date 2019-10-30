@@ -8,6 +8,7 @@
 
 namespace Library;
 
+use Library\Entity\MessageQueue\EntityRabbit;
 use Library\Entity\Model\Cache\EntityRedis;
 use Library\Entity\Model\DataBase\EntityMongo;
 use Library\Entity\Model\DataBase\EntityMysql;
@@ -50,6 +51,9 @@ class WebSocketServerApp
 
             // Redis缓存初始化
             EntityRedis::instanceStart($workerId);
+
+            // rabbitMq初始化
+            EntityRabbit::instanceStart($workerId);
 
             // 消化消息队列的消息
             Message::consume();

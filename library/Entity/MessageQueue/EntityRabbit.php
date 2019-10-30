@@ -10,6 +10,7 @@ namespace Library\Entity\MessageQueue;
 
 use Library\Config;
 use Library\Entity\Swoole\EntitySwooleWebSever;
+use Library\Entity\Swoole\EntitySwooleWebSocketSever;
 use PhpAmqpLib\Connection\AMQPStreamConnection;
 
 class EntityRabbit
@@ -54,7 +55,7 @@ class EntityRabbit
      */
     public static function getInstance()
     {
-        $workerId = EntitySwooleWebSever::getInstance()->worker_id;
+        $workerId = EntitySwooleWebSocketSever::getInstance()->worker_id;
         return self::$instance[$workerId];
     }
 }
