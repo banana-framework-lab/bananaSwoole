@@ -54,7 +54,7 @@ class Message
     }
 
     /**
-     *
+     * 消化消息队列的消息
      */
     public static function consumeMessage()
     {

@@ -43,7 +43,8 @@ class Channel
      */
     public static function route(array $requestData): ChannelObject
     {
-        $channel = self::$channelPool[$requestData['channel']] ?? null;
+        $requestChannel = $requestData['channel'] ?? 'Api';
+        $channel = self::$channelPool[$requestChannel] ?? null;
         if (is_null($channel)) {
             $channel = (isset($requestData['channel']) && $requestData['channel']) ? $requestData['channel'] : 'Api';
             $handler = (isset($requestData['handler']) && $requestData['handler']) ? $requestData['handler'] : 'Index';
@@ -53,7 +54,7 @@ class Channel
             return $channelObject;
         } else {
             $channelObject = new ChannelObject();
-            $channelObject->setChannel($requestData['channel']);
+            $channelObject->setChannel($requestChannel);
             $channelObject->setHandler($channel);
             return $channelObject;
         }

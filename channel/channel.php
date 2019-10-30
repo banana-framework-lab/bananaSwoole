@@ -6,5 +6,5 @@
  * Time: 20:25
  */
 return [
-    ''
+    'Api' => '\App\Api\Handler\TestHandler'
 ];

@@ -164,7 +164,7 @@ class WebSocketServerApp
             // 获取所需通道
             $channelObject = Binder::getChannelByFd($fd);
             if (!$channelObject) {
-                echo "找不到fd对应的Channel\n";
+                echo "找不到fd对应的Channel!\n";
                 return;
             }
 
