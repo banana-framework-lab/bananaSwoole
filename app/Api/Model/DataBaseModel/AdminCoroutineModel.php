@@ -61,7 +61,7 @@ class AdminCoroutineModel extends AbstractCoroutineMySqlModel
      */
     public function longCheck()
     {
-        ResponseHelper::dump($this->builder->selectRaw('count(id)')->get());
+        ResponseHelper::dump($this->builder->count());
     }
 
 }

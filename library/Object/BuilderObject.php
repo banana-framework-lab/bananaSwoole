@@ -10,6 +10,7 @@ namespace Library\Object;
 
 use Closure;
 use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Arr;
 use Library\Config;
 use Library\Entity\Model\DataBase\EntityMysql;
 use Library\Helper\RequestHelper;
@@ -28,6 +29,7 @@ use Swoole\Coroutine\MySQL;
  * @method bool insert(string $query, array $bindings = [])
  * @method int update(string $query, array $bindings = [])
  * @method int delete(string $query, array $bindings = [])
+ * @method int count()
  * @method bool statement(string $query, array $bindings = [])
  * @method int affectingStatement(string $query, array $bindings = [])
  * @method bool unprepared(string $query)
@@ -79,10 +81,6 @@ class BuilderObject
         ];
         $this->client = new MySQL('mysql');
         $this->client->connect($coroutineMysqlConfig);
-
-//        var_dump($coroutineMysqlConfig);
-//        var_dump($this->client);
-//        ResponseHelper::exit();
     }
 
     /**
@@ -97,13 +95,17 @@ class BuilderObject
                 $this->builder->take(1);
                 $result = $this->builderDo();
                 return $result ? $result[0] : false;
+            case 'count':
+                $this->builder->selectRaw('count(*) as number');
+                $result = $this->builderDo();
+                return $result ? (int)$result[0]['number'] : 0;
             case 'get':
                 return $this->builderDo();
-            case  'beginTransaction':
+            case 'beginTransaction':
                 return $this->client->begin();
-            case  'commit':
+            case 'commit':
                 return $this->client->commit();
-            case  'rollBack':
+            case 'rollBack':
                 return $this->client->rollback();
             default:
                 $this->builder->$name(...$arguments);
