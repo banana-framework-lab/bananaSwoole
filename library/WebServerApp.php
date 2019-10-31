@@ -14,6 +14,7 @@ use Library\Entity\Model\DataBase\EntityMysql;
 use Library\Helper\RequestHelper;
 use Library\Helper\ResponseHelper;
 use Library\Object\RouteObject;
+use Library\Pool\CoroutineMysqlClientPool;
 use Library\Virtual\Middle\AbstractMiddleWare;
 use Swoole\Http\Request as SwooleRequest;
 use Swoole\Http\Response as SwooleResponse;
@@ -45,6 +46,9 @@ class WebServerApp
 
             // mysql数据库初始化
             EntityMysql::instanceStart($workerId);
+
+            // 协程mysql连接池初始化
+            CoroutineMysqlClientPool::poolInit($workerId);
 
             // mongo数据库初始化
             EntityMongo::instanceStart($workerId);

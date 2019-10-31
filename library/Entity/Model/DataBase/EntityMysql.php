@@ -117,9 +117,8 @@ class EntityMysql
     /**
      * @return MysqlClient
      */
-    public static function getInstance()
+    public static function getInstance(int $workerId)
     {
-        $workerId = EntitySwooleWebSever::getInstance()->worker_id;
         return self::$instance[$workerId];
     }
 

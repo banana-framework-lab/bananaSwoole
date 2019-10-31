@@ -36,9 +36,15 @@ abstract class AbstractMySqlModel extends Model
     protected $dateFormat = 'U';
 
     /**
-     * @var array getList中需要查询的列名
+     * @var array $listColumns getList中需要查询的列名
      */
     private $listColumns = ['*'];
+
+    /**
+     * 当前执行的workerId-fpm下可以默认0
+     * @var int $workerId
+     */
+    private $workerId;
 
     /**
      * 获取数据库对象
@@ -65,6 +71,13 @@ abstract class AbstractMySqlModel extends Model
      * @return Builder 查询构造器对象
      */
     abstract protected function getCondition($where, $orderBy = []): Builder;
+
+    /**
+     * 设置workerId
+     * @param int $workerId
+     * @return mixed
+     */
+    abstract protected function setWorkerId(int $workerId);
 
     /**
      * 设置getList中需要查询的列名

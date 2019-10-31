@@ -72,11 +72,11 @@ class EntityMongo
 
     /**
      * 返回当前实体类实例
+     * @param int $workerId
      * @return MongoDbClient
      */
-    public static function getInstance()
+    public static function getInstance(int $workerId)
     {
-        $workerId = EntitySwooleWebSever::getInstance()->worker_id;
         return self::$instance[$workerId];
     }
 
