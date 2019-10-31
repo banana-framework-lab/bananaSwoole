@@ -10,6 +10,7 @@ namespace App\Api\Controller;
 
 
 use App\Api\Logic\TestLogic;
+use App\Api\Model\DataBaseModel\AdminCoroutineModel;
 use App\Api\Model\DataBaseModel\AdminModel;
 use Co;
 use Library\Helper\LogHelper;
@@ -26,6 +27,11 @@ class TestController extends AbstractController
         Co::sleep(3.0);
         $string = 'serverName ' . RequestHelper::server('server_name') . ' cid ' . Coroutine::getuid() . '  start' . $start . '  end' . json_encode(RequestHelper::server('request_time_float')) . "";
         LogHelper::info($string, ['msg' => 'swoole并发测试']);
+    }
+
+    public function testModelCover()
+    {
+        (new TestLogic())->sqlCover();
     }
 
     public function index()
@@ -46,11 +52,7 @@ class TestController extends AbstractController
 
     }
 
-    public function login()
-    {
-        $return = (new TestLogic())->login('zhangzhonghao', '123456');
-        ResponseHelper::json(['data' => $return]);
-    }
+
 
     public function getNumber()
     {
@@ -69,5 +71,23 @@ class TestController extends AbstractController
     public function testLongCheck()
     {
         (new AdminModel())->longCheck();
+    }
+
+    public function login()
+    {
+        $return = (new TestLogic())->login('zhangzhonghao', '123456');
+        ResponseHelper::json(['data' => $return]);
+    }
+
+
+    public function testCoroutineLongCheck()
+    {
+        (new AdminCoroutineModel())->longCheck();
+    }
+
+    public function coroutineLogin()
+    {
+        $return = (new TestLogic())->coroutineLogin('zhangzhonghao', '123456');
+        ResponseHelper::json(['data' => $return]);
     }
 }
