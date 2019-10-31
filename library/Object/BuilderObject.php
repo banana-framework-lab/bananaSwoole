@@ -10,10 +10,8 @@ namespace Library\Object;
 
 use Closure;
 use Illuminate\Database\Query\Builder;
-use Illuminate\Support\Arr;
 use Library\Config;
 use Library\Entity\Model\DataBase\EntityMysql;
-use Library\Helper\RequestHelper;
 use Library\Helper\ResponseHelper;
 use Swoole\Coroutine\MySQL;
 
@@ -91,6 +89,8 @@ class BuilderObject
     public function __call($name, $arguments)
     {
         switch ($name) {
+            case 'get':
+                return $this->builderDo();
             case 'first':
                 $this->builder->take(1);
                 $result = $this->builderDo();
@@ -99,8 +99,6 @@ class BuilderObject
                 $this->builder->selectRaw('count(*) as number');
                 $result = $this->builderDo();
                 return $result ? (int)$result[0]['number'] : 0;
-            case 'get':
-                return $this->builderDo();
             case 'beginTransaction':
                 return $this->client->begin();
             case 'commit':
