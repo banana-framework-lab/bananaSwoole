@@ -16,21 +16,21 @@ class Binder
      * websocket连接的fd都会储存在这里
      * @var array $bindMap
      */
-    public static $bindMap = null;
+    public $bindMap = null;
 
     /**
      * http请求的fd都会储存这里
      * @var array $httpMap
      */
-    public static $httpMap = null;
+    public $httpMap = null;
 
     /**
      * 初始化bindMap对象
      */
-    public static function instanceStart()
+    public function instanceStart()
     {
-        if (!self::$bindMap) {
-            self::$bindMap = [];
+        if (!$this->bindMap) {
+            $this->bindMap = [];
         }
     }
 
@@ -39,9 +39,9 @@ class Binder
      * @var int $fd
      * @param ChannelObject $channelObject
      */
-    public static function fdBindChannel(int $fd, ChannelObject $channelObject)
+    public function fdBindChannel(int $fd, ChannelObject $channelObject)
     {
-        self::$bindMap["$fd"] = $channelObject;
+        $this->bindMap["$fd"] = $channelObject;
     }
 
     /**
@@ -49,36 +49,36 @@ class Binder
      * @param int $fd
      * @return ChannelObject|null
      */
-    public static function getChannelByFd(int $fd)
+    public function getChannelByFd(int $fd)
     {
-        return self::$bindMap["$fd"] ?? null;
+        return $this->bindMap["$fd"] ?? null;
     }
 
     /**
      * fd解绑通道
      * @param int $fd
      */
-    public static function fdUnBindChannel(int $fd)
+    public function fdUnBindChannel(int $fd)
     {
-        unset(self::$bindMap["$fd"]);
+        unset($this->bindMap["$fd"]);
     }
 
     /**
      * 设置fd为http请求
      * @param int $fd
      */
-    public static function pushFdInHttp(int $fd)
+    public function pushFdInHttp(int $fd)
     {
-        self::$httpMap["$fd"] = 1;
+        $this->httpMap["$fd"] = 1;
     }
 
     /**
      * @param $fd
      * @return bool
      */
-    public static function fdIsHttp($fd): bool
+    public function fdIsHttp($fd): bool
     {
-        if (isset(self::$httpMap["$fd"])) {
+        if (isset($this->httpMap["$fd"])) {
             return true;
         } else {
             return false;
@@ -89,8 +89,8 @@ class Binder
      * 取消fd为http请求
      * @param int $fd
      */
-    public static function popFdInHttp(int $fd)
+    public function popFdInHttp(int $fd)
     {
-        unset(self::$httpMap["$fd"]);
+        unset($this->httpMap["$fd"]);
     }
 }

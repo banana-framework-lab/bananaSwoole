@@ -22,6 +22,8 @@ use Swoole\Http\Response as SwooleResponse;
  */
 class SwooleWebSocketServer extends SwooleServer
 {
+    public $binder ;
+
     /**
      * SwooleWebSocketServer constructor.
      */
@@ -33,7 +35,7 @@ class SwooleWebSocketServer extends SwooleServer
         EntitySwooleWebSocketSever::instanceStart();
 
         //初始化绑定路由
-        Binder::instanceStart();
+        $this->binder = new Binder();
 
         //初始化全局对象
         EntitySwooleServer::setInstance(EntitySwooleWebSocketSever::getInstance());
@@ -76,10 +78,11 @@ class SwooleWebSocketServer extends SwooleServer
      */
     public function onWorkerStart(SwooleSocketServer $server, int $workerId)
     {
-        $this->appServerList[$workerId] = new WebSocketServerApp();
+        $this->appServerList[$server->worker_pid] = new WebSocketServerApp($this->binder);
+        var_dump( $this->appServerList);
 
         /* @var WebSocketServerApp $app */
-        $app = $this->appServerList[$workerId];
+        $app = $this->appServerList[$server->worker_pid];
 
         $app->init($workerId);
 
@@ -143,7 +146,7 @@ class SwooleWebSocketServer extends SwooleServer
     public function onOpen(SwooleSocketServer $server, SwooleHttpRequest $request)
     {
         /* @var WebSocketServerApp $app */
-        $app = $this->appServerList[EntitySwooleServer::getInstance()->worker_id];
+        $app = $this->appServerList[EntitySwooleServer::getInstance()->worker_pid];
         $app->open($server, $request);
     }
 
@@ -156,7 +159,7 @@ class SwooleWebSocketServer extends SwooleServer
     public function onMessage(SwooleSocketServer $server, SwooleSocketFrame $frame)
     {
         /* @var WebSocketServerApp $app */
-        $app = $this->appServerList[EntitySwooleServer::getInstance()->worker_id];
+        $app = $this->appServerList[EntitySwooleServer::getInstance()->worker_pid];
         $app->message($server, $frame);
     }
 
@@ -168,7 +171,7 @@ class SwooleWebSocketServer extends SwooleServer
     public function onClose(SwooleSocketServer $server, int $fd)
     {
         /* @var WebSocketServerApp $app */
-        $app = $this->appServerList[EntitySwooleServer::getInstance()->worker_id];
+        $app = $this->appServerList[EntitySwooleServer::getInstance()->worker_pid];
         $app->close($server, $fd);
     }
 

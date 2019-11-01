@@ -33,17 +33,23 @@ use Throwable;
  */
 class WebSocketServerApp
 {
+    public $binder;
+
+    /**
+     * WebSocketServerApp constructor.
+     * @param Binder $binder
+     */
+    public function __construct(Binder $binder)
+    {
+        $this->binder = $binder;
+    }
+
     /**
      * 初始化webSocketApp对象
      * @param int $workerId
      */
     public function init(int $workerId)
     {
-        //开启php调试模式
-        if (Config::get('app.debug')) {
-            error_reporting(E_ALL);
-        }
-
         try {
             // 配置文件初始化
             Config::instanceStart();
@@ -71,6 +77,11 @@ class WebSocketServerApp
 
             // 消化消息队列的消息
             Message::consume();
+
+            //开启php调试模式
+            if (Config::get('app.debug')) {
+                error_reporting(E_ALL);
+            }
         } catch (Throwable $e) {
             echo "worker_id:{$workerId}  启动时报错  " . $e->getMessage() . "\n";
             return;
@@ -99,7 +110,7 @@ class WebSocketServerApp
                 $handler = new $handlerClass();
                 if (method_exists($handlerClass, 'open')) {
                     //fd绑定通道
-                    Binder::fdBindChannel($request->fd, $channelObject);
+                    $this->binder->fdBindChannel($request->fd, $channelObject);
                     //fd打开事件
                     $handler->open($server, $request);
                 } else {
@@ -133,9 +144,10 @@ class WebSocketServerApp
      */
     public function message(SwooleSocketServer $server, SwooleSocketFrame $frame)
     {
+        var_dump($this->binder->bindMap);
         try {
             // 获取所需通道
-            $channelObject = Binder::getChannelByFd($frame->fd);
+            $channelObject = $this->binder->getChannelByFd($frame->fd);
             if (!$channelObject) {
                 $server->disconnect($frame->fd, 1000, "找不到fd对应的Channel");
                 return;
@@ -181,13 +193,13 @@ class WebSocketServerApp
      */
     public function close(SwooleSocketServer $server, int $fd)
     {
-        if (Binder::fdIsHttp($fd)) {
-            Binder::popFdInHttp($fd);
+        if ($this->binder->fdIsHttp($fd)) {
+            $this->binder->popFdInHttp($fd);
             return;
         } else {
             try {
                 // 获取所需通道
-                $channelObject = Binder::getChannelByFd($fd);
+                $channelObject = $this->binder->getChannelByFd($fd);
                 if (!$channelObject) {
                     echo "{$fd}找不到fd对应的Channel!\n";
                     return;
@@ -197,7 +209,7 @@ class WebSocketServerApp
                 $handlerClass = $channelObject->getHandler();
 
                 //fd解绑Channel
-                Binder::fdUnBindChannel($fd);
+                $this->binder->fdUnBindChannel($fd);
 
                 // 初始化事件器
                 if (class_exists($handlerClass)) {
@@ -225,7 +237,7 @@ class WebSocketServerApp
     public function run(SwooleRequest $request, SwooleResponse $response)
     {
         //标识此次fd为http请求;
-        Binder::pushFdInHttp($request->fd);
+        $this->binder->pushFdInHttp($request->fd);
 
         //初始化请求实体类
         RequestHelper::setInstance($request);
