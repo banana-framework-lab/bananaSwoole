@@ -1,6 +1,6 @@
 <?php
 /**
- * MySQL的Model抽象类
+ * 协程MySQL的Model抽象类
  * User: zzh
  * Date: 2018/10/10
  * Time: 17:28
@@ -36,8 +36,6 @@ abstract class AbstractCoroutineMySqlModel extends Model
     public function __get($name)
     {
         switch ($name) {
-            case 'connection':
-                return EntityMysql::connection();
             case 'builder':
                 if ($this->table) {
                     return new BuilderObject($this->table);

@@ -12,11 +12,19 @@ use Library\Entity\MessageQueue\EntityRabbit;
 use Library\Entity\Model\Cache\EntityRedis;
 use Library\Entity\Model\DataBase\EntityMongo;
 use Library\Entity\Model\DataBase\EntityMysql;
+use Library\Helper\RequestHelper;
+use Library\Helper\ResponseHelper;
+use Library\Object\RouteObject;
+use Library\Pool\CoroutineMysqlClientPool;
+use Library\Pool\CoroutineRedisClientPool;
 use Library\Virtual\Handler\AbstractHandler;
-use Throwable;
+use Library\Virtual\Middle\AbstractMiddleWare;
 use Swoole\Http\Request as SwooleHttpRequest;
 use Swoole\WebSocket\Server as SwooleSocketServer;
 use Swoole\WebSocket\Frame as SwooleSocketFrame;
+use Swoole\Http\Request as SwooleRequest;
+use Swoole\Http\Response as SwooleResponse;
+use Throwable;
 
 
 /**
@@ -54,6 +62,12 @@ class WebSocketServerApp
 
             // rabbitMq初始化
             EntityRabbit::instanceStart();
+
+            // 协程mysql连接池初始化
+            CoroutineMysqlClientPool::poolInit();
+
+            // 协程redis连接池初始化
+            CoroutineRedisClientPool::poolInit();
 
             // 消化消息队列的消息
             Message::consume();
@@ -196,6 +210,90 @@ class WebSocketServerApp
         } catch (Throwable $e) {
             echo $e->getMessage() . "\n" . $e->getTraceAsString() . "\n";
         }
+    }
+
+    /**
+     * 执行入口
+     * @param SwooleRequest $request
+     * @param SwooleResponse $response
+     */
+    public static function run(SwooleRequest $request, SwooleResponse $response)
+    {
+        //初始化请求实体类
+        RequestHelper::setInstance($request);
+
+        /* @var RouteObject $routeObject */
+        $routeObject = Router::router($request->server['request_uri']);
+
+        //初始化方法
+        $methodName = $routeObject->getMethod();
+        $controllerClass = $routeObject->getController();
+
+        //初始化请求数据
+        $getData = $request->get ?: [];
+        $postData = $request->post ?: [];
+        $requestData = array_merge($getData, $postData);
+
+        //初始化请求中间件
+        try {
+            $middleClass = str_replace("Controller", "Middle", $controllerClass);;
+            /* @var AbstractMiddleWare $middleWare */
+            if (class_exists($middleClass)) {
+                $middleWare = new $middleClass($requestData);
+                if (method_exists($middleWare, $methodName)) {
+                    $middleWare->$methodName();
+                    $requestData = $middleWare->takeMiddleData();
+                }
+            }
+        } catch (Throwable $e) {
+            ResponseHelper::json(['msg' => $e->getMessage()]);
+        }
+        try {
+            //初始化控制器
+            if (class_exists($controllerClass)) {
+                $controller = new $controllerClass($requestData);
+                if (method_exists($controller, $methodName)) {
+                    $returnData = $controller->$methodName();
+                    if ($returnData) {
+                        ResponseHelper::json($returnData);
+                    }
+                } else {
+                    if (Config::get('app.debug')) {
+                        ResponseHelper::json(['msg' => "找不到{$methodName}"]);
+                    } else {
+                        $response->status(404);
+                        $response->end();
+                        return;
+                    }
+                }
+            } else {
+                if (Config::get('app.debug')) {
+                    ResponseHelper::json(['msg' => "找不到{$controllerClass}"]);
+                } else {
+                    $response->status(404);
+                    $response->end();
+                    return;
+                }
+            }
+        } catch (Throwable $e) {
+            if (Config::get('app.debug')) {
+                if ($e->getCode() != 888) {
+                    $response->status(200);
+                    $response->end($e->getMessage() . "\n" . $e->getTraceAsString());
+                } else {
+                    $response->status(200);
+                    $response->end(ResponseHelper::dumpResponse());
+                }
+            } else {
+                $response->status(500);
+                $response->end();
+            }
+            return;
+        }
+
+        // 支持跨域访问
+        $response->status(200);
+        $response->end(ResponseHelper::response());
     }
 
 }

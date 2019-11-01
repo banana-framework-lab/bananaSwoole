@@ -22,7 +22,7 @@ class CoroutineMysqlClientPool
      * 连接池大小
      * @var int $poolSize
      */
-    private static $poolSize = 2;
+    private static $poolSize = 5;
 
     /**
      * 空闲连接

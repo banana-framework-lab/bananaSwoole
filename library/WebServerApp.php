@@ -15,6 +15,7 @@ use Library\Helper\RequestHelper;
 use Library\Helper\ResponseHelper;
 use Library\Object\RouteObject;
 use Library\Pool\CoroutineMysqlClientPool;
+use Library\Pool\CoroutineRedisClientPool;
 use Library\Virtual\Middle\AbstractMiddleWare;
 use Swoole\Http\Request as SwooleRequest;
 use Swoole\Http\Response as SwooleResponse;
@@ -49,6 +50,9 @@ class WebServerApp
 
             // 协程mysql连接池初始化
             CoroutineMysqlClientPool::poolInit();
+
+            // 协程redis连接池初始化
+            CoroutineRedisClientPool::poolInit();
 
             // mongo数据库初始化
             EntityMongo::instanceStart();

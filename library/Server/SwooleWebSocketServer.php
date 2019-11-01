@@ -5,10 +5,15 @@ namespace Library\Server;
 use Library\Binder;
 use Library\Config;
 use Library\Entity\Swoole\EntitySwooleWebSocketSever;
+use Library\Helper\RequestHelper;
+use Library\Helper\ResponseHelper;
+use Library\Router;
 use Library\WebSocketServerApp;
 use Swoole\Http\Request as SwooleHttpRequest;
 use Swoole\WebSocket\Frame as SwooleSocketFrame;
 use Swoole\WebSocket\Server as SwooleSocketServer;
+use Swoole\Http\Request as SwooleRequest;
+use Swoole\Http\Response as SwooleResponse;
 
 /**
  * Class SwooleWebSocketServer
@@ -46,6 +51,7 @@ class SwooleWebSocketServer extends SwooleServer
             'reload_async' => true
         ]);
         $this->server->on('WorkerStart', [$this, 'onWorkerStart']);
+        $this->server->on('Request', [$this, 'onRequest']);
         $this->server->on('Open', [$this, 'onOpen']);
         $this->server->on('Message', [$this, 'onMessage']);
         $this->server->on('Close', [$this, 'onClose']);
@@ -66,6 +72,53 @@ class SwooleWebSocketServer extends SwooleServer
         WebSocketServerApp::init($workerId);
 
         echo "master_pid:{$server->master_pid}  worker_pid:{$server->worker_pid}  worker_id:{$workerId}  启动\n";
+    }
+
+    /**
+     * 处理Http的请求
+     *
+     * @param SwooleRequest $request
+     * @param SwooleResponse $response
+     */
+    public function onRequest(SwooleRequest $request, SwooleResponse $response)
+    {
+        defer(function () use ($response) {
+            //回收请求数据
+            RequestHelper::delInstance();
+
+            //回收返回数据
+            ResponseHelper::delInstance();
+
+            //回收路由数据
+            Router::delRouteInstance();
+        });
+
+        // 屏蔽 favicon.ico
+        if ($request->server['request_uri'] == '/favicon.ico') {
+            if (file_exists(dirname(__FILE__) . "/../../public/favicon.ico")) {
+                $response->status(200);
+                $response->header('Content-Type', 'image/x-icon');
+                $response->sendfile(dirname(__FILE__) . "/../../public/favicon.ico");
+            } else {
+                $response->status(404);
+                $response->end();
+            }
+            return;
+        }
+
+        if ($request->server['request_method'] == 'OPTIONS') {
+            $response->status(200);
+            $response->end();
+            return;
+        };
+
+        $response->header('Access-Control-Allow-Origin', implode(',', Config::get('app.allow_origin', ['*'])));
+        $response->header('Access-Control-Allow-Credentials', 'true');
+        $response->header('Access-Control-Allow-Methods', 'GET, POST, DELETE, PUT, PATCH, OPTIONS');
+        $response->header('Access-Control-Allow-Headers', 'x-requested-with,User-Platform,Content-Type,X-Token');
+        $response->header('Content-type', 'application/json');
+
+        WebSocketServerApp::run($request, $response);
     }
 
     /**
