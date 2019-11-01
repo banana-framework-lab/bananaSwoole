@@ -28,7 +28,7 @@ class TestHandler extends AbstractHandler
     public function open(SwooleSocketServer $server, SwooleHttpRequest $request)
     {
         echo "1\n";
-        LogHelper::info('test', ['msg' => 'test'], '', $request->fd);
+        LogHelper::info('测试', ['msg' => 'websocket日志测试'], '', $request->fd);
     }
 
     /**
