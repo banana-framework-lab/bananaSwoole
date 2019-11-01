@@ -8,7 +8,6 @@
 namespace Library\Entity\Model\Cache;
 
 use Library\Config;
-use Library\Entity\Swoole\EntitySwooleWebSever;
 use Redis as RedisClient;
 
 /**

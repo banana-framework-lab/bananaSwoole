@@ -11,7 +11,6 @@ namespace Library\Object;
 use Closure;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Database\Query\Expression;
-use Library\Config;
 use Library\Entity\Model\DataBase\EntityMysql;
 use Library\Pool\CoroutineMysqlClientPool;
 use Swoole\Coroutine\MySQL;
@@ -73,8 +72,6 @@ class BuilderObject
         $this->builder = EntityMysql::table($this->table);
 
         $this->client = CoroutineMysqlClientPool::get();
-
-        var_dump(CoroutineMysqlClientPool::getPoolInfo());
     }
 
     /**
@@ -126,6 +123,5 @@ class BuilderObject
     public function __destruct()
     {
         CoroutineMysqlClientPool::back($this->client);
-        var_dump(CoroutineMysqlClientPool::getPoolInfo());
     }
 }

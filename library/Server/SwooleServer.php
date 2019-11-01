@@ -3,10 +3,6 @@
 namespace Library\Server;
 
 use Library\Config;
-use Library\Entity\Swoole\EntitySwooleWebSever;
-use Library\Helper\RequestHelper;
-use Library\Helper\ResponseHelper;
-use Library\Router;
 use Swoole\Http\Server as SwooleHttpServer;
 use Swoole\WebSocket\Server as SwooleWebSocketServer;
 

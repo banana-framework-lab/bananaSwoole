@@ -67,7 +67,6 @@ abstract class AbstractMongoModel
         $this->collection = $this->mongo->{$this->dbName}->$collection;
         $this->collectionName = $collection;
         $this->increaseCollection = "{$collection}_increment";
-        $this->setWorkerId();
     }
 
     /**

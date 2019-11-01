@@ -8,7 +8,6 @@
 namespace Library\Entity\Model\DataBase;
 
 use Library\Config;
-use Library\Entity\Swoole\EntitySwooleWebSever;
 use MongoDB\Client as MongoDbClient;
 
 /**

@@ -9,8 +9,6 @@
 namespace Library\Entity\MessageQueue;
 
 use Library\Config;
-use Library\Entity\Swoole\EntitySwooleWebSever;
-use Library\Entity\Swoole\EntitySwooleWebSocketSever;
 use PhpAmqpLib\Connection\AMQPStreamConnection;
 
 class EntityRabbit
