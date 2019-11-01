@@ -4,6 +4,7 @@ namespace Library\Server;
 
 use Library\Binder;
 use Library\Config;
+use Library\Entity\Swoole\EntitySwooleServer;
 use Library\Entity\Swoole\EntitySwooleWebSocketSever;
 use Library\Helper\RequestHelper;
 use Library\Helper\ResponseHelper;
@@ -28,10 +29,16 @@ class SwooleWebSocketServer extends SwooleServer
     {
         parent::__construct();
 
+        //初始化SwooleWebSocketSever
         EntitySwooleWebSocketSever::instanceStart();
+
+        //初始化绑定路由
         Binder::instanceStart();
 
-        $this->server = EntitySwooleWebSocketSever::getInstance();
+        //初始化全局对象
+        EntitySwooleServer::setInstance(EntitySwooleWebSocketSever::getInstance());
+
+        $this->server = EntitySwooleServer::getInstance();
         $this->port = Config::get('swoole.socket.port');
     }
 

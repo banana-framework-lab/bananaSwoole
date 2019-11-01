@@ -3,6 +3,7 @@
 namespace Library\Server;
 
 use Library\Config;
+use Library\Entity\Swoole\EntitySwooleServer;
 use Library\Helper\RequestHelper;
 use Library\Helper\ResponseHelper;
 use Library\Router;
@@ -28,7 +29,10 @@ class SwooleWebServer extends SwooleServer
         //初始化SwooleWebSever
         EntitySwooleWebSever::instanceStart();
 
-        $this->server = EntitySwooleWebSever::getInstance();
+        //初始化全局对象
+        EntitySwooleServer::setInstance(EntitySwooleWebSever::getInstance());
+
+        $this->server =  EntitySwooleServer::getInstance();
         $this->port = Config::get('swoole.web.port');
         $this->workerNum = Config::get('swoole.web.worker_num');
     }

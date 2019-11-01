@@ -2,7 +2,7 @@
 
 namespace Library;
 
-use Library\Entity\Swoole\EntitySwooleWebSever;
+use Library\Entity\Swoole\EntitySwooleServer;
 use Library\Object\RouteObject;
 use Swoole\Coroutine;
 
@@ -52,7 +52,7 @@ class Router
      */
     public static function getRouteInstance(): RouteObject
     {
-        $workerId = EntitySwooleWebSever::getInstance()->worker_id;
+        $workerId = EntitySwooleServer::getInstance()->worker_id;
         $cid = Coroutine::getuid();
         return static::$routePool[$workerId][$cid] ?: (new RouteObject());
     }
@@ -65,7 +65,7 @@ class Router
     {
         if ($workerId == -1) {
             $cid = Coroutine::getuid();
-            $workerId = EntitySwooleWebSever::getInstance()->worker_id;
+            $workerId = EntitySwooleServer::getInstance()->worker_id;
             unset(static::$routePool[$workerId][$cid]);
         } else {
             unset(static::$routePool[$workerId]);
@@ -92,7 +92,7 @@ class Router
             $routerObject->setController("\\App\\{$requestUrlArray[0]}\\Controller\\{$requestUrlArray[1]}Controller");
             $routerObject->setMethod($requestUrlArray[2]);
 
-            static::$routePool[EntitySwooleWebSever::getInstance()->worker_id][Coroutine::getuid()] = $routerObject;
+            static::$routePool[EntitySwooleServer::getInstance()->worker_id][Coroutine::getuid()] = $routerObject;
 
             return $routerObject;
         } else {
@@ -103,7 +103,7 @@ class Router
             $routerObject->setController($requestUrlArray[0]);
             $routerObject->setMethod($requestUrlArray[1]);
 
-            static::$routePool[EntitySwooleWebSever::getInstance()->worker_id][Coroutine::getuid()] = $routerObject;
+            static::$routePool[EntitySwooleServer::getInstance()->worker_id][Coroutine::getuid()] = $routerObject;
 
             return $routerObject;
         }

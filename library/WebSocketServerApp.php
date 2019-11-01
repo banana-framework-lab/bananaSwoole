@@ -181,44 +181,52 @@ class WebSocketServerApp
      */
     public static function close(SwooleSocketServer $server, int $fd)
     {
-        try {
-            // 获取所需通道
-            $channelObject = Binder::getChannelByFd($fd);
-            if (!$channelObject) {
-                echo "找不到fd对应的Channel!\n";
-                return;
-            }
-
-            //初始化Handler
-            $handlerClass = $channelObject->getHandler();
-
-            //fd解绑Channel
-            Binder::fdUnBindChannel($fd);
-
-            // 初始化事件器
-            if (class_exists($handlerClass)) {
-                /* @var AbstractHandler $handler */
-                $handler = new $handlerClass();
-                if (method_exists($handlerClass, 'open')) {
-                    $handler->close($server, $fd);
-                } else {
-                    echo "找不到close方法\n";
+        if (Binder::fdIsHttp($fd)) {
+            Binder::popFdInHttp($fd);
+            return;
+        } else {
+            try {
+                // 获取所需通道
+                $channelObject = Binder::getChannelByFd($fd);
+                if (!$channelObject) {
+                    echo "找不到fd对应的Channel!\n";
+                    return;
                 }
-            } else {
-                echo "找不到{$handlerClass}\n";
+
+                //初始化Handler
+                $handlerClass = $channelObject->getHandler();
+
+                //fd解绑Channel
+                Binder::fdUnBindChannel($fd);
+
+                // 初始化事件器
+                if (class_exists($handlerClass)) {
+                    /* @var AbstractHandler $handler */
+                    $handler = new $handlerClass();
+                    if (method_exists($handlerClass, 'open')) {
+                        $handler->close($server, $fd);
+                    } else {
+                        echo "找不到close方法\n";
+                    }
+                } else {
+                    echo "找不到{$handlerClass}\n";
+                }
+            } catch (Throwable $e) {
+                echo $e->getMessage() . "\n" . $e->getTraceAsString() . "\n";
             }
-        } catch (Throwable $e) {
-            echo $e->getMessage() . "\n" . $e->getTraceAsString() . "\n";
         }
     }
 
     /**
-     * 执行入口
+     * onRequest执行入口
      * @param SwooleRequest $request
      * @param SwooleResponse $response
      */
     public static function run(SwooleRequest $request, SwooleResponse $response)
     {
+        //标识此次fd为http请求;
+        Binder::pushFdInHttp($request->fd);
+
         //初始化请求实体类
         RequestHelper::setInstance($request);
 

@@ -3,7 +3,7 @@
 namespace Library\Helper;
 
 use Error;
-use Library\Entity\Swoole\EntitySwooleWebSever;
+use Library\Entity\Swoole\EntitySwooleServer;
 use Swoole\Coroutine;
 
 /**
@@ -55,7 +55,7 @@ class ResponseHelper
     {
         if ($workerId == -1) {
             $cid = Coroutine::getuid();
-            $workerId = EntitySwooleWebSever::getInstance()->worker_id;
+            $workerId = EntitySwooleServer::getInstance()->worker_id;
             unset(static::$instancePool[$workerId][$cid]);
             unset(static::$dumpPool[$workerId][$cid]);
         } else {
@@ -72,7 +72,7 @@ class ResponseHelper
     public static function json(array $jsonData = [], int $options = (JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK))
     {
         $cid = Coroutine::getuid();
-        $workId = EntitySwooleWebSever::getInstance()->worker_id;
+        $workId = EntitySwooleServer::getInstance()->worker_id;
         static::$instancePool[$workId][$cid] = json_encode($jsonData, $options);
     }
 
@@ -82,7 +82,7 @@ class ResponseHelper
     public static function response()
     {
         $cid = Coroutine::getuid();
-        $workerId = EntitySwooleWebSever::getInstance()->worker_id;
+        $workerId = EntitySwooleServer::getInstance()->worker_id;
         return ((static::dumpResponse() ?? "") . (static::$instancePool[$workerId][$cid] ?? ''));
     }
 
@@ -99,7 +99,7 @@ class ResponseHelper
     public static function dump($content)
     {
         $cid = Coroutine::getuid();
-        $workId = EntitySwooleWebSever::getInstance()->worker_id;
+        $workId = EntitySwooleServer::getInstance()->worker_id;
         static::$dumpPool[$workId][$cid][] = print_r($content, true);
     }
 
@@ -110,7 +110,7 @@ class ResponseHelper
     public static function dumpResponse()
     {
         $cid = Coroutine::getuid();
-        $workerId = EntitySwooleWebSever::getInstance()->worker_id;
+        $workerId = EntitySwooleServer::getInstance()->worker_id;
         $dumpData = static::$dumpPool[$workerId][$cid] ?? [];
         $dumpString = '';
         foreach ($dumpData as $key => $value) {

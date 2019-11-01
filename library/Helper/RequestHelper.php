@@ -2,7 +2,7 @@
 
 namespace Library\Helper;
 
-use Library\Entity\Swoole\EntitySwooleWebSever;
+use Library\Entity\Swoole\EntitySwooleServer;
 use Swoole\Coroutine;
 use Swoole\Http\Request as SwooleRequest;
 
@@ -47,7 +47,7 @@ class RequestHelper
     public static function setInstance(SwooleRequest $instance)
     {
         $cid = Coroutine::getuid();
-        $workId = EntitySwooleWebSever::getInstance()->worker_id;
+        $workId = EntitySwooleServer::getInstance()->worker_id;
         if (!isset(static::$instancePool[$workId][$cid])) {
             static::$instancePool[$workId][$cid] = $instance;
         }
@@ -70,7 +70,7 @@ class RequestHelper
     {
         if ($workId == -1) {
             $cid = Coroutine::getuid();
-            $workId = EntitySwooleWebSever::getInstance()->worker_id;
+            $workId = EntitySwooleServer::getInstance()->worker_id;
             unset(static::$instancePool[$workId][$cid]);
         } else {
             unset(static::$instancePool[$workId]);
@@ -85,7 +85,7 @@ class RequestHelper
     public static function __callStatic($method, $args)
     {
         $cid = Coroutine::getuid();
-        $instance = static::$instancePool[EntitySwooleWebSever::getInstance()->worker_id][$cid];
+        $instance = static::$instancePool[EntitySwooleServer::getInstance()->worker_id][$cid];
 
         if (!$instance) {
             return '';
