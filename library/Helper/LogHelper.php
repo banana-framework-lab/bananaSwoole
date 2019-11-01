@@ -52,7 +52,6 @@ class LogHelper
     {
         $logObject = ((Router::getRouteInstance())->getProject());
         if (!$logObject) {
-            var_dump($logObject);
             if (isset($arguments[3]) && is_numeric($arguments[3]) && $arguments > 0) {
                 $logObject = Binder::getChannelByFd($arguments[3])->getChannel();
                 $fileName = dirname(__FILE__) . '/../../app/' . $logObject . '/Runtime/logs/' . date('Ymd') . '/';
@@ -62,7 +61,6 @@ class LogHelper
         } else {
             $fileName = dirname(__FILE__) . '/../../app/' . $logObject . '/Runtime/logs/' . date('Ymd') . '/';
         }
-        var_dump($fileName);
 
         $logger = self::createLogger($name, $fileName);
 

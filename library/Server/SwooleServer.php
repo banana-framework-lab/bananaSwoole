@@ -35,6 +35,11 @@ class SwooleServer
     protected $workerNum;
 
     /**
+     * @var array $appServerList
+     */
+    protected $appServerList;
+
+    /**
      * SwooleServer constructor.
      */
     public function __construct()

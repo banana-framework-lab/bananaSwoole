@@ -37,7 +37,7 @@ class WebSocketServerApp
      * 初始化webSocketApp对象
      * @param int $workerId
      */
-    public static function init(int $workerId)
+    public function init(int $workerId)
     {
         //开启php调试模式
         if (Config::get('app.debug')) {
@@ -82,7 +82,7 @@ class WebSocketServerApp
      * @param SwooleSocketServer $server
      * @param SwooleHttpRequest $request
      */
-    public static function open(SwooleSocketServer $server, SwooleHttpRequest $request)
+    public function open(SwooleSocketServer $server, SwooleHttpRequest $request)
     {
         $openData = ($request->get ?: []) + ($request->post ?: []);
 
@@ -131,7 +131,7 @@ class WebSocketServerApp
      * @param SwooleSocketServer $server
      * @param SwooleSocketFrame $frame
      */
-    public static function message(SwooleSocketServer $server, SwooleSocketFrame $frame)
+    public function message(SwooleSocketServer $server, SwooleSocketFrame $frame)
     {
         try {
             // 获取所需通道
@@ -179,7 +179,7 @@ class WebSocketServerApp
      * @param SwooleSocketServer $server
      * @param int $fd
      */
-    public static function close(SwooleSocketServer $server, int $fd)
+    public function close(SwooleSocketServer $server, int $fd)
     {
         if (Binder::fdIsHttp($fd)) {
             Binder::popFdInHttp($fd);
@@ -189,7 +189,7 @@ class WebSocketServerApp
                 // 获取所需通道
                 $channelObject = Binder::getChannelByFd($fd);
                 if (!$channelObject) {
-                    echo "找不到fd对应的Channel!\n";
+                    echo "{$fd}找不到fd对应的Channel!\n";
                     return;
                 }
 
@@ -222,7 +222,7 @@ class WebSocketServerApp
      * @param SwooleRequest $request
      * @param SwooleResponse $response
      */
-    public static function run(SwooleRequest $request, SwooleResponse $response)
+    public function run(SwooleRequest $request, SwooleResponse $response)
     {
         //标识此次fd为http请求;
         Binder::pushFdInHttp($request->fd);
