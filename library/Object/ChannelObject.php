@@ -55,4 +55,15 @@ class ChannelObject
     {
         $this->handler = $handler;
     }
+
+    /**
+     * @return array
+     */
+    public function toArray(): array
+    {
+        return [
+            'channel' => $this->channel,
+            'handler' => $this->handler,
+        ];
+    }
 }

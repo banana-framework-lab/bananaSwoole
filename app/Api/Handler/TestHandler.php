@@ -28,7 +28,7 @@ class TestHandler extends AbstractHandler
     public function open(SwooleSocketServer $server, SwooleHttpRequest $request)
     {
         echo "1\n";
-//        LogHelper::info('测试', ['msg' => 'websocket日志测试'], '', $request->fd);
+        LogHelper::info('测试', ['msg' => 'websocket日志测试'], '', $request->fd);
     }
 
     /**
@@ -39,7 +39,7 @@ class TestHandler extends AbstractHandler
     public function message(SwooleSocketServer $server, SwooleSocketFrame $frame)
     {
         echo "2\n";
-        Message::publish(new MessageObject(1, 'Api', 'fuck your pussy'));
+//        Message::publish(new MessageObject(1, 'Api', 'fuck your pussy'));
     }
 
     /**

@@ -14,12 +14,14 @@ use Library\Entity\Model\DataBase\EntityMongo;
 use Library\Entity\Model\DataBase\EntityMysql;
 use Library\Helper\RequestHelper;
 use Library\Helper\ResponseHelper;
+use Library\Object\ChannelObject;
 use Library\Object\RouteObject;
 use Library\Pool\CoroutineMysqlClientPool;
 use Library\Pool\CoroutineRedisClientPool;
 use Library\Virtual\Handler\AbstractHandler;
 use Library\Virtual\Middle\AbstractMiddleWare;
 use Swoole\Http\Request as SwooleHttpRequest;
+use Swoole\Table;
 use Swoole\WebSocket\Server as SwooleSocketServer;
 use Swoole\WebSocket\Frame as SwooleSocketFrame;
 use Swoole\Http\Request as SwooleRequest;
@@ -33,15 +35,11 @@ use Throwable;
  */
 class WebSocketServerApp
 {
-    public $binder;
+    public $table;
 
-    /**
-     * WebSocketServerApp constructor.
-     * @param Binder $binder
-     */
-    public function __construct(Binder $binder)
+    public function __construct(Table $table)
     {
-        $this->binder = $binder;
+        $this->table = $table;
     }
 
     /**
@@ -67,7 +65,7 @@ class WebSocketServerApp
             EntityRedis::instanceStart();
 
             // rabbitMq初始化
-            EntityRabbit::instanceStart();
+//            EntityRabbit::instanceStart();
 
             // 协程mysql连接池初始化
             CoroutineMysqlClientPool::poolInit();
@@ -76,7 +74,7 @@ class WebSocketServerApp
             CoroutineRedisClientPool::poolInit();
 
             // 消化消息队列的消息
-            Message::consume();
+//            Message::consume();
 
             //开启php调试模式
             if (Config::get('app.debug')) {
@@ -110,7 +108,7 @@ class WebSocketServerApp
                 $handler = new $handlerClass();
                 if (method_exists($handlerClass, 'open')) {
                     //fd绑定通道
-                    $this->binder->fdBindChannel($request->fd, $channelObject);
+                    $this->table->set($request->fd, $channelObject->toArray());
                     //fd打开事件
                     $handler->open($server, $request);
                 } else {
@@ -144,11 +142,14 @@ class WebSocketServerApp
      */
     public function message(SwooleSocketServer $server, SwooleSocketFrame $frame)
     {
-        var_dump($this->binder->bindMap);
+        $tableData = $this->table->get($frame->fd);
+        var_dump($tableData);
         try {
             // 获取所需通道
-            $channelObject = $this->binder->getChannelByFd($frame->fd);
-            if (!$channelObject) {
+            $channelObject = new ChannelObject();
+            $channelObject->setChannel($tableData['channel']);
+            $channelObject->setHandler($tableData['handler']);
+            if (!$channelObject->getChannel()) {
                 $server->disconnect($frame->fd, 1000, "找不到fd对应的Channel");
                 return;
             }
@@ -193,13 +194,16 @@ class WebSocketServerApp
      */
     public function close(SwooleSocketServer $server, int $fd)
     {
-        if ($this->binder->fdIsHttp($fd)) {
-            $this->binder->popFdInHttp($fd);
+        $tableData = $this->table->get($fd) ?: [];
+        if ($tableData['http'] == 1) {
+            $this->table->del($fd);
             return;
         } else {
             try {
                 // 获取所需通道
-                $channelObject = $this->binder->getChannelByFd($fd);
+                $channelObject = new ChannelObject();
+                $channelObject->setChannel($tableData['channel']);
+                $channelObject->setChannel($tableData['handler']);
                 if (!$channelObject) {
                     echo "{$fd}找不到fd对应的Channel!\n";
                     return;
@@ -209,7 +213,7 @@ class WebSocketServerApp
                 $handlerClass = $channelObject->getHandler();
 
                 //fd解绑Channel
-                $this->binder->fdUnBindChannel($fd);
+                $this->table->del($fd);
 
                 // 初始化事件器
                 if (class_exists($handlerClass)) {
@@ -237,7 +241,7 @@ class WebSocketServerApp
     public function run(SwooleRequest $request, SwooleResponse $response)
     {
         //标识此次fd为http请求;
-        $this->binder->pushFdInHttp($request->fd);
+        $this->table->set($request->fd, ['http' => 1]);
 
         //初始化请求实体类
         RequestHelper::setInstance($request);

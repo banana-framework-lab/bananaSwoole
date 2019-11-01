@@ -11,6 +11,7 @@ use Library\Helper\ResponseHelper;
 use Library\Router;
 use Library\WebSocketServerApp;
 use Swoole\Http\Request as SwooleHttpRequest;
+use Swoole\Table;
 use Swoole\WebSocket\Frame as SwooleSocketFrame;
 use Swoole\WebSocket\Server as SwooleSocketServer;
 use Swoole\Http\Request as SwooleRequest;
@@ -22,8 +23,6 @@ use Swoole\Http\Response as SwooleResponse;
  */
 class SwooleWebSocketServer extends SwooleServer
 {
-    public $binder ;
-
     /**
      * SwooleWebSocketServer constructor.
      */
@@ -34,8 +33,12 @@ class SwooleWebSocketServer extends SwooleServer
         //初始化SwooleWebSocketSever
         EntitySwooleWebSocketSever::instanceStart();
 
-        //初始化绑定路由
-        $this->binder = new Binder();
+        // table初始化
+        $this->table = new Table(1024);
+        $this->table->column('channel', Table::TYPE_STRING, 50);
+        $this->table->column('handler', Table::TYPE_STRING, 100);
+        $this->table->column('http', Table::TYPE_INT);
+        $this->table->create();
 
         //初始化全局对象
         EntitySwooleServer::setInstance(EntitySwooleWebSocketSever::getInstance());
@@ -78,12 +81,12 @@ class SwooleWebSocketServer extends SwooleServer
      */
     public function onWorkerStart(SwooleSocketServer $server, int $workerId)
     {
-        $this->appServerList[$server->worker_pid] = new WebSocketServerApp($this->binder);
-        var_dump( $this->appServerList);
+        $this->appServerList[$server->worker_id] = new WebSocketServerApp($this->table);
+//        echo "start_$workerId\n";
 
         /* @var WebSocketServerApp $app */
-        $app = $this->appServerList[$server->worker_pid];
-
+        $app = $this->appServerList[$server->worker_id];
+//
         $app->init($workerId);
 
         echo "master_pid:{$server->master_pid}  worker_pid:{$server->worker_pid}  worker_id:{$workerId}  启动\n";
@@ -97,7 +100,7 @@ class SwooleWebSocketServer extends SwooleServer
      */
     public function onRequest(SwooleRequest $request, SwooleResponse $response)
     {
-        defer(function () use ($response) {
+        defer(function () {
             //回收请求数据
             RequestHelper::delInstance();
 
@@ -145,8 +148,9 @@ class SwooleWebSocketServer extends SwooleServer
      */
     public function onOpen(SwooleSocketServer $server, SwooleHttpRequest $request)
     {
+//        echo "open_{$server->worker_id}\n";
         /* @var WebSocketServerApp $app */
-        $app = $this->appServerList[EntitySwooleServer::getInstance()->worker_pid];
+        $app = $this->appServerList[EntitySwooleServer::getInstance()->worker_id];
         $app->open($server, $request);
     }
 
@@ -158,8 +162,9 @@ class SwooleWebSocketServer extends SwooleServer
      */
     public function onMessage(SwooleSocketServer $server, SwooleSocketFrame $frame)
     {
+//        echo "message_{$server->worker_id}\n";
         /* @var WebSocketServerApp $app */
-        $app = $this->appServerList[EntitySwooleServer::getInstance()->worker_pid];
+        $app = $this->appServerList[EntitySwooleServer::getInstance()->worker_id];
         $app->message($server, $frame);
     }
 
@@ -171,7 +176,7 @@ class SwooleWebSocketServer extends SwooleServer
     public function onClose(SwooleSocketServer $server, int $fd)
     {
         /* @var WebSocketServerApp $app */
-        $app = $this->appServerList[EntitySwooleServer::getInstance()->worker_pid];
+        $app = $this->appServerList[EntitySwooleServer::getInstance()->worker_id];
         $app->close($server, $fd);
     }
 

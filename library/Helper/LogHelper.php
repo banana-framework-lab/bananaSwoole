@@ -2,7 +2,6 @@
 
 namespace Library\Helper;
 
-use Library\Binder;
 use Library\Config;
 use Library\Router;
 use Monolog\Logger;
@@ -14,10 +13,10 @@ use Monolog\Handler\RotatingFileHandler;
  * Class LogHelper
  * @package Library\Helper
  *
- * @method static bool info(string $message = '', array $context = [], string $levelName = '', int $fd = 0)
- * @method static bool warning(string $message = '', array $context = [], string $levelName = '', int $fd = 0)
- * @method static bool error(string $message = '', array $context = [], string $levelName = '', int $fd = 0)
- * @method static bool success(string $message = '', array $context = [], string $levelName = '', int $fd = 0)
+ * @method static bool info(string $message = '', array $context = [], string $levelName = '', string $channel = '')
+ * @method static bool warning(string $message = '', array $context = [], string $levelName = '', string $channel = '')
+ * @method static bool error(string $message = '', array $context = [], string $levelName = '', string $channel = '')
+ * @method static bool success(string $message = '', array $context = [], string $levelName = '', string $channel = '')
  */
 class LogHelper
 {
@@ -52,9 +51,8 @@ class LogHelper
     {
         $logObject = ((Router::getRouteInstance())->getProject());
         if (!$logObject) {
-            if (isset($arguments[3]) && is_numeric($arguments[3]) && $arguments > 0) {
-                $logObject = Binder::getChannelByFd($arguments[3])->getChannel();
-                $fileName = dirname(__FILE__) . '/../../app/' . $logObject . '/Runtime/logs/' . date('Ymd') . '/';
+            if (isset($arguments[3]) && $arguments[3] != '') {
+                $fileName = dirname(__FILE__) . "/../../app/{$arguments[3]}/Runtime/logs/" . date('Ymd') . '/';
             } else {
                 $fileName = dirname(__FILE__) . '/../../runtime/Runtime/logs/' . date('Ymd') . '/';
             }

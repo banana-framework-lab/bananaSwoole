@@ -4,6 +4,7 @@ namespace Library\Server;
 
 use Library\Config;
 use Swoole\Http\Server as SwooleHttpServer;
+use Swoole\Table;
 use Swoole\WebSocket\Server as SwooleWebSocketServer;
 
 /**
@@ -38,6 +39,11 @@ class SwooleServer
      * @var array $appServerList
      */
     protected $appServerList;
+
+    /**
+     * @var Table $table
+     */
+    protected $table;
 
     /**
      * SwooleServer constructor.
