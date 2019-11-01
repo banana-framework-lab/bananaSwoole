@@ -13,3 +13,4 @@ Thumbs.db
 app/Api/Runtime
 
 /vendor
+/config
