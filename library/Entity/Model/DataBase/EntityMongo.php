@@ -38,11 +38,10 @@ class EntityMongo
 
     /**
      * 初始化Mongo实体对象
-     * @param int $workerId
      */
-    public static function instanceStart(int $workerId)
+    public static function instanceStart()
     {
-        if (!static::$instance[$workerId]) {
+        if (!static::$instance) {
             if (Config::get('app.is_server')) {
                 $uri = Config::get('mongo.server.url', '');
             } else {
@@ -54,30 +53,28 @@ class EntityMongo
                 $mongodbInstance->listDatabases();
 
                 //设置mongo全局对象
-                self::setInstance($workerId, $mongodbInstance);
+                self::setInstance($mongodbInstance);
             }
         }
     }
 
     /**
      * 保存Mongo实体对象
-     * @param int $workerId
      * @param  MongoDbClient $instance
      * @return void
      */
-    private static function setInstance(int $workerId, MongoDbClient $instance)
+    private static function setInstance(MongoDbClient $instance)
     {
-        static::$instance[$workerId] = $instance;
+        static::$instance = $instance;
     }
 
     /**
      * 返回当前实体类实例
-     * @param int $workerId
      * @return MongoDbClient
      */
-    public static function getInstance(int $workerId)
+    public static function getInstance()
     {
-        return self::$instance[$workerId];
+        return self::$instance;
     }
 
     /**
@@ -89,8 +86,7 @@ class EntityMongo
      */
     public static function __callStatic($method, $args)
     {
-        $workId = EntitySwooleWebSever::getInstance()->worker_id;
-        $instance = self::$instance[$workId];
+        $instance = self::$instance;
 
         if (!$instance) {
             throw new \Exception('找不到Mongo数据库对象');

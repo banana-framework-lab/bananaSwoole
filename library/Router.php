@@ -59,6 +59,7 @@ class Router
 
     /**
      * 删除当前路由对象
+     * @param int $workerId
      */
     public static function delRouteInstance(int $workerId = -1)
     {

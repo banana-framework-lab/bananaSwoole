@@ -44,16 +44,16 @@ class WebSocketServerApp
             Channel::instanceStart();
 
             // mysql数据库初始化
-            EntityMysql::instanceStart($workerId);
+            EntityMysql::instanceStart();
 
             // mongo数据库初始化
-            EntityMongo::instanceStart($workerId);
+            EntityMongo::instanceStart();
 
             // Redis缓存初始化
-            EntityRedis::instanceStart($workerId);
+            EntityRedis::instanceStart();
 
             // rabbitMq初始化
-            EntityRabbit::instanceStart($workerId);
+            EntityRabbit::instanceStart();
 
             // 消化消息队列的消息
             Message::consume();

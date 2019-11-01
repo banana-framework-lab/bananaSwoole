@@ -10,9 +10,10 @@ namespace Library\Object;
 
 use Closure;
 use Illuminate\Database\Query\Builder;
+use Illuminate\Database\Query\Expression;
 use Library\Config;
 use Library\Entity\Model\DataBase\EntityMysql;
-use Library\Helper\ResponseHelper;
+use Library\Pool\CoroutineMysqlClientPool;
 use Swoole\Coroutine\MySQL;
 
 /**
@@ -20,12 +21,13 @@ use Swoole\Coroutine\MySQL;
  * @method BuilderObject select(array | mixed $columns = ['*'])
  * @method BuilderObject selectRaw(string $expression, array $bindings = [])
  * @method BuilderObject where(string | array | Closure $column, mixed $operator = null, mixed $value = null, string $boolean = 'and')
+ * @method BuilderObject whereIn(string $column, mixed $values, string $boolean = 'and', bool $not = false)
  * @method string getDefaultConnection()
  * @method void setDefaultConnection(string $name)
  * @method BuilderObject table(string $table)
  * @method mixed selectOne(string $query, array $bindings = [])
  * @method bool insert(string $query, array $bindings = [])
- * @method int update(string $query, array $bindings = [])
+ * @method int update(array $values, array $bindings = [])
  * @method int delete(string $query, array $bindings = [])
  * @method int count()
  * @method bool statement(string $query, array $bindings = [])
@@ -40,6 +42,7 @@ use Swoole\Coroutine\MySQL;
  * @method array pretend(\Closure $callback)
  * @method array get(array | mixed $columns = ['*'])
  * @method array first(array | mixed $columns = ['*'])
+ * @method Expression raw(mixed $value)
  * @package Library\Object
  */
 class BuilderObject
@@ -69,16 +72,9 @@ class BuilderObject
 
         $this->builder = EntityMysql::table($this->table);
 
-        $mysqlConfig = Config::get('mysql.local');
-        $coroutineMysqlConfig = [
-            'host' => $mysqlConfig['host'],
-            'port' => $mysqlConfig['port'] ?? 3306,
-            'user' => $mysqlConfig['username'],
-            'password' => $mysqlConfig['password'],
-            'database' => $mysqlConfig['database'],
-        ];
-        $this->client = new MySQL('mysql');
-        $this->client->connect($coroutineMysqlConfig);
+        $this->client = CoroutineMysqlClientPool::get();
+
+        var_dump(CoroutineMysqlClientPool::getPoolInfo());
     }
 
     /**
@@ -129,6 +125,7 @@ class BuilderObject
      */
     public function __destruct()
     {
-        // TODO: 把client成员变量怼回去连接池
+        CoroutineMysqlClientPool::back($this->client);
+        var_dump(CoroutineMysqlClientPool::getPoolInfo());
     }
 }

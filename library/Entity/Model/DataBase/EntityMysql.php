@@ -7,13 +7,11 @@
 
 namespace Library\Entity\Model\DataBase;
 
-use Exception;
 use Illuminate\Database\Capsule\Manager as MysqlClient;
 use Illuminate\Database\Connection;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Database\Query\Expression;
 use Library\Config;
-use Library\Entity\Swoole\EntitySwooleWebSever;
 use Throwable;
 
 /**
@@ -67,12 +65,11 @@ class EntityMysql
 
     /**
      * 初始化Mysql实体对象
-     * @param int $workerId
      * @throws Throwable
      */
-    public static function instanceStart(int $workerId)
+    public static function instanceStart()
     {
-        if (!static::$instance[$workerId]) {
+        if (!static::$instance) {
             try {
                 if (Config::get('app.is_server')) {
                     $configData = Config::get('mysql.server', []);
@@ -95,7 +92,7 @@ class EntityMysql
                     $mysqlClient->connection()->getPdo();
 
                     //设置mysql全局对象
-                    self::setInstance($workerId, $mysqlClient);
+                    self::setInstance($mysqlClient);
                 }
             } catch (Throwable $exception) {
                 throw $exception;
@@ -105,21 +102,12 @@ class EntityMysql
 
     /**
      * 保存Mysql实体对象
-     * @param int $workerId
      * @param MysqlClient $instance
      * @return void
      */
-    private static function setInstance(int $workerId, MysqlClient $instance)
+    private static function setInstance(MysqlClient $instance)
     {
-        static::$instance[$workerId] = $instance;
-    }
-
-    /**
-     * @return MysqlClient
-     */
-    public static function getInstance(int $workerId)
-    {
-        return self::$instance[$workerId];
+        static::$instance = $instance;
     }
 
     /**
@@ -130,8 +118,7 @@ class EntityMysql
      */
     public static function __callStatic($method, $args)
     {
-        $workerId = EntitySwooleWebSever::getInstance()->worker_id;
-        $instance = self::$instance[$workerId];
+        $instance = self::$instance;
 
         if (!$instance) {
             throw new \Exception('找不到Mysql数据库对象');

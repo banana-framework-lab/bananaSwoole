@@ -16,16 +16,16 @@ use PhpAmqpLib\Connection\AMQPStreamConnection;
 class EntityRabbit
 {
     /**
-     * @var array $instance ;
+     * @var AMQPStreamConnection $instance ;
      */
     private static $instance;
 
     /**
-     * @param int $workerId
+     * 初始化实体对象
      */
-    public static function instanceStart(int $workerId)
+    public static function instanceStart()
     {
-        if (!static::$instance[$workerId]) {
+        if (!static::$instance) {
             $rabbitConfig = Config::get('app.is_server') ? Config::get('rabbit.server') : Config::get('rabbit.local');
 
             $rabbitClient = new AMQPStreamConnection(
@@ -36,17 +36,16 @@ class EntityRabbit
                 $rabbitConfig['vhost']
             );
 
-            self::setInstance($workerId, $rabbitClient);
+            self::setInstance($rabbitClient);
         }
     }
 
     /**
-     * @param int $workerId
      * @param AMQPStreamConnection $instance
      */
-    public static function setInstance(int $workerId, AMQPStreamConnection $instance)
+    public static function setInstance(AMQPStreamConnection $instance)
     {
-        static::$instance[$workerId] = $instance;
+        static::$instance = $instance;
     }
 
     /**
@@ -55,7 +54,6 @@ class EntityRabbit
      */
     public static function getInstance()
     {
-        $workerId = EntitySwooleWebSocketSever::getInstance()->worker_id;
-        return self::$instance[$workerId];
+        return self::$instance;
     }
 }

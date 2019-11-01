@@ -45,16 +45,16 @@ class WebServerApp
             Router::instanceStart();
 
             // mysql数据库初始化
-            EntityMysql::instanceStart($workerId);
+            EntityMysql::instanceStart();
 
             // 协程mysql连接池初始化
-            CoroutineMysqlClientPool::poolInit($workerId);
+            CoroutineMysqlClientPool::poolInit();
 
             // mongo数据库初始化
-            EntityMongo::instanceStart($workerId);
+            EntityMongo::instanceStart();
 
             // Redis缓存初始化
-            EntityRedis::instanceStart($workerId);
+            EntityRedis::instanceStart();
         } catch (Throwable $e) {
             echo "worker_id:{$workerId}  启动时报错  " . $e->getMessage() . "\n";
             return;

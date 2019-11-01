@@ -22,7 +22,7 @@ class CoroutineMysqlClientPool
      * 连接池大小
      * @var int $poolSize
      */
-    private static $poolSize = 5;
+    private static $poolSize = 2;
 
     /**
      * 空闲连接
@@ -39,11 +39,12 @@ class CoroutineMysqlClientPool
     /**
      * 初始化连接池
      */
-    public static function poolInit($workerId)
+    public static function poolInit()
     {
         for ($i = 1; $i <= self::$poolSize; $i++) {
             $client = self::getClient();
-            self::$pool[$workerId][] = $client;
+            self::$pool[] = $client;
+            ++self::$freeSize;
         }
     }
 
@@ -74,10 +75,12 @@ class CoroutineMysqlClientPool
         $client = array_pop(self::$pool);
         if (!$client || self::$freeSize <= 0) {
             self::$pool[] = self::getClient();
-            self::$poolSize++;
+            ++self::$poolSize;
+            ++self::$freeSize;
+            $client = array_pop(self::$pool);
         }
-        self::$freeSize--;
-        self::$busySize++;
+        --self::$freeSize;
+        ++self::$busySize;
 
         return $client;
     }
@@ -89,8 +92,8 @@ class CoroutineMysqlClientPool
     public static function back(MySQL $client)
     {
         array_push(self::$pool, $client);
-        self::$busySize--;
-        self::$freeSize++;
+        --self::$busySize;
+        ++self::$freeSize;
     }
 
     /**

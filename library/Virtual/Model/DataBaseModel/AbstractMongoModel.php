@@ -57,12 +57,6 @@ abstract class AbstractMongoModel
     private $collection;
 
     /**
-     * 当前执行的workerId-fpm下可以默认0
-     * @var int $workerId
-     */
-    private $workerId;
-
-    /**
      * AbstractMongoModel constructor.
      * @param $dbName
      * @param $collection
@@ -84,20 +78,15 @@ abstract class AbstractMongoModel
     {
         switch ($name) {
             case 'mongo':
-                return EntityMongo::getInstance($this->workerId);
+                return EntityMongo::getInstance();
             case 'db':
-                return (EntityMongo::getInstance($this->workerId))->{$this->dbName};
+                return (EntityMongo::getInstance())->{$this->dbName};
             case 'collection':
                 return $this->collection;
             default:
                 return null;
         }
     }
-
-    /**
-     * 设置$this->workerId,fpm下可以默认0
-     */
-    abstract protected function setWorkerId();
 
     /**
      * 获取筛选器结果

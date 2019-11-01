@@ -127,6 +127,4 @@ class ResponseHelper
     {
         throw new Error('exit to get dump data', 888);
     }
-
-
 }
