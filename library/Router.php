@@ -54,7 +54,7 @@ class Router
     {
         $workerId = EntitySwooleServer::getInstance()->worker_id;
         $cid = Coroutine::getuid();
-        return static::$routePool[$workerId][$cid] ?: (new RouteObject());
+        return static::$routePool[$workerId][$cid] ?? (new RouteObject());
     }
 
     /**

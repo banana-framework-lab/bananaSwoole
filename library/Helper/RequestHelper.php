@@ -85,7 +85,7 @@ class RequestHelper
     public static function __callStatic($method, $args)
     {
         $cid = Coroutine::getuid();
-        $instance = static::$instancePool[EntitySwooleServer::getInstance()->worker_id][$cid];
+        $instance = static::$instancePool[EntitySwooleServer::getInstance()->worker_id][$cid] ?? null;
 
         if (!$instance) {
             return '';

@@ -10,7 +10,8 @@ Thumbs.db
 
 
 #Runtime
-app/Api/Runtime
+*/Runtime
+*/*/Runtime
 
 /vendor
 /config

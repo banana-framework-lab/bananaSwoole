@@ -10,6 +10,7 @@ namespace App\Api\Handler;
 
 use App\Api\Object\MessageObject;
 use Library\Entity\Swoole\EntitySwooleWebSocketSever;
+use Library\Helper\LogHelper;
 use Library\Message;
 use Library\Virtual\Handler\AbstractHandler;
 use Library\Virtual\Object\AbstractMessageObject;
@@ -27,6 +28,7 @@ class TestHandler extends AbstractHandler
     public function open(SwooleSocketServer $server, SwooleHttpRequest $request)
     {
         echo "1\n";
+        LogHelper::info('test', ['msg' => 'test'], '', $request->fd);
     }
 
     /**
