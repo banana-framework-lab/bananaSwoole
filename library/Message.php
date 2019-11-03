@@ -64,7 +64,7 @@ class Message
             go(function () use ($channel) {
                 $queue = (string)$channel . "_exchange_" . Config::get('app.server_id');
                 $consumerTag = 'consumer';
-                $rabbitConfig = $rabbitConfig = Config::get('app.is_server') ? Config::get('rabbit.server') : Config::get('rabbit.local');
+                $rabbitConfig = Config::get('app.is_server') ? Config::get('rabbit.server') : Config::get('rabbit.local');
                 $connection = new AMQPSwooleConnection($rabbitConfig['host'],
                     $rabbitConfig['port'],
                     $rabbitConfig['user'],
