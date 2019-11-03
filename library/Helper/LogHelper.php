@@ -102,7 +102,7 @@ class LogHelper
                 'host' => RequestHelper::server('http_host') ?: '',
                 'uri' => RequestHelper::server('request_uri') ?: ''
             ];
-            $template = "\r\n---------------------------------------------------------------";
+            $template = "---------------------------------------------------------------";
             $template .= "\r\n[%datetime%] {$requestInfo['ip']} {$requestInfo['method']} {$requestInfo['host']}{$requestInfo['uri']}";
             $template .= "\r\n[%channel%][%level_name%][MESSAGE]: %message%";
             $template .= "\r\n[%channel%][%level_name%][CONTEXT]: %context%";
