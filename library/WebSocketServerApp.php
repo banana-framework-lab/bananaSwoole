@@ -109,6 +109,7 @@ class WebSocketServerApp
                 if (method_exists($handlerClass, 'open')) {
                     //fd绑定通道
                     $this->table->set($request->fd, $channelObject->toArray());
+
                     //fd打开事件
                     $handler->open($server, $request);
                 } else {
@@ -143,7 +144,6 @@ class WebSocketServerApp
     public function message(SwooleSocketServer $server, SwooleSocketFrame $frame)
     {
         $tableData = $this->table->get($frame->fd);
-        var_dump($tableData);
         try {
             // 获取所需通道
             $channelObject = new ChannelObject();
@@ -203,7 +203,7 @@ class WebSocketServerApp
                 // 获取所需通道
                 $channelObject = new ChannelObject();
                 $channelObject->setChannel($tableData['channel']);
-                $channelObject->setChannel($tableData['handler']);
+                $channelObject->setHandler($tableData['handler']);
                 if (!$channelObject) {
                     echo "{$fd}找不到fd对应的Channel!\n";
                     return;
@@ -262,12 +262,10 @@ class WebSocketServerApp
         try {
             $middleClass = str_replace("Controller", "Middle", $controllerClass);;
             /* @var AbstractMiddleWare $middleWare */
-            if (class_exists($middleClass)) {
+            if (method_exists($middleClass, $methodName)) {
                 $middleWare = new $middleClass($requestData);
-                if (method_exists($middleWare, $methodName)) {
-                    $middleWare->$methodName();
-                    $requestData = $middleWare->takeMiddleData();
-                }
+                $middleWare->$methodName();
+                $requestData = $middleWare->takeMiddleData();
             }
         } catch (Throwable $e) {
             ResponseHelper::json(['msg' => $e->getMessage()]);

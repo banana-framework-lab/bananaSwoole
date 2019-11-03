@@ -2,7 +2,6 @@
 
 namespace Library\Server;
 
-use Library\Binder;
 use Library\Config;
 use Library\Entity\Swoole\EntitySwooleServer;
 use Library\Entity\Swoole\EntitySwooleWebSocketSever;
@@ -82,7 +81,6 @@ class SwooleWebSocketServer extends SwooleServer
     public function onWorkerStart(SwooleSocketServer $server, int $workerId)
     {
         $this->appServerList[$server->worker_id] = new WebSocketServerApp($this->table);
-//        echo "start_$workerId\n";
 
         /* @var WebSocketServerApp $app */
         $app = $this->appServerList[$server->worker_id];
@@ -148,7 +146,6 @@ class SwooleWebSocketServer extends SwooleServer
      */
     public function onOpen(SwooleSocketServer $server, SwooleHttpRequest $request)
     {
-//        echo "open_{$server->worker_id}\n";
         /* @var WebSocketServerApp $app */
         $app = $this->appServerList[EntitySwooleServer::getInstance()->worker_id];
         $app->open($server, $request);
@@ -162,7 +159,6 @@ class SwooleWebSocketServer extends SwooleServer
      */
     public function onMessage(SwooleSocketServer $server, SwooleSocketFrame $frame)
     {
-//        echo "message_{$server->worker_id}\n";
         /* @var WebSocketServerApp $app */
         $app = $this->appServerList[EntitySwooleServer::getInstance()->worker_id];
         $app->message($server, $frame);
