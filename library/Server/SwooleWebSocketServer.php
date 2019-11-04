@@ -32,18 +32,19 @@ class SwooleWebSocketServer extends SwooleServer
         //初始化SwooleWebSocketSever
         EntitySwooleWebSocketSever::instanceStart();
 
-        // table初始化
-        $this->table = new Table(1024);
-        $this->table->column('channel', Table::TYPE_STRING, 50);
-        $this->table->column('handler', Table::TYPE_STRING, 100);
-        $this->table->column('http', Table::TYPE_INT);
-        $this->table->create();
-
         //初始化全局对象
         EntitySwooleServer::setInstance(EntitySwooleWebSocketSever::getInstance());
 
         $this->server = EntitySwooleServer::getInstance();
         $this->port = Config::get('swoole.socket.port');
+        $this->workerNum = Config::get('swoole.socket.worker_num');
+
+        // table初始化
+        $this->table = new Table($this->workerNum * 5000);
+        $this->table->column('channel', Table::TYPE_STRING, 50);
+        $this->table->column('handler', Table::TYPE_STRING, 100);
+        $this->table->column('http', Table::TYPE_INT);
+        $this->table->create();
     }
 
     /**
@@ -57,8 +58,8 @@ class SwooleWebSocketServer extends SwooleServer
         echo "---------------------------------------------------------------------------\n";
 
         $this->server->set([
-//            'worker_num' => $this->workerNum,
-            'worker_num' => 1,
+            'worker_num' => $this->workerNum,
+//            'worker_num' => 1,
             'reload_async' => true
         ]);
         $this->server->on('WorkerStart', [$this, 'onWorkerStart']);

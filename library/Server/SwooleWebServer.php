@@ -32,7 +32,7 @@ class SwooleWebServer extends SwooleServer
         //初始化全局对象
         EntitySwooleServer::setInstance(EntitySwooleWebSever::getInstance());
 
-        $this->server =  EntitySwooleServer::getInstance();
+        $this->server = EntitySwooleServer::getInstance();
         $this->port = Config::get('swoole.web.port');
         $this->workerNum = Config::get('swoole.web.worker_num');
     }
@@ -83,7 +83,7 @@ class SwooleWebServer extends SwooleServer
      */
     public function onRequest(SwooleRequest $request, SwooleResponse $response)
     {
-        defer(function () use ($response) {
+        defer(function () {
             //回收请求数据
             RequestHelper::delInstance();
 

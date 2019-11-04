@@ -8,7 +8,6 @@
 
 namespace Library\Virtual\Model\DataBaseModel;
 
-use Library\Entity\Model\DataBase\EntityMysql;
 use Library\Object\BuilderObject;
 use Library\Virtual\Property\AbstractProperty;
 use Illuminate\Database\Eloquent\Model;

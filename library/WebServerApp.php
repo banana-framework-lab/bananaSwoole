@@ -101,6 +101,9 @@ class WebServerApp
             }
         } catch (Throwable $e) {
             ResponseHelper::json(['msg' => $e->getMessage()]);
+            $response->status(200);
+            $response->end(ResponseHelper::response());
+            return;
         }
         try {
             //初始化控制器
