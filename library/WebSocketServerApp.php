@@ -65,7 +65,7 @@ class WebSocketServerApp
             EntityRedis::instanceStart();
 
             // rabbitMq初始化
-//            EntityRabbit::instanceStart();
+            EntityRabbit::instanceStart();
 
             // 协程mysql连接池初始化
             CoroutineMysqlClientPool::poolInit();
@@ -74,7 +74,7 @@ class WebSocketServerApp
             CoroutineRedisClientPool::poolInit();
 
             // 消化消息队列的消息
-//            Message::consume();
+            Message::consume();
 
             //开启php调试模式
             if (Config::get('app.debug')) {
@@ -97,6 +97,12 @@ class WebSocketServerApp
 
         // 选出所需通道
         $channelObject = Channel::route($openData);
+
+        //过滤错误的连接
+        if (!$channelObject->getChannel()) {
+            $server->disconnect($request->fd, 1000, "找不到fd对应的Channel");
+            return;
+        }
 
         //初始化Handler
         $handlerClass = $channelObject->getHandler();
@@ -149,6 +155,7 @@ class WebSocketServerApp
             $channelObject = new ChannelObject();
             $channelObject->setChannel($tableData['channel']);
             $channelObject->setHandler($tableData['handler']);
+
             if (!$channelObject->getChannel()) {
                 $server->disconnect($frame->fd, 1000, "找不到fd对应的Channel");
                 return;
