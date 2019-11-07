@@ -9,7 +9,7 @@ return [
     'server' => [
         'driver' => 'mysql',
         'host' => '127.0.0.1',
-        'database' => 'swooleWebSocketFramework',
+        'database' => 'swoole_vue_admin',
         'username' => 'root',
         'password' => '123456',
         'charset' => 'utf8mb4',
@@ -19,7 +19,7 @@ return [
     'local' => [
         'driver' => 'mysql',
         'host' => '127.0.0.1',
-        'database' => 'swooleWebSocketFramework',
+        'database' => 'swoole_vue_admin',
         'username' => 'root',
         'password' => '123456',
         'charset' => 'utf8mb4',

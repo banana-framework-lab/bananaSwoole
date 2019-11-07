@@ -138,6 +138,66 @@ export const constantRoutes = [
                     component: () => import('@/views/nested/menu1/menu1-2/menu1-2-1/menu1-2-1-1/index'),
                     name: 'Menu1-2-1-2',
                     meta: { title: 'Menu1-2-1-2' }
+                  },
+                  {
+                    path: 'menu1-2-1-3',
+                    component: () => import('@/views/nested/menu1/menu1-2/menu1-2-1/menu1-2-1-1/index'),
+                    name: 'Menu1-2-1-3',
+                    meta: { title: 'Menu1-2-1-3' }
+                  },
+                  {
+                    path: 'menu1-2-1-4',
+                    component: () => import('@/views/nested/menu1/menu1-2/menu1-2-1/menu1-2-1-1/index'),
+                    name: 'Menu1-2-1-4',
+                    meta: { title: 'Menu1-2-1-4' }
+                  },
+                  {
+                    path: 'menu1-2-1-5',
+                    component: () => import('@/views/nested/menu1/menu1-2/menu1-2-1/menu1-2-1-1/index'),
+                    name: 'Menu1-2-1-5',
+                    meta: { title: 'Menu1-2-1-5' }
+                  },
+                  {
+                    path: 'menu1-2-1-6',
+                    component: () => import('@/views/nested/menu1/menu1-2/menu1-2-1/menu1-2-1-1/index'),
+                    name: 'Menu1-2-1-6',
+                    meta: { title: 'Menu1-2-1-6' }
+                  },
+                  {
+                    path: 'menu1-2-1-7',
+                    component: () => import('@/views/nested/menu1/menu1-2/menu1-2-1/menu1-2-1-1/index'),
+                    name: 'Menu1-2-1-7',
+                    meta: { title: 'Menu1-2-1-7' }
+                  },
+                  {
+                    path: 'menu1-2-1-8',
+                    component: () => import('@/views/nested/menu1/menu1-2/menu1-2-1/menu1-2-1-1/index'),
+                    name: 'Menu1-2-1-8',
+                    meta: { title: 'Menu1-2-1-8' }
+                  },
+                  {
+                    path: 'menu1-2-1-9',
+                    component: () => import('@/views/nested/menu1/menu1-2/menu1-2-1/menu1-2-1-1/index'),
+                    name: 'Menu1-2-1-9',
+                    meta: { title: 'Menu1-2-1-9' }
+                  },
+                  {
+                    path: 'menu1-2-1-10',
+                    component: () => import('@/views/nested/menu1/menu1-2/menu1-2-1/menu1-2-1-1/index'),
+                    name: 'Menu1-2-1-10',
+                    meta: { title: 'Menu1-2-1-10' }
+                  },
+                  {
+                    path: 'menu1-2-1-11',
+                    component: () => import('@/views/nested/menu1/menu1-2/menu1-2-1/menu1-2-1-1/index'),
+                    name: 'Menu1-2-1-11',
+                    meta: { title: 'Menu1-2-1-11' }
+                  },
+                  {
+                    path: 'menu1-2-1-12',
+                    component: () => import('@/views/nested/menu1/menu1-2/menu1-2-1/menu1-2-1-1/index'),
+                    name: 'Menu1-2-1-12',
+                    meta: { title: 'Menu1-2-1-12' }
                   }
                 ]
               },
@@ -159,6 +219,7 @@ export const constantRoutes = [
       },
       {
         path: 'menu2',
+        name: 'menu2',
         component: () => import('@/views/nested/menu2/index'),
         meta: { title: 'menu2' }
       }
