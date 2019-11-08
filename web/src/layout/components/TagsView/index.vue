@@ -21,7 +21,7 @@
     </scroll-pane>
     <ul v-show="visible" :style="{left:left+'px',top:top+'px'}" class="contextmenu">
       <li @click="refreshSelectedTag(selectedTag)">Refresh</li>
-      <li @click="closeOthersTags">Close Others</li>
+      <!-- <li @click="closeOthersTags">Close Others</li> -->
       <li @click="closeAllTags(selectedTag)">Close All</li>
     </ul>
   </div>

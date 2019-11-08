@@ -18,6 +18,7 @@ export default {
     key() {
       if (!this.$route.query.isTagsView) {
       // 这里为了重新触发create方法
+        alert(1)
         return this.$route.path + new Date().getTime()
       } else {
         return this.$route.path

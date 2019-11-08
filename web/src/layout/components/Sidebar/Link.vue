@@ -45,7 +45,7 @@ export default {
         is: 'router-link',
         to: {
           // 这里为了可以重新路由触发router-view
-          path: this.refresh && !this.query.isTagsView ? `${url}?v=${this.date}` : url,
+          path: this.refresh && !(this.query.isTagsView || false) ? `${url}?v=${this.date}` : url,
           // path: url,
           query: this.query
         }
