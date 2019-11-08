@@ -36,8 +36,20 @@ class TestLogic
      */
     public function login(string $username, string $password)
     {
-        $adminModel = new AdminModel();
-        return $adminModel->login($username, $password);
+        echo "3333\n";
+        $result = [];
+        go(
+            function () use (&$username, &$password, &$result) {
+                co::sleep(1.0);
+                $result = [1];
+//                $adminModel = new AdminCoroutineModel();
+//                $result = $adminModel->login($username, $password);
+                echo "44444\n";
+            }
+        );
+        co::sleep(2);
+        echo "5555\n";
+        return $result;
     }
 
     /**

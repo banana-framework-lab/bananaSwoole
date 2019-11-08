@@ -1,7 +1,7 @@
 <template>
   <section class="app-main">
     <transition name="fade-transform" mode="out-in">
-      <keep-alive :include="cachedViews">
+      <keep-alive>
         <router-view :key="key" />
       </keep-alive>
     </transition>
@@ -16,8 +16,12 @@ export default {
       return this.$store.state.tagsView.cachedViews
     },
     key() {
+      if (!this.$route.query.isTagsView) {
       // 这里为了重新触发create方法
-      return this.$route.path + new Date().getTime()
+        return this.$route.path + new Date().getTime()
+      } else {
+        return this.$route.path
+      }
     }
   }
 }
