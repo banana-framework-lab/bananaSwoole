@@ -52,7 +52,7 @@
 import { getList } from '@/api/table'
 
 export default {
-  name: 'Table',
+  name: 'Index',
   filters: {
     statusFilter(status) {
       const statusMap = {
@@ -71,6 +71,8 @@ export default {
   },
   created() {
     this.fetchData()
+  },
+  mounted() {
   },
   methods: {
     fetchData() {

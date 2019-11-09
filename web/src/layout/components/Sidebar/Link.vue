@@ -41,18 +41,25 @@ export default {
           rel: 'noopener'
         }
       }
+      // const lastUrl = this.refresh ? `${url}?v=${this.date}` : url
+      const lastUrl = url
       return {
         is: 'router-link',
         to: {
           // 这里为了可以重新路由触发router-view
-          path: this.refresh && !(this.query.isTagsView || false) ? `${url}?v=${this.date}` : url,
+          path: lastUrl,
           // path: url,
-          query: this.query
+          query: this.linkQuery(this.query)
         }
       }
     },
+    linkQuery(query) {
+      query.isTagsView = false
+      return query
+    },
     editTime() {
-      this.date = new Date().getTime()
+      // console.log('触发更改sideBar的链接版本')
+      // this.date = new Date().getTime()
     }
   }
 }
