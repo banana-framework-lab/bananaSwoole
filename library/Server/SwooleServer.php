@@ -46,6 +46,11 @@ class SwooleServer
     protected $table;
 
     /**
+     * @var string $startDateTime
+     */
+    protected $startDateTime;
+
+    /**
      * SwooleServer constructor.
      */
     public function __construct()

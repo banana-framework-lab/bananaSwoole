@@ -44,9 +44,11 @@ class WebSocketServerApp
 
     /**
      * 初始化webSocketApp对象
+     * @param SwooleSocketServer $server
      * @param int $workerId
+     * @return bool
      */
-    public function init(int $workerId)
+    public function init(SwooleSocketServer $server, int $workerId): bool
     {
         try {
             // 配置文件初始化
@@ -65,7 +67,7 @@ class WebSocketServerApp
             EntityRedis::instanceStart();
 
             // rabbitMq初始化
-            EntityRabbit::instanceStart();
+//            EntityRabbit::instanceStart();
 
             // 协程mysql连接池初始化
             CoroutineMysqlClientPool::poolInit();
@@ -74,15 +76,17 @@ class WebSocketServerApp
             CoroutineRedisClientPool::poolInit();
 
             // 消化消息队列的消息
-            Message::consume();
+//            Message::consume();
 
             //开启php调试模式
             if (Config::get('app.debug')) {
                 error_reporting(E_ALL);
             }
+            return true;
         } catch (Throwable $e) {
-            echo "worker_id:{$workerId}  启动时报错  " . $e->getMessage() . "\n";
-            return;
+            echo "///////////      worker_id:{$workerId}  启动时报错  " . $e->getMessage() . "\n";
+            $server->shutdown();
+            return false;
         }
     }
 
@@ -134,7 +138,7 @@ class WebSocketServerApp
             }
         } catch (Throwable $e) {
             if (Config::get('app.debug')) {
-                echo $e->getMessage() . "\n" . $e->getTraceAsString();
+                echo  $e->getMessage() . "\n" . $e->getTraceAsString();
                 $server->disconnect($request->fd, 1000, "已断开连接.");
             } else {
                 $server->disconnect($request->fd, 1000, "close.");

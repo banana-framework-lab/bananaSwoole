@@ -38,6 +38,7 @@ class SwooleWebSocketServer extends SwooleServer
         $this->server = EntitySwooleServer::getInstance();
         $this->port = Config::get('swoole.socket.port');
         $this->workerNum = Config::get('swoole.socket.worker_num');
+        $this->workerNum = 1;
 
         // table初始化
         $this->table = new Table($this->workerNum * 5000);
@@ -48,18 +49,30 @@ class SwooleWebSocketServer extends SwooleServer
     }
 
     /**
+     * worker启动完成后报的程序信息
+     * @param SwooleSocketServer $server
+     */
+    private function startEcho(SwooleSocketServer $server)
+    {
+        echo "\n";
+        echo "---------------------------------------------------------------------------\n";
+        echo '|' . str_pad("webSocketServer start", 73, ' ', STR_PAD_BOTH) . "|\n";
+        echo "---------------------------------------------------------------------------\n";
+        echo "|                                                                         |\n";
+        echo '|' . str_pad("listen_address: 0.0.0.0  listen_port: {$this->port}  time: {$this->startDateTime}", 73, ' ', STR_PAD_BOTH) . "|\n";
+        echo "|                                                                         |\n";
+        echo '|' . str_pad("manage_pid: {$server->manager_pid}      master_pid: {$server->master_pid}      worker_number: {$this->workerNum}", 73, ' ', STR_PAD_BOTH) . "|\n";
+        echo "|                                                                         |\n";
+        echo "---------------------------------------------------------------------------\n\n";
+    }
+
+    /**
      * 启动WebSocket服务
      */
     public function run()
     {
-        echo "\n";
-        echo "---------------------------------------------------------------------------\n";
-        echo "|  webSocketServer服务启动于：ws://0.0.0.0:{$this->port} 时间:" . date('Y-m-d H:i:s') . "  |\n";
-        echo "---------------------------------------------------------------------------\n";
-
         $this->server->set([
             'worker_num' => $this->workerNum,
-//            'worker_num' => 1,
             'reload_async' => true
         ]);
         $this->server->on('WorkerStart', [$this, 'onWorkerStart']);
@@ -69,6 +82,8 @@ class SwooleWebSocketServer extends SwooleServer
         $this->server->on('Close', [$this, 'onClose']);
         $this->server->on('WorkerStop', [$this, 'onWorkerStop']);
         $this->server->on('WorkerError', [$this, 'onWorkerError']);
+
+        $this->startDateTime = date('Y-m-d H:i:s');
 
         $this->server->start();
     }
@@ -81,14 +96,18 @@ class SwooleWebSocketServer extends SwooleServer
      */
     public function onWorkerStart(SwooleSocketServer $server, int $workerId)
     {
+        if ($workerId <= 0) {
+            $this->startEcho($server);
+        }
+
         $this->appServerList[$server->worker_id] = new WebSocketServerApp($this->table);
 
         /* @var WebSocketServerApp $app */
         $app = $this->appServerList[$server->worker_id];
 //
-        $app->init($workerId);
-
-        echo "master_pid:{$server->master_pid}  worker_pid:{$server->worker_pid}  worker_id:{$workerId}  启动\n";
+        if($app->init($server,$workerId)){
+            echo "###########" . str_pad("worker_pid: {$server->worker_pid}    worker_id: {$workerId}    start", 53, ' ', STR_PAD_BOTH) . "###########\n";
+        }
     }
 
     /**
@@ -189,6 +208,7 @@ class SwooleWebSocketServer extends SwooleServer
     public function onWorkerError(SwooleSocketServer $server, int $workerId, int $workerPid, int $exitCode, int $signal)
     {
         echo "master_id:{$server->master_pid}  worker_pid:{$workerPid}  worker_id:{$workerId}  异常关闭:错误码 {$exitCode},信号 {$signal}\n";
+        echo "###########" . str_pad("worker_pid: {$server->worker_pid}  worker_id: {$workerId}  exitCode: {$exitCode}  sign:{$signal}  error stop", 53, ' ', STR_PAD_BOTH) . "###########\n";
     }
 
     /**
@@ -199,6 +219,6 @@ class SwooleWebSocketServer extends SwooleServer
      */
     public function onWorkerStop(SwooleSocketServer $server, int $workerId)
     {
-        echo "master_id:{$server->master_pid}  worker_pid:{$server->worker_pid}  worker_id:{$workerId}  正常关闭\n";
+        echo "###########" . str_pad("worker_pid: {$server->worker_pid}    worker_id: {$workerId}    stop", 53, ' ', STR_PAD_BOTH) . "###########\n";
     }
 }
