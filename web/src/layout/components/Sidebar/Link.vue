@@ -24,6 +24,13 @@ export default {
         return {}
       },
       required: false
+    },
+    params: {
+      type: Object,
+      default: function() {
+        return {}
+      },
+      required: false
     }
   },
   data() {
@@ -42,24 +49,27 @@ export default {
         }
       }
       // const lastUrl = this.refresh ? `${url}?v=${this.date}` : url
-      const lastUrl = url
+      // const lastUrl = url
       return {
         is: 'router-link',
         to: {
           // 这里为了可以重新路由触发router-view
-          path: lastUrl,
-          // path: url,
-          query: this.linkQuery(this.query)
+          // path: lastUrl,
+          path: url,
+          query: this.linkQuery(this.query),
+          params: this.linkParams(this.params)
         }
       }
     },
     linkQuery(query) {
-      query.isTagsView = false
-      return query
+      return Object.assign(query, { v: this.date })
+    },
+    linkParams(params) {
+      return params
     },
     editTime() {
       // console.log('触发更改sideBar的链接版本')
-      // this.date = new Date().getTime()
+      this.date = new Date().getTime()
     }
   }
 }

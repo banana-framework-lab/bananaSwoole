@@ -53,12 +53,11 @@ export default {
     },
     handleLink(item) {
       const { redirect, path } = item
-      console.log(redirect, path, this.pathCompile(path))
       if (redirect) {
-        this.$router.push(redirect + '?v=' + (new Date()).getTime())
+        this.$router.push({ path: redirect, query: { v: (new Date()).getTime() }})
         return
       }
-      this.$router.push(this.pathCompile(path) + '?v=' + (new Date()).getTime())
+      this.$router.push({ path: this.pathCompile(path), query: { v: (new Date()).getTime() }})
     }
   }
 }

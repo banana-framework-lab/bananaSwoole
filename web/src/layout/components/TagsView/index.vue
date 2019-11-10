@@ -6,12 +6,7 @@
         ref="tag"
         :key="tag.path"
         :class="isActive(tag)?'active':''"
-        :to="{
-          path: tag.path,
-          query: makeTagsViewQuery(tag.query),
-          fullPath: tag.fullPath
-        }"
-        tag="span"
+        :to="makeTagsRouterLink(tag)"
         class="tags-view-item"
         @contextmenu.prevent.native="openMenu(tag,$event)"
       >
@@ -20,7 +15,7 @@
       </router-link>
     </scroll-pane>
     <ul v-show="visible" :style="{left:left+'px',top:top+'px'}" class="contextmenu">
-      <!-- <li @click="refreshSelectedTag(selectedTag)">Refresh</li> -->
+      <li @click="refreshSelectedTag(selectedTag)">Refresh</li>
       <!-- <li @click="closeOthersTags">Close Others</li> -->
       <li @click="closeAllTags(selectedTag)">Close All</li>
     </ul>
@@ -52,6 +47,7 @@ export default {
   },
   watch: {
     $route() {
+      console.log('触发TagsView重新绑定route-link')
       this.addTags()
       this.moveToCurrentTag()
     },
@@ -68,9 +64,14 @@ export default {
     this.addTags()
   },
   methods: {
-    makeTagsViewQuery(query) {
-      query.isTagsView = true
-      return query
+    makeTagsRouterLink(tag) {
+      const to = {
+        path: tag.path,
+        query: tag.query,
+        params: tag.params,
+        fullPath: tag.fullPath
+      }
+      return to
     },
     isActive(route) {
       return route.path === this.$route.path
@@ -131,9 +132,10 @@ export default {
       this.$store.dispatch('tagsView/delCachedView', view).then(() => {
         const { fullPath } = view
         this.$nextTick(() => {
-          this.$router.replace({
-            path: '/redirect' + fullPath
-          })
+          // this.$router.replace({
+          //   path: '/redirect' + fullPath
+          // })
+          this.$router.push({ path: fullPath, query: { v: (new Date()).getTime() }})
         })
       })
     },
@@ -161,11 +163,11 @@ export default {
     toLastView(visitedViews, view) {
       const latestView = visitedViews.slice(-1)[0]
       if (latestView) {
-        this.$router.push(latestView.fullPath)
+        this.$router.push({ path: latestView.fullPath })
       } else {
         // now the default is to redirect to the home page if there is no tags-view,
         // you can adjust it according to your needs.
-        this.$router.push('/')
+        this.$router.push({ path: '/' })
       }
     },
     openMenu(tag, e) {
