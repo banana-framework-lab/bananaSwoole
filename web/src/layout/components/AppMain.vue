@@ -16,8 +16,6 @@ export default {
       return this.$store.state.tagsView.cachedViews
     },
     key() {
-      console.log('触发router-view更新视图')
-      console.log(this.$route.path, JSON.stringify(this.$route.query))
       if (this.$route.query.v) {
         // 这里为了重新触发create方法
         return `${this.$route.path}_${this.$route.query.v}`
