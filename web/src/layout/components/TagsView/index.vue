@@ -167,7 +167,7 @@ export default {
       } else {
         // now the default is to redirect to the home page if there is no tags-view,
         // you can adjust it according to your needs.
-        this.$router.push({ path: '/' })
+        this.$router.push({ path: '/dashboard', query: { v: (new Date()).getTime() }})
       }
     },
     openMenu(tag, e) {
