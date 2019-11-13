@@ -53,7 +53,6 @@ class TestController extends AbstractController
     }
 
 
-
     public function getNumber()
     {
         $return = (new TestLogic())->getNumber();
@@ -77,6 +76,11 @@ class TestController extends AbstractController
     {
         $return = (new TestLogic())->login('zhangzhonghao', '123456');
         ResponseHelper::json(['data' => $return]);
+    }
+
+    public function testHotReload()
+    {
+        echo "zzh is superman 33333 \n";
     }
 
 

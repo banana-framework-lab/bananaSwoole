@@ -57,6 +57,7 @@ class AdminCoroutineModel extends AbstractCoroutineMySqlModel
     }
 
     /**
+     *
      * 测试慢查询
      */
     public function longCheck()

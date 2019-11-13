@@ -41,9 +41,14 @@ class SwooleServer
     protected $appServerList;
 
     /**
-     * @var Table $table
+     * @var Table $bindTable
      */
-    protected $table;
+    protected $bindTable;
+
+    /**
+     * @var Table $reloadTable
+     */
+    protected $reloadTable;
 
     /**
      * @var string $startDateTime

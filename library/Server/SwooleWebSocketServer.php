@@ -9,12 +9,17 @@ use Library\Helper\RequestHelper;
 use Library\Helper\ResponseHelper;
 use Library\Router;
 use Library\WebSocketServerApp;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
+use SplFileInfo;
 use Swoole\Http\Request as SwooleHttpRequest;
 use Swoole\Table;
+use Swoole\Timer;
 use Swoole\WebSocket\Frame as SwooleSocketFrame;
 use Swoole\WebSocket\Server as SwooleSocketServer;
 use Swoole\Http\Request as SwooleRequest;
 use Swoole\Http\Response as SwooleResponse;
+use Throwable;
 
 /**
  * Class SwooleWebSocketServer
@@ -40,12 +45,17 @@ class SwooleWebSocketServer extends SwooleServer
         $this->workerNum = Config::get('swoole.socket.worker_num');
         $this->workerNum = 1;
 
-        // table初始化
-        $this->table = new Table($this->workerNum * 5000);
-        $this->table->column('channel', Table::TYPE_STRING, 50);
-        $this->table->column('handler', Table::TYPE_STRING, 100);
-        $this->table->column('http', Table::TYPE_INT);
-        $this->table->create();
+        // bindTable初始化
+        $this->bindTable = new Table($this->workerNum * 5000);
+        $this->bindTable->column('channel', Table::TYPE_STRING, 50);
+        $this->bindTable->column('handler', Table::TYPE_STRING, 100);
+        $this->bindTable->column('http', Table::TYPE_INT);
+        $this->bindTable->create();
+
+        // reloadTable初始化
+        $this->reloadTable = new Table($this->workerNum * 5000);
+        $this->reloadTable->column('mTime', Table::TYPE_STRING, 50);
+        $this->reloadTable->create();
     }
 
     /**
@@ -63,7 +73,48 @@ class SwooleWebSocketServer extends SwooleServer
         echo "|                                                                         |\n";
         echo '|' . str_pad("manage_pid: {$server->manager_pid}      master_pid: {$server->master_pid}      worker_number: {$this->workerNum}", 73, ' ', STR_PAD_BOTH) . "|\n";
         echo "|                                                                         |\n";
-        echo "---------------------------------------------------------------------------\n\n";
+        echo "---------------------------------------------------------------------------\n";
+        echo "\n";
+    }
+
+    /**
+     * worker启动完成后开启自动热加载
+     * @param SwooleSocketServer $server
+     * @return \Closure
+     */
+    private function autoHotReload(SwooleSocketServer $server)
+    {
+        return function () use ($server) {
+            $pathList = [
+                'app' => dirname(__FILE__) . '/../../app',
+                'route' => dirname(__FILE__) . '/../../route',
+                'channel' => dirname(__FILE__) . '/../../channel',
+                'config' => dirname(__FILE__) . '/../../config',
+            ];
+            foreach ($pathList as $pathKey => $pathValue) {
+                $dirIterator = new RecursiveDirectoryIterator($pathValue);
+                $iterator = new RecursiveIteratorIterator($dirIterator);
+                /* @var SplFileInfo $fileValue */
+                foreach ($iterator as $fileKey => $fileValue) {
+                    $ext = $fileValue->getExtension();
+                    if ($ext == 'php') {
+                        $iNode = $fileValue->getInode();
+                        $mTime = $fileValue->getMTime();
+                        if ($this->reloadTable->exist($iNode)) {
+                            $oldTime = $this->reloadTable->get($iNode)['mTime'];
+                            if ($oldTime != $mTime) {
+                                $this->reloadTable->set($iNode, ['mTime' => $mTime]);
+                                $server->reload();
+                                return;
+                            }
+                        } else {
+                            $this->reloadTable->set($iNode, ['mTime' => $mTime]);
+                            return;
+                        }
+                    }
+                }
+            }
+        };
     }
 
     /**
@@ -98,14 +149,15 @@ class SwooleWebSocketServer extends SwooleServer
     {
         if ($workerId <= 0) {
             $this->startEcho($server);
+            Timer::tick(1000, $this->autoHotReload($server));
         }
 
-        $this->appServerList[$server->worker_id] = new WebSocketServerApp($this->table);
+        $this->appServerList[$server->worker_id] = new WebSocketServerApp($this->bindTable);
 
         /* @var WebSocketServerApp $app */
         $app = $this->appServerList[$server->worker_id];
-//
-        if($app->init($server,$workerId)){
+
+        if ($app->init($server, $workerId)) {
             echo "###########" . str_pad("worker_pid: {$server->worker_pid}    worker_id: {$workerId}    start", 53, ' ', STR_PAD_BOTH) . "###########\n";
         }
     }
