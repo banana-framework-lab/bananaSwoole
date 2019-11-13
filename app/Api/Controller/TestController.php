@@ -44,7 +44,8 @@ class TestController extends AbstractController
      */
     public function indexError()
     {
-        $this->test(1);
+        $this->test(4);
+
     }
 
     private function test(array $a)

@@ -8,7 +8,6 @@
 
 namespace Library;
 
-use Library\Entity\MessageQueue\EntityRabbit;
 use Library\Entity\Model\Cache\EntityRedis;
 use Library\Entity\Model\DataBase\EntityMongo;
 use Library\Entity\Model\DataBase\EntityMysql;
@@ -51,9 +50,6 @@ class WebSocketServerApp
     public function init(SwooleSocketServer $server, int $workerId): bool
     {
         try {
-            // 配置文件初始化
-            Config::instanceStart();
-
             // 通道配置
             Channel::instanceStart();
 

@@ -9,9 +9,6 @@ use Library\Helper\RequestHelper;
 use Library\Helper\ResponseHelper;
 use Library\Router;
 use Library\WebSocketServerApp;
-use RecursiveDirectoryIterator;
-use RecursiveIteratorIterator;
-use SplFileInfo;
 use Swoole\Http\Request as SwooleHttpRequest;
 use Swoole\Table;
 use Swoole\Timer;
@@ -19,7 +16,6 @@ use Swoole\WebSocket\Frame as SwooleSocketFrame;
 use Swoole\WebSocket\Server as SwooleSocketServer;
 use Swoole\Http\Request as SwooleRequest;
 use Swoole\Http\Response as SwooleResponse;
-use Throwable;
 
 /**
  * Class SwooleWebSocketServer
@@ -54,67 +50,9 @@ class SwooleWebSocketServer extends SwooleServer
 
         // reloadTable初始化
         $this->reloadTable = new Table($this->workerNum * 5000);
+        $this->reloadTable->column('iNode', Table::TYPE_STRING, 50);
         $this->reloadTable->column('mTime', Table::TYPE_STRING, 50);
         $this->reloadTable->create();
-    }
-
-    /**
-     * worker启动完成后报的程序信息
-     * @param SwooleSocketServer $server
-     */
-    private function startEcho(SwooleSocketServer $server)
-    {
-        echo "\n";
-        echo "---------------------------------------------------------------------------\n";
-        echo '|' . str_pad("webSocketServer start", 73, ' ', STR_PAD_BOTH) . "|\n";
-        echo "---------------------------------------------------------------------------\n";
-        echo "|                                                                         |\n";
-        echo '|' . str_pad("listen_address: 0.0.0.0  listen_port: {$this->port}  time: {$this->startDateTime}", 73, ' ', STR_PAD_BOTH) . "|\n";
-        echo "|                                                                         |\n";
-        echo '|' . str_pad("manage_pid: {$server->manager_pid}      master_pid: {$server->master_pid}      worker_number: {$this->workerNum}", 73, ' ', STR_PAD_BOTH) . "|\n";
-        echo "|                                                                         |\n";
-        echo "---------------------------------------------------------------------------\n";
-        echo "\n";
-    }
-
-    /**
-     * worker启动完成后开启自动热加载
-     * @param SwooleSocketServer $server
-     * @return \Closure
-     */
-    private function autoHotReload(SwooleSocketServer $server)
-    {
-        return function () use ($server) {
-            $pathList = [
-                'app' => dirname(__FILE__) . '/../../app',
-                'route' => dirname(__FILE__) . '/../../route',
-                'channel' => dirname(__FILE__) . '/../../channel',
-                'config' => dirname(__FILE__) . '/../../config',
-            ];
-            foreach ($pathList as $pathKey => $pathValue) {
-                $dirIterator = new RecursiveDirectoryIterator($pathValue);
-                $iterator = new RecursiveIteratorIterator($dirIterator);
-                /* @var SplFileInfo $fileValue */
-                foreach ($iterator as $fileKey => $fileValue) {
-                    $ext = $fileValue->getExtension();
-                    if ($ext == 'php') {
-                        $iNode = $fileValue->getInode();
-                        $mTime = $fileValue->getMTime();
-                        if ($this->reloadTable->exist($iNode)) {
-                            $oldTime = $this->reloadTable->get($iNode)['mTime'];
-                            if ($oldTime != $mTime) {
-                                $this->reloadTable->set($iNode, ['mTime' => $mTime]);
-                                $server->reload();
-                                return;
-                            }
-                        } else {
-                            $this->reloadTable->set($iNode, ['mTime' => $mTime]);
-                            return;
-                        }
-                    }
-                }
-            }
-        };
     }
 
     /**
@@ -132,6 +70,7 @@ class SwooleWebSocketServer extends SwooleServer
         $this->server->on('Message', [$this, 'onMessage']);
         $this->server->on('Close', [$this, 'onClose']);
         $this->server->on('WorkerStop', [$this, 'onWorkerStop']);
+        $this->server->on('WorkerExit', [$this, 'onWorkerExit']);
         $this->server->on('WorkerError', [$this, 'onWorkerError']);
 
         $this->startDateTime = date('Y-m-d H:i:s');
@@ -147,9 +86,13 @@ class SwooleWebSocketServer extends SwooleServer
      */
     public function onWorkerStart(SwooleSocketServer $server, int $workerId)
     {
+        // 配置文件初始化
+        Config::instanceStart();
+
         if ($workerId <= 0) {
-            $this->startEcho($server);
-            Timer::tick(1000, $this->autoHotReload($server));
+            $this->reloadTickId = Timer::tick(1000, $this->autoHotReload());
+            $this->startEcho();
+            echo $this->reloadTickId."\n";
         }
 
         $this->appServerList[$server->worker_id] = new WebSocketServerApp($this->bindTable);
@@ -259,8 +202,9 @@ class SwooleWebSocketServer extends SwooleServer
      */
     public function onWorkerError(SwooleSocketServer $server, int $workerId, int $workerPid, int $exitCode, int $signal)
     {
-        echo "master_id:{$server->master_pid}  worker_pid:{$workerPid}  worker_id:{$workerId}  异常关闭:错误码 {$exitCode},信号 {$signal}\n";
-        echo "###########" . str_pad("worker_pid: {$server->worker_pid}  worker_id: {$workerId}  exitCode: {$exitCode}  sign:{$signal}  error stop", 53, ' ', STR_PAD_BOTH) . "###########\n";
+        if($server){
+            echo "###########" . str_pad("worker_pid: {$workerPid}  worker_id: {$workerId}  exitCode: {$exitCode}  sign:{$signal}  error stop", 53, ' ', STR_PAD_BOTH) . "###########\n";
+        }
     }
 
     /**
@@ -272,5 +216,17 @@ class SwooleWebSocketServer extends SwooleServer
     public function onWorkerStop(SwooleSocketServer $server, int $workerId)
     {
         echo "###########" . str_pad("worker_pid: {$server->worker_pid}    worker_id: {$workerId}    stop", 53, ' ', STR_PAD_BOTH) . "###########\n";
+    }
+
+    /**
+     * onWorkerExit事件
+     *
+     * @param SwooleSocketServer $server
+     * @param int $workerId
+     */
+    public function onWorkerExit(SwooleSocketServer $server, int $workerId)
+    {
+        Timer::clear($this->reloadTickId);
+        echo "###########" . str_pad("worker_pid: {$server->worker_pid}    worker_id: {$workerId}    Exit", 53, ' ', STR_PAD_BOTH) . "###########\n";
     }
 }
