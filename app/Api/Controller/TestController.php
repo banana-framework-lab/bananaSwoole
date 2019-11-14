@@ -42,7 +42,6 @@ class TestController extends AbstractController
     public function indexError()
     {
         $this->test(4);
-
     }
 
     private function test(array $a)
@@ -80,7 +79,6 @@ class TestController extends AbstractController
     {
         echo "zzh is superman 4444 \n";
     }
-
 
     public function testCoroutineLongCheck()
     {
