@@ -3,10 +3,14 @@
 namespace Library\Server;
 
 use Library\Config;
+use Library\Entity\MessageQueue\EntityRabbit;
+use Library\Entity\MessageQueue\EntitySwooleRabbit;
 use Library\Entity\Swoole\EntitySwooleServer;
 use Library\Entity\Swoole\EntitySwooleWebSocketSever;
 use Library\Helper\RequestHelper;
 use Library\Helper\ResponseHelper;
+use Library\Pool\CoroutineMysqlClientPool;
+use Library\Pool\CoroutineRedisClientPool;
 use Library\Router;
 use Library\WebSocketServerApp;
 use Swoole\Http\Request as SwooleHttpRequest;
@@ -62,7 +66,8 @@ class SwooleWebSocketServer extends SwooleServer
     {
         $this->server->set([
             'worker_num' => $this->workerNum,
-            'reload_async' => true
+            'reload_async' => true,
+            'max_wait_time' => 5
         ]);
         $this->server->on('WorkerStart', [$this, 'onWorkerStart']);
         $this->server->on('Request', [$this, 'onRequest']);
@@ -92,7 +97,6 @@ class SwooleWebSocketServer extends SwooleServer
         if ($workerId <= 0) {
             $this->reloadTickId = Timer::tick(1000, $this->autoHotReload());
             $this->startEcho();
-            echo $this->reloadTickId."\n";
         }
 
         $this->appServerList[$server->worker_id] = new WebSocketServerApp($this->bindTable);
@@ -227,6 +231,10 @@ class SwooleWebSocketServer extends SwooleServer
     public function onWorkerExit(SwooleSocketServer $server, int $workerId)
     {
         Timer::clear($this->reloadTickId);
+        CoroutineMysqlClientPool::poolFree();
+        CoroutineRedisClientPool::poolFree();
+        EntityRabbit::delInstance();
+        EntitySwooleRabbit::delInstance();
         echo "###########" . str_pad("worker_pid: {$server->worker_pid}    worker_id: {$workerId}    Exit", 53, ' ', STR_PAD_BOTH) . "###########\n";
     }
 }

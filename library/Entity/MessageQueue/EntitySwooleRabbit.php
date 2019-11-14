@@ -9,12 +9,12 @@
 namespace Library\Entity\MessageQueue;
 
 use Library\Config;
-use PhpAmqpLib\Connection\AMQPStreamConnection;
+use PhpAmqpLib\Connection\AMQPSwooleConnection;
 
-class EntityRabbit
+class EntitySwooleRabbit
 {
     /**
-     * @var AMQPStreamConnection $instance ;
+     * @var AMQPSwooleConnection $instance ;
      */
     private static $instance;
 
@@ -26,7 +26,7 @@ class EntityRabbit
         if (!static::$instance) {
             $rabbitConfig = Config::get('app.is_server') ? Config::get('rabbit.server') : Config::get('rabbit.local');
 
-            $rabbitClient = new AMQPStreamConnection(
+            $rabbitClient = new AMQPSwooleConnection(
                 $rabbitConfig['host'],
                 $rabbitConfig['port'],
                 $rabbitConfig['user'],
@@ -43,22 +43,22 @@ class EntityRabbit
      */
     public static function delInstance()
     {
-        static::$instance->close();
+        static::$instance = null;
     }
 
     /**
-     * @param AMQPStreamConnection $instance
+     * @param AMQPSwooleConnection $instance
      */
-    public static function setInstance(AMQPStreamConnection $instance)
+    public static function setInstance(AMQPSwooleConnection $instance)
     {
         static::$instance = $instance;
     }
 
     /**
      * 返回当前实体类实例
-     * @return AMQPStreamConnection
+     * @return AMQPSwooleConnection
      */
-    public static function getInstance(): AMQPStreamConnection
+    public static function getInstance(): AMQPSwooleConnection
     {
         return self::$instance;
     }

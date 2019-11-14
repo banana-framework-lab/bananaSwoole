@@ -9,6 +9,7 @@
 namespace Library;
 
 use Library\Entity\MessageQueue\EntityRabbit;
+use Library\Entity\MessageQueue\EntitySwooleRabbit;
 use Library\Entity\Swoole\EntitySwooleWebSocketSever;
 use Library\Virtual\Handler\AbstractHandler;
 use Library\Virtual\Object\AbstractMessageObject;
@@ -63,14 +64,10 @@ class Message
         foreach ($channelList as $key => $channel) {
             go(function () use ($channel) {
                 $queue = (string)$channel . "_exchange_" . Config::get('app.server_id');
+
                 $consumerTag = 'consumer';
-                $rabbitConfig = Config::get('app.is_server') ? Config::get('rabbit.server') : Config::get('rabbit.local');
-                $connection = new AMQPSwooleConnection($rabbitConfig['host'],
-                    $rabbitConfig['port'],
-                    $rabbitConfig['user'],
-                    $rabbitConfig['password'],
-                    $rabbitConfig['vhost']
-                );
+
+                $connection = EntitySwooleRabbit::getInstance();
 
                 $exchangeName = Config::get('app.is_server') ? Config::get('rabbit.server.message_exchange') : Config::get('rabbit.local.message_exchange');
 

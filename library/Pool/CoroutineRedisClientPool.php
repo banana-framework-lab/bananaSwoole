@@ -49,13 +49,24 @@ class CoroutineRedisClientPool
     }
 
     /**
+     * 释放连接池
+     */
+    public static function poolFree()
+    {
+        self::$pool[] = [];
+        self::$poolSize = 5;
+        self::$freeSize = 0;
+        self::$busySize = 0;
+    }
+
+    /**
      * @return Redis
      */
     private static function getClient()
     {
         $redisConfig = Config::get('app.is_server') ? Config::get('redis.server') : Config::get('redis.local');
         $client = new Redis();
-        $client->connect($redisConfig['host'],$redisConfig['port']);
+        $client->connect($redisConfig['host'], $redisConfig['port']);
         return $client;
     }
 

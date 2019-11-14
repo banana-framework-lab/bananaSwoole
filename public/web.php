@@ -6,6 +6,7 @@
 
 use Library\Server\SwooleWebServer;
 
+date_default_timezone_set('PRC');
 require dirname(__FILE__) . '/../vendor/autoload.php';
 
 // 运行http server

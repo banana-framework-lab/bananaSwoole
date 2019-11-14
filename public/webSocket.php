@@ -6,6 +6,7 @@
 
 use Library\Server\SwooleWebSocketServer;
 
+date_default_timezone_set('PRC');
 require dirname(__FILE__) . '/../vendor/autoload.php';
 
 // 运行web socket server

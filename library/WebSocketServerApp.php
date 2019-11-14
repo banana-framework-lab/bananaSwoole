@@ -8,9 +8,11 @@
 
 namespace Library;
 
+use Library\Entity\MessageQueue\EntitySwooleRabbit;
 use Library\Entity\Model\Cache\EntityRedis;
 use Library\Entity\Model\DataBase\EntityMongo;
 use Library\Entity\Model\DataBase\EntityMysql;
+use Library\Entity\MessageQueue\EntityRabbit;
 use Library\Helper\RequestHelper;
 use Library\Helper\ResponseHelper;
 use Library\Object\ChannelObject;
@@ -63,7 +65,8 @@ class WebSocketServerApp
             EntityRedis::instanceStart();
 
             // rabbitMq初始化
-//            EntityRabbit::instanceStart();
+            EntityRabbit::instanceStart();
+            EntitySwooleRabbit::instanceStart();
 
             // 协程mysql连接池初始化
             CoroutineMysqlClientPool::poolInit();
@@ -72,7 +75,7 @@ class WebSocketServerApp
             CoroutineRedisClientPool::poolInit();
 
             // 消化消息队列的消息
-//            Message::consume();
+            Message::consume();
 
             //开启php调试模式
             if (Config::get('app.debug')) {

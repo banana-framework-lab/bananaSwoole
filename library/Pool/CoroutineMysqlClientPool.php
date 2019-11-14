@@ -49,6 +49,17 @@ class CoroutineMysqlClientPool
     }
 
     /**
+     * 释放连接池
+     */
+    public static function poolFree()
+    {
+        self::$pool = [];
+        self::$poolSize = 5;
+        self::$freeSize = 0;
+        self::$busySize = 0;
+    }
+
+    /**
      * @return MySQL
      */
     private static function getClient()

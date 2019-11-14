@@ -39,9 +39,6 @@ class TestController extends AbstractController
         ResponseHelper::json(['msg' => 'hello world']);
     }
 
-    /**
-     *
-     */
     public function indexError()
     {
         $this->test(4);
@@ -81,7 +78,7 @@ class TestController extends AbstractController
 
     public function testHotReload()
     {
-        echo "zzh is superman 33333 \n";
+        echo "zzh is superman 4444 \n";
     }
 
 
