@@ -83,8 +83,8 @@ class Router
         if (is_null($route)) {
             $requestUrl = trim($requestUrl, '/');
             $requestUrlArray = explode('/', $requestUrl);
-            $requestUrlArray[0] = (isset($requestUrlArray[0]) && $requestUrlArray[0]) ? $requestUrlArray[0] : 'Api';
-            $requestUrlArray[1] = (isset($requestUrlArray[1]) && $requestUrlArray[1]) ? $requestUrlArray[1] : 'Index';
+            $requestUrlArray[0] = (isset($requestUrlArray[0]) && $requestUrlArray[0]) ? ucfirst($requestUrlArray[0]) : 'Api';
+            $requestUrlArray[1] = (isset($requestUrlArray[1]) && $requestUrlArray[1]) ? ucfirst($requestUrlArray[1]) : 'Index';
             $requestUrlArray[2] = (isset($requestUrlArray[2]) && $requestUrlArray[2]) ? $requestUrlArray[2] : 'index';
 
             $routerObject = new RouteObject();

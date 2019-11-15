@@ -45,7 +45,7 @@ class AdminCoroutineModel extends AbstractCoroutineMySqlModel
      * 登陆检验
      * @param string $username
      * @param string $password
-     * @return array|bool
+     * @return array
      */
     public function login(string $username, string $password)
     {
@@ -57,7 +57,6 @@ class AdminCoroutineModel extends AbstractCoroutineMySqlModel
     }
 
     /**
-     *
      * 测试慢查询
      */
     public function longCheck()

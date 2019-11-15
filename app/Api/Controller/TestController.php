@@ -21,6 +21,7 @@ use Swoole\Coroutine;
 
 class TestController extends AbstractController
 {
+
     public function testLog()
     {
         $start = json_encode(RequestHelper::server('request_time_float'));

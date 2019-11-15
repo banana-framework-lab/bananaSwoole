@@ -88,7 +88,7 @@ abstract class AbstractCoroutineMySqlModel extends Model
      * 根据条件筛选一个
      * @param array $where
      * @param array $columns
-     * @return array|bool
+     * @return array
      */
     public function getFirst($where, $columns = ['*'])
     {

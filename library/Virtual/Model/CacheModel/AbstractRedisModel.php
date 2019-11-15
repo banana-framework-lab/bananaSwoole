@@ -12,11 +12,8 @@ use Library\Entity\Model\Cache\EntityRedis;
 use Redis;
 
 /**
- * @property Redis redis
- */
-
-/**
  * Class AbstractRedisModel
+ * @property Redis redis
  * @package Library\Virtual\Model\CacheModel
  */
 abstract class AbstractRedisModel

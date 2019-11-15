@@ -12,11 +12,8 @@ use Library\Pool\CoroutineRedisClientPool;
 use Swoole\Coroutine\Redis;
 
 /**
- * @property Redis redis
- */
-
-/**
  * Class AbstractCoroutineRedisModel
+ * @property Redis redis
  * @package Library\Virtual\Model\CacheModel
  */
 abstract class AbstractCoroutineRedisModel

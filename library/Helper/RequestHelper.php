@@ -12,7 +12,7 @@ use Swoole\Http\Request as SwooleRequest;
  * @method static mixed header(string $name = '')
  * @method static mixed server(string $name = '')
  * @method static mixed request(string $name = '')
- * @method static mixed cookies(string $name = '')
+ * @method static mixed cookie(string $name = '')
  * @method static mixed get(string $name = '')
  * @method static mixed post(string $name = '')
  * @method static mixed files(string $name = '')

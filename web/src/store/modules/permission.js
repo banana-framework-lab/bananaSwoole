@@ -28,7 +28,6 @@ export function filterAsyncRoutes(routes, permission) {
       res.push(tmp)
     }
   })
-  console.log('计算出的路由:', res)
   return res
 }
 
@@ -39,10 +38,8 @@ const state = {
 
 const mutations = {
   SET_ROUTES: (state, routes) => {
-    console.log('增加路由:', routes)
     state.addRoutes = routes
     state.routes = constantRoutes.concat(routes)
-    console.log('最终路由:', state.routes)
   }
 }
 

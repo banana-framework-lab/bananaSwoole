@@ -13,6 +13,7 @@ use Library\Entity\Model\Cache\EntityRedis;
 use Library\Entity\Model\DataBase\EntityMongo;
 use Library\Entity\Model\DataBase\EntityMysql;
 use Library\Entity\MessageQueue\EntityRabbit;
+use Library\Expection\WebException;
 use Library\Helper\RequestHelper;
 use Library\Helper\ResponseHelper;
 use Library\Object\ChannelObject;
@@ -137,7 +138,7 @@ class WebSocketServerApp
             }
         } catch (Throwable $e) {
             if (Config::get('app.debug')) {
-                echo  $e->getMessage() . "\n" . $e->getTraceAsString();
+                echo $e->getMessage() . "\n" . $e->getTraceAsString();
                 $server->disconnect($request->fd, 1000, "已断开连接.");
             } else {
                 $server->disconnect($request->fd, 1000, "close.");
@@ -266,7 +267,8 @@ class WebSocketServerApp
         //初始化请求数据
         $getData = $request->get ?: [];
         $postData = $request->post ?: [];
-        $requestData = array_merge($getData, $postData);
+        $rawContentData = json_decode($request->rawContent(), true) ?: [];
+        $requestData = array_merge($getData, $postData, $rawContentData);
 
         //初始化请求中间件
         try {
@@ -278,7 +280,7 @@ class WebSocketServerApp
                 $requestData = $middleWare->takeMiddleData();
             }
         } catch (Throwable $e) {
-            ResponseHelper::json(['msg' => $e->getMessage()]);
+            ResponseHelper::json(['code' => 10000, 'message' => $e->getMessage()]);
             $response->status(200);
             $response->end(ResponseHelper::response());
             return;
@@ -294,7 +296,7 @@ class WebSocketServerApp
                     }
                 } else {
                     if (Config::get('app.debug')) {
-                        ResponseHelper::json(['msg' => "找不到{$methodName}"]);
+                        ResponseHelper::json(['code' => 10000, 'msg' => "找不到{$methodName}"]);
                     } else {
                         $response->status(404);
                         $response->end();
@@ -310,6 +312,11 @@ class WebSocketServerApp
                     return;
                 }
             }
+        } catch (WebException $webE) {
+            ResponseHelper::json([
+                'code' => $webE->getCode(),
+                'msg' => $webE->getMessage()
+            ]);
         } catch (Throwable $e) {
             if (Config::get('app.debug')) {
                 if ($e->getCode() != 888) {
