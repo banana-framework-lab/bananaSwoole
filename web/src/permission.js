@@ -3,7 +3,7 @@ import store from './store'
 import { Message } from 'element-ui'
 import NProgress from 'nprogress' // progress bar
 import 'nprogress/nprogress.css' // progress bar style
-import { getToken } from '@/utils/auth' // get token from cookie
+import { getId } from '@/utils/auth' // get token from cookie
 import getPageTitle from '@/utils/get-page-title'
 
 NProgress.configure({ showSpinner: false }) // NProgress Configuration
@@ -18,8 +18,8 @@ router.beforeEach(async(to, from, next) => {
   document.title = getPageTitle(to.meta.title)
 
   // determine whether the user has logged in
-  const hasToken = getToken()
-  if (hasToken) {
+  const hasId = getId()
+  if (hasId) {
     if (to.path === '/login') {
       // if is logged in, redirect to the home page
       next({ path: '/' })
@@ -31,10 +31,10 @@ router.beforeEach(async(to, from, next) => {
           next({ ...to, replace: true }) // hack方法 确保addRoutes已完成 ,set the replace: true so the navigation will not leave a history record
         })
       }).catch((err) => {
-        store.dispatch('FedLogOut').then(() => {
-          Message.error(err || 'Verification failed, please login again')
-          next({ path: '/' })
-        })
+        // store.dispatch('FedLogOut').then(() => {
+        Message.error(err || 'Verification failed, please login again')
+        next({ path: '/' })
+        // })
       })
       next()
     }

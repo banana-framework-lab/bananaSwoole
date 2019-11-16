@@ -21,8 +21,12 @@ class AdminLogic
     {
         $adminModel = new AdminCoroutineModel();
         $userInfo = $adminModel->login($username, $password);
-        $token = "@#$#@$#@$@#@#@#$@#";
-        return [
-        ];
+        if ($userInfo) {
+            $userInfo['permission'] = [];
+            return $userInfo;
+        } else {
+            return [
+            ];
+        }
     }
 }

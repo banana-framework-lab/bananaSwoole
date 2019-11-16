@@ -128,6 +128,21 @@ class SwooleWebSocketServer extends SwooleServer
             Router::delRouteInstance();
         });
 
+        if (!isset($request->cookie['PHPSESSID'])) {
+            $phpSessionId = md5(time() + rand(0, 99999));
+            $request->cookie['PHPSESSID'] = $phpSessionId;
+            $response->cookie(
+                'PHPSESSID',
+                $phpSessionId,
+                time() + 3600 * 24,
+                '/',
+                explode(':', str_replace(['http://', 'https://'], "", $request->header['origin']))[0],
+                false,
+                true
+            );
+        }
+
+
         // 屏蔽 favicon.ico
         if ($request->server['request_uri'] == '/favicon.ico') {
             if (file_exists(dirname(__FILE__) . "/../../public/favicon.ico")) {
@@ -147,10 +162,14 @@ class SwooleWebSocketServer extends SwooleServer
             return;
         };
 
-        $response->header('Access-Control-Allow-Origin', implode(',', Config::get('app.allow_origin', ['*'])));
-        $response->header('Access-Control-Allow-Credentials', 'true');
-        $response->header('Access-Control-Allow-Methods', 'GET, POST, DELETE, PUT, PATCH, OPTIONS');
-        $response->header('Access-Control-Allow-Headers', 'x-requested-with,User-Platform,Content-Type,X-Token');
+        $allowOrigins = Config::get('app.allow_origin', []);
+
+        if (isset($request->header['origin']) && in_array(strtolower($request->header['origin']), $allowOrigins)) {
+            $response->header('Access-Control-Allow-Origin', $request->header['origin']);
+            $response->header('Access-Control-Allow-Credentials', 'true');
+            $response->header('Access-Control-Allow-Methods', 'GET, POST, DELETE, PUT, PATCH, OPTIONS');
+            $response->header('Access-Control-Allow-Headers', 'x-requested-with,User-Platform,Content-Type,X-Token');
+        }
         $response->header('Content-type', 'application/json');
 
         /* @var WebSocketServerApp $app */
@@ -206,7 +225,7 @@ class SwooleWebSocketServer extends SwooleServer
      */
     public function onWorkerError(SwooleSocketServer $server, int $workerId, int $workerPid, int $exitCode, int $signal)
     {
-        if($server){
+        if ($server) {
             echo "###########" . str_pad("worker_pid: {$workerPid}  worker_id: {$workerId}  exitCode: {$exitCode}  sign:{$signal}  error stop", 53, ' ', STR_PAD_BOTH) . "###########\n";
         }
     }
@@ -234,7 +253,7 @@ class SwooleWebSocketServer extends SwooleServer
         CoroutineMysqlClientPool::poolFree();
         CoroutineRedisClientPool::poolFree();
         EntityRabbit::delInstance();
-        EntitySwooleRabbit::delInstance();
+//        EntitySwooleRabbit::delInstance();
         echo "###########" . str_pad("worker_pid: {$server->worker_pid}    worker_id: {$workerId}    Exit", 53, ' ', STR_PAD_BOTH) . "###########\n";
     }
 }

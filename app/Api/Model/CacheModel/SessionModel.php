@@ -8,6 +8,7 @@
 
 namespace App\Api\Model\CacheModel;
 
+use Library\Helper\ResponseHelper;
 use Library\Virtual\Model\CacheModel\AbstractCoroutineRedisModel;
 
 class SessionModel extends AbstractCoroutineRedisModel
@@ -25,13 +26,26 @@ class SessionModel extends AbstractCoroutineRedisModel
      */
     public function getSessionInfo(string $sessionId): array
     {
-        $sessionInfo = $this->redis->get("{$this->sessionKeyHead}{$sessionId}");
+        $sessionInfo = unserialize($this->redis->get("{$this->sessionKeyHead}{$sessionId}"));
         if ($sessionInfo) {
-            $sessionInfo = unserialize($sessionInfo);
             return $sessionInfo;
         } else {
             return [];
         }
+    }
+
+    /**
+     * 设置redis数据
+     * @param string $sessionId
+     * @param array $sessionInfo
+     */
+    public function setSessionInfo(string $sessionId, array $sessionInfo)
+    {
+        if ($sessionInfo) {
+            $sessionInfo['roleId'] = $sessionInfo['role_id'];
+            unset($sessionInfo['role_id']);
+        }
+        $this->redis->set("{$this->sessionKeyHead}{$sessionId}", serialize($sessionInfo));
     }
 }
 

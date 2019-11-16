@@ -10,22 +10,39 @@ namespace App\Api\Controller;
 
 
 use App\Api\Logic\AdminLogic;
-use Library\Helper\ResponseHelper;
+use App\Api\Model\CacheModel\SessionModel;
 
 class AdminController extends BaseController
 {
+    /**
+     * 管理员登录
+     * @return array
+     */
     public function login()
     {
         $result = (new AdminLogic())->login($this->request['username'], $this->request['password']);
         if ($result) {
-            ResponseHelper::json([
+            (new SessionModel())->setSessionInfo($this->sessionId, $result);
+            return [
                 'code' => 20000,
-                'data' => $result['token']
-            ]);
+                'data' => $result
+            ];
         }
         return [
             'code' => 60204,
-            'message'=>'Account and password are incorrect.'
+            'message' => 'Account and password are incorrect.'
+        ];
+    }
+
+    /**
+     * 获取管理员账号数据
+     * @return array
+     */
+    public function info()
+    {
+        return [
+            'code' => 20000,
+            'data' => $this->sessionInfo
         ];
     }
 }

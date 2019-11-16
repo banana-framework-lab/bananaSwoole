@@ -14,7 +14,11 @@ return [
         'http://www.bananaswoole.com',
         'http://www.bananaphp.com',
         'http://www.banana.com',
-        'http://127.0.0.1'
+        'http://www.fuck.com',
+        'http://127.0.0.1',
+        'http://localhost:9502',
+        'http://localhost',
+        'http://fuck.bananaswoole.com',
     ],
     'success_code' => 1,
     'fail_code' => 0,

@@ -67,7 +67,7 @@ class WebSocketServerApp
 
             // rabbitMq初始化
             EntityRabbit::instanceStart();
-            EntitySwooleRabbit::instanceStart();
+//            EntitySwooleRabbit::instanceStart();
 
             // 协程mysql连接池初始化
             CoroutineMysqlClientPool::poolInit();
@@ -76,7 +76,7 @@ class WebSocketServerApp
             CoroutineRedisClientPool::poolInit();
 
             // 消化消息队列的消息
-            Message::consume();
+//            Message::consume();
 
             //开启php调试模式
             if (Config::get('app.debug')) {
@@ -296,7 +296,7 @@ class WebSocketServerApp
                     }
                 } else {
                     if (Config::get('app.debug')) {
-                        ResponseHelper::json(['code' => 10000, 'msg' => "找不到{$methodName}"]);
+                        ResponseHelper::json(['code' => 10000, 'message' => "找不到{$methodName}"]);
                     } else {
                         $response->status(404);
                         $response->end();
@@ -305,7 +305,7 @@ class WebSocketServerApp
                 }
             } else {
                 if (Config::get('app.debug')) {
-                    ResponseHelper::json(['msg' => "找不到{$controllerClass}"]);
+                    ResponseHelper::json(['message' => "找不到{$controllerClass}"]);
                 } else {
                     $response->status(404);
                     $response->end();
@@ -315,7 +315,7 @@ class WebSocketServerApp
         } catch (WebException $webE) {
             ResponseHelper::json([
                 'code' => $webE->getCode(),
-                'msg' => $webE->getMessage()
+                'message' => $webE->getMessage()
             ]);
         } catch (Throwable $e) {
             if (Config::get('app.debug')) {

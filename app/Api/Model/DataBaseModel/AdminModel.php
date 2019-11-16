@@ -20,7 +20,7 @@ class AdminModel extends AbstractMySqlModel
      */
     public function __construct(array $attributes = [])
     {
-        $this->table = 'sys_admin';
+        $this->table = 'sva_admin';
         parent::__construct($attributes);
     }
 
@@ -49,10 +49,11 @@ class AdminModel extends AbstractMySqlModel
      */
     public function login(string $username, string $password)
     {
-        $this->setListColumns(['id', 'username']);
+        $this->setListColumns(['id', 'username', 'nickname', 'name', 'avatar', 'role_id', 'last_login_time']);
         return $this->getFirst([
             'username' => $username,
-            'password' => $password
+            'password' => $password,
+            'status' => 1
         ]);
     }
 

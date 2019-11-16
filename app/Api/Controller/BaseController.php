@@ -14,6 +14,7 @@ use App\Api\Service\ResCodeService;
 use Exception;
 use Library\Expection\WebException;
 use Library\Helper\RequestHelper;
+use Library\Helper\ResponseHelper;
 use Library\Virtual\Controller\AbstractController;
 
 class BaseController extends AbstractController
@@ -38,9 +39,12 @@ class BaseController extends AbstractController
         parent::__construct($request);
         $this->sessionId = RequestHelper::cookie('PHPSESSID');
         $this->sessionInfo = new SessionObject($this->sessionId);
-
-        //验证用户信息
-        $this->verifyUserInfo();
+        if (!in_array(strtolower(RequestHelper::server('request_uri')), [
+            '/api/admin/login'
+        ])) {
+            //验证用户信息
+            $this->verifyUserInfo();
+        }
     }
 
     /**
@@ -49,7 +53,7 @@ class BaseController extends AbstractController
      */
     public function verifyUserInfo()
     {
-        if (!$this->sessionInfo->roleId || !$this->sessionInfo->permission) {
+        if (!$this->sessionInfo->id) {
             throw new WebException('用户没有登陆', ResCodeService::$noLogin);
         }
     }
