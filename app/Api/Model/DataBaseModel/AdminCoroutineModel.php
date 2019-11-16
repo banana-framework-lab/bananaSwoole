@@ -2,9 +2,12 @@
 
 namespace App\Api\Model\DataBaseModel;
 
+use App\Api\Middle\AdminMiddle;
+use App\Api\Property\AdminProperty;
 use Library\Helper\ResponseHelper;
 use Library\Object\BuilderObject;
 use Library\Virtual\Model\DataBaseModel\AbstractCoroutineMySqlModel;
+use Library\Virtual\Property\AbstractProperty;
 
 /**
  * Created by PhpStorm.
@@ -45,15 +48,22 @@ class AdminCoroutineModel extends AbstractCoroutineMySqlModel
      * 登陆检验
      * @param string $username
      * @param string $password
-     * @return array
+     * @return AdminProperty|null
+     * @throws \Exception
      */
     public function login(string $username, string $password)
     {
-        $this->setListColumns(['id', 'username', 'nickname', 'name', 'avatar', 'role_id', 'last_login_time']);
-        return $this->getFirst([
+        $this->setListColumns(['id', 'username', 'nickname', 'name', 'avatar', 'role_id', 'create_time', 'update_time', 'last_login_time', 'status']);
+        $result = $this->getFirst([
             'username' => $username,
             'password' => $password
         ]);
+        if ($result) {
+            $result['password'] = '*';
+            return (new AdminProperty())->setProperty($result);
+        } else {
+            return null;
+        }
     }
 
     /**

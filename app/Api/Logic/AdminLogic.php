@@ -3,6 +3,7 @@
 namespace App\Api\Logic;
 
 use App\Api\Model\DataBaseModel\AdminCoroutineModel;
+use Library\Helper\ResponseHelper;
 
 /**
  * Created by PhpStorm.
@@ -16,17 +17,26 @@ class AdminLogic
      * @param string $username
      * @param string $password
      * @return array
+     * @throws \Exception
      */
     public function login(string $username, string $password): array
     {
         $adminModel = new AdminCoroutineModel();
         $userInfo = $adminModel->login($username, $password);
         if ($userInfo) {
-            $userInfo['permission'] = [];
-            return $userInfo;
+            $userInfo->permission = $this->getPermission((int)$userInfo->id);
+            return $userInfo->toArray();
         } else {
-            return [
-            ];
+            return [];
         }
+    }
+
+    /**
+     * @param int $uid
+     * @return array
+     */
+    public function getPermission(int $uid): array
+    {
+        return [];
     }
 }

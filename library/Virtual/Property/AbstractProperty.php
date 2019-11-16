@@ -12,11 +12,24 @@ abstract class AbstractProperty
 {
     /**
      * 设置属性
+     * 可以默认写法
+     * public function setProperty(array $params)
+     * {
+     *    return $this->__setProperty($params);
+     * }
      * @param array $params
-     * @return AbstractProperty
+     * @return $this
      * @throws \Exception
      */
-    public function setProperty(array $params)
+    abstract public function setProperty(array $params);
+
+    /**
+     * 设置属性
+     * @param array $params
+     * @return $this
+     * @throws \Exception
+     */
+    protected function __setProperty(array $params)
     {
         $needParams = get_object_vars($this);
         foreach ($needParams as $key => $value) {
