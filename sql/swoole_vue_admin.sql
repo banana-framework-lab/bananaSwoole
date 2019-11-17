@@ -11,7 +11,7 @@
  Target Server Version : 50727
  File Encoding         : 65001
 
- Date: 11/11/2019 20:36:19
+ Date: 17/11/2019 11:16:42
 */
 
 SET NAMES utf8mb4;
@@ -34,13 +34,18 @@ CREATE TABLE `sva_admin`  (
   `last_login_time` int(10) UNSIGNED NOT NULL COMMENT '最后一次登录时间',
   `status` tinyint(4) UNSIGNED NOT NULL DEFAULT 1 COMMENT '是否禁用:1可用，-1禁用',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
--- Table structure for sva_role
+-- Records of sva_admin
 -- ----------------------------
-DROP TABLE IF EXISTS `sva_role`;
-CREATE TABLE `sva_role`  (
+INSERT INTO `sva_admin` VALUES (1, 'admin', '造物者', '天神', '123456', '1', 1, 1, 1, 1, 1);
+
+-- ----------------------------
+-- Table structure for sva_admin_role
+-- ----------------------------
+DROP TABLE IF EXISTS `sva_admin_role`;
+CREATE TABLE `sva_admin_role`  (
   `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '唯一id',
   `role_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '角色说明',
   `route_list` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '角色拥有的路由id集合(用,进行切割记录)',
@@ -50,33 +55,37 @@ CREATE TABLE `sva_role`  (
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
--- Table structure for sva_role_button
+-- Table structure for sva_admin_role_button
 -- ----------------------------
-DROP TABLE IF EXISTS `sva_role_button`;
-CREATE TABLE `sva_role_button`  (
+DROP TABLE IF EXISTS `sva_admin_role_button`;
+CREATE TABLE `sva_admin_role_button`  (
   `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '唯一id',
+  `router_id` int(10) UNSIGNED NOT NULL COMMENT '按钮所属路由id',
+  `title` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '按钮名称',
+  `type` tinyint(4) UNSIGNED NOT NULL DEFAULT 2 COMMENT '按钮类型，1默认拥有类型，2需要分配类型',
+  `status` tinyint(4) UNSIGNED NOT NULL DEFAULT 1 COMMENT '按钮的可用状态，1可用-1不可用',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
--- Table structure for sva_role_route
+-- Table structure for sva_admin_role_route
 -- ----------------------------
-DROP TABLE IF EXISTS `sva_role_route`;
-CREATE TABLE `sva_role_route`  (
+DROP TABLE IF EXISTS `sva_admin_role_route`;
+CREATE TABLE `sva_admin_role_route`  (
   `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '唯一id',
   `pid` int(10) UNSIGNED NOT NULL COMMENT '父级id，如果是0则为父级路由',
   `title` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '路由名称',
-  `route` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '路由路径(uri)',
+  `path` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '路由路径(uri)',
   `type` tinyint(4) UNSIGNED NOT NULL DEFAULT 2 COMMENT '路由类型，1默认拥有类型，2需要分配类型',
   `status` tinyint(4) UNSIGNED NOT NULL DEFAULT 1 COMMENT '路由的可用状态，1可用-1不可用',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
--- Table structure for sva_role_table
+-- Table structure for sva_admin_role_table
 -- ----------------------------
-DROP TABLE IF EXISTS `sva_role_table`;
-CREATE TABLE `sva_role_table`  (
+DROP TABLE IF EXISTS `sva_admin_role_table`;
+CREATE TABLE `sva_admin_role_table`  (
   `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '唯一id',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
