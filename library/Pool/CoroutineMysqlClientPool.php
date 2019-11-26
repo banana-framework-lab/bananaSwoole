@@ -9,6 +9,7 @@
 namespace Library\Pool;
 
 use Library\Config;
+use Library\Entity\Model\DataBase\EntityMysql;
 use Swoole\Coroutine\MySQL;
 
 class CoroutineMysqlClientPool
@@ -38,10 +39,14 @@ class CoroutineMysqlClientPool
 
     /**
      * 初始化连接池
+     * @throws \Throwable
      */
     public static function poolInit()
     {
         for ($i = 1; $i <= self::$poolSize; $i++) {
+            if ($i <= 1) {
+                EntityMysql::instanceStart();
+            }
             $client = self::getClient();
             self::$pool[] = $client;
             ++self::$freeSize;

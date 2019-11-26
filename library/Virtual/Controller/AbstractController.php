@@ -16,7 +16,7 @@ class AbstractController {
 
     /**
      * request请求对象
-     * @var
+     * @var array $request
      */
     protected $request;
 

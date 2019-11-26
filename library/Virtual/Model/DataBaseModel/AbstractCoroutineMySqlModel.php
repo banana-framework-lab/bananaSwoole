@@ -74,7 +74,7 @@ abstract class AbstractCoroutineMySqlModel extends Model
      * @param array $orderBy
      * @return array
      */
-    public function getList($where = [], $orderBy = []): array
+    public function getList($where = [], $orderBy = [])
     {
         $builder = $this->getCondition($where, $orderBy);
         if ($this->listColumns != ['*']) {

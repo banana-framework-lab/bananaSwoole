@@ -5,7 +5,7 @@
  * Date: 2018/10/11
  */
 
-namespace Library\Expection;
+namespace Library\Exception;
 
 class WebException extends \Exception
 {

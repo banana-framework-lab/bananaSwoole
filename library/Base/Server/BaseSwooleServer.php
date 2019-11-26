@@ -1,8 +1,16 @@
 <?php
+/**
+ * Created by PhpStorm.
+ * User: Administrator
+ * Date: 2019/10/22
+ * Time: 16:35
+ */
 
-namespace Library\Server;
+namespace Library\Base\Server;
 
 use Library\Config;
+use Library\App\DefaultApp\DefaultServer;
+use Library\Virtual\Server\AbstractServer;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use SplFileInfo;
@@ -11,22 +19,20 @@ use Swoole\Http\Server as SwooleHttpServer;
 use Swoole\WebSocket\Server as SwooleWebSocketServer;
 
 /**
- * Created by PhpStorm.
- * User: Administrator
- * Date: 2019/10/22
- * Time: 16:35
- */
-
-/**
  * Class SwooleServer
  * @package Library\Server
  */
-class SwooleServer
+class BaseSwooleServer
 {
     /**
      * @var SwooleHttpServer|SwooleWebSocketServer $server
      */
     protected $server;
+
+    /**
+     * @var AbstractServer $appServer
+     */
+    protected $appServer;
 
     /**
      * @var int $port
@@ -70,11 +76,19 @@ class SwooleServer
 
     /**
      * SwooleServer constructor.
+     * @param AbstractServer $appServer
      */
-    public function __construct()
+    public function __construct(AbstractServer $appServer)
     {
         // Config初始化
         Config::instanceSwooleStart();
+
+        // 非法初始化的类由默认server覆盖
+        if (!$appServer) {
+            $appServer = new DefaultServer();
+        }
+
+        $this->appServer = $appServer;
     }
 
     /**

@@ -17,7 +17,6 @@ function hasPermission(permission, route) {
  */
 export function filterAsyncRoutes(routes, permission) {
   const res = []
-  console.log(permission)
   routes.forEach(route => {
     const tmp = { ...route }
     const index = hasPermission(permission, tmp)
@@ -47,12 +46,15 @@ const actions = {
   generateRoutes({ commit }, roles) {
     return new Promise(resolve => {
       let accessedRoutes = []
-      accessedRoutes = filterAsyncRoutes(asyncRoutes, roles.permission)
+      if (roles.permission.length > 0) {
+        accessedRoutes = filterAsyncRoutes(asyncRoutes, roles.permission)
+      }
       if (accessedRoutes.length !== 0) {
         homeRoute[0].redirect = accessedRoutes[0].path
       }
       commit('SET_ROUTES', accessedRoutes)
       accessedRoutes = homeRoute.concat(accessedRoutes)
+      console.log(accessedRoutes)
       resolve(accessedRoutes)
     })
   }

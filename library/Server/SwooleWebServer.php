@@ -2,12 +2,12 @@
 
 namespace Library\Server;
 
+use Library\Base\Server\BaseSwooleServer;
 use Library\Config;
 use Library\Entity\Swoole\EntitySwooleServer;
 use Library\Helper\RequestHelper;
 use Library\Helper\ResponseHelper;
 use Library\Router;
-use Library\WebServerApp;
 use Library\Entity\Swoole\EntitySwooleWebSever;
 use Swoole\Http\Server as SwooleHttpServer;
 use Swoole\Http\Request as SwooleRequest;
@@ -17,7 +17,7 @@ use Swoole\Http\Response as SwooleResponse;
  * Class SwooleWebServer
  * @package Library\Server
  */
-class SwooleWebServer extends SwooleServer
+class SwooleWebServer extends BaseSwooleServer
 {
     /**
      * SwooleWebServer constructor.

@@ -37,6 +37,15 @@ class AdminLogic
      */
     public function getPermission(int $uid): array
     {
-        return [];
+        return [
+            [
+                'path' => '/form',
+                'children' => [
+                    [
+                        'path' => 'index'
+                    ]
+                ]
+            ]
+        ];
     }
 }

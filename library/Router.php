@@ -40,10 +40,37 @@ class Router
         while (($fileName = readdir($handler)) !== false) {
             if ($fileName != "." && $fileName != "..") {
                 $fileData = require dirname(__FILE__) . '/../route/' . $fileName;
-                self::$routerPool = array_merge(self::$routerPool, $fileData);
+                $routerData = self::analysisRouter($fileData);
+                $routerData && self::$routerPool = array_merge(self::$routerPool, $routerData);
             }
         }
         closedir($handler);
+    }
+
+    /**
+     * 解析路由
+     * @param array $fileData
+     * @param string $baseRoute
+     * @return array
+     */
+    private static function analysisRouter(array $fileData, string $baseRoute = '')
+    {
+        $routerData = [];
+
+        $judgeBaseRoute = $baseRoute;
+        foreach ($fileData as $key => $value) {
+            if ($judgeBaseRoute) {
+                $baseRoute .= $key;
+            } else {
+                $baseRoute = $key;
+            }
+            if (is_string($value)) {
+                $routerData[$baseRoute] = $value;
+            } else {
+                $routerData = $routerData + self::analysisRouter($value, "{$baseRoute}/");
+            }
+        }
+        return $routerData;
     }
 
     /**
@@ -83,7 +110,7 @@ class Router
         if (is_null($route)) {
             $requestUrl = trim($requestUrl, '/');
             $requestUrlArray = explode('/', $requestUrl);
-            $requestUrlArray[0] = (isset($requestUrlArray[0]) && $requestUrlArray[0]) ? ucfirst($requestUrlArray[0]) : 'Api';
+            $requestUrlArray[0] = (isset($requestUrlArray[0]) && $requestUrlArray[0]) ? ucfirst($requestUrlArray[0]) : 'Index';
             $requestUrlArray[1] = (isset($requestUrlArray[1]) && $requestUrlArray[1]) ? ucfirst($requestUrlArray[1]) : 'Index';
             $requestUrlArray[2] = (isset($requestUrlArray[2]) && $requestUrlArray[2]) ? $requestUrlArray[2] : 'index';
 

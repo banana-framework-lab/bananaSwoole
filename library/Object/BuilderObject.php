@@ -12,7 +12,6 @@ use Closure;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Database\Query\Expression;
 use Library\Entity\Model\DataBase\EntityMysql;
-use Library\Helper\ResponseHelper;
 use Library\Pool\CoroutineMysqlClientPool;
 use Swoole\Coroutine\MySQL;
 
@@ -25,6 +24,8 @@ use Swoole\Coroutine\MySQL;
  * @method string getDefaultConnection()
  * @method void setDefaultConnection(string $name)
  * @method BuilderObject table(string $table)
+ * @method BuilderObject groupBy(array ...$groups)
+ * @method BuilderObject orderBy(string $column, string $direction)
  * @method mixed selectOne(string $query, array $bindings = [])
  * @method bool insert(string $query, array $bindings = [])
  * @method int update(array $values, array $bindings = [])
@@ -41,6 +42,9 @@ use Swoole\Coroutine\MySQL;
  * @method int transactionLevel()
  * @method array pretend(\Closure $callback)
  * @method array get(array | mixed $columns = ['*'])
+ * @method BuilderObject forPage(int $page, int $perSize)
+ * @method BuilderObject skip(int $value)
+ * @method BuilderObject limit(int $value)
  * @method array first(array | mixed $columns = ['*'])
  * @method Expression raw(mixed $value)
  * @package Library\Object

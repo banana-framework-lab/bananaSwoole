@@ -6,24 +6,26 @@
  * Time: 17:02
  */
 
-namespace Library;
+namespace Library\App\DefaultApp;
 
-use Library\Entity\MessageQueue\EntitySwooleRabbit;
+use Library\Channel;
+use Library\Config;
 use Library\Entity\Model\Cache\EntityRedis;
 use Library\Entity\Model\DataBase\EntityMongo;
 use Library\Entity\Model\DataBase\EntityMysql;
 use Library\Entity\MessageQueue\EntityRabbit;
-use Library\Expection\WebException;
+use Library\Exception\WebException;
 use Library\Helper\RequestHelper;
 use Library\Helper\ResponseHelper;
 use Library\Object\ChannelObject;
 use Library\Object\RouteObject;
 use Library\Pool\CoroutineMysqlClientPool;
 use Library\Pool\CoroutineRedisClientPool;
+use Library\Router;
 use Library\Virtual\Handler\AbstractHandler;
 use Library\Virtual\Middle\AbstractMiddleWare;
+use Library\Virtual\Server\AbstractServer;
 use Swoole\Http\Request as SwooleHttpRequest;
-use Swoole\Table;
 use Swoole\WebSocket\Server as SwooleSocketServer;
 use Swoole\WebSocket\Frame as SwooleSocketFrame;
 use Swoole\Http\Request as SwooleRequest;
@@ -32,29 +34,25 @@ use Throwable;
 
 
 /**
- * Class WebSocketServerApp
+ * Class DefaultWebSocketServer
  * @package Library
  */
-class WebSocketServerApp
+class DefaultServer extends AbstractServer
 {
-    public $table;
-
-    public function __construct(Table $table)
-    {
-        $this->table = $table;
-    }
-
     /**
      * 初始化webSocketApp对象
      * @param SwooleSocketServer $server
      * @param int $workerId
      * @return bool
      */
-    public function init(SwooleSocketServer $server, int $workerId): bool
+    public function start(SwooleSocketServer $server, int $workerId): bool
     {
         try {
             // 通道配置
             Channel::instanceStart();
+
+            // 路由配置
+            Router::instanceStart();
 
             // mysql数据库初始化
             EntityMysql::instanceStart();
@@ -67,7 +65,6 @@ class WebSocketServerApp
 
             // rabbitMq初始化
             EntityRabbit::instanceStart();
-//            EntitySwooleRabbit::instanceStart();
 
             // 协程mysql连接池初始化
             CoroutineMysqlClientPool::poolInit();
@@ -75,17 +72,15 @@ class WebSocketServerApp
             // 协程redis连接池初始化
             CoroutineRedisClientPool::poolInit();
 
-            // 消化消息队列的消息
-//            Message::consume();
-
             //开启php调试模式
             if (Config::get('app.debug')) {
                 error_reporting(E_ALL);
             }
+
             return true;
         } catch (Throwable $e) {
             echo "///////////      worker_id:{$workerId}  启动时报错  " . $e->getMessage() . "\n";
-            $server->shutdown();
+
             return false;
         }
     }
@@ -118,7 +113,7 @@ class WebSocketServerApp
                 $handler = new $handlerClass();
                 if (method_exists($handlerClass, 'open')) {
                     //fd绑定通道
-                    $this->table->set($request->fd, $channelObject->toArray());
+                    $this->bindTable->set($request->fd, $channelObject->toArray());
 
                     //fd打开事件
                     $handler->open($server, $request);
@@ -153,7 +148,7 @@ class WebSocketServerApp
      */
     public function message(SwooleSocketServer $server, SwooleSocketFrame $frame)
     {
-        $tableData = $this->table->get($frame->fd);
+        $tableData = $this->bindTable->get($frame->fd);
         try {
             // 获取所需通道
             $channelObject = new ChannelObject();
@@ -205,9 +200,9 @@ class WebSocketServerApp
      */
     public function close(SwooleSocketServer $server, int $fd)
     {
-        $tableData = $this->table->get($fd) ?: [];
+        $tableData = $this->bindTable->get($fd) ?: [];
         if ($tableData['http'] == 1) {
-            $this->table->del($fd);
+            $this->bindTable->del($fd);
             return;
         } else {
             try {
@@ -224,7 +219,7 @@ class WebSocketServerApp
                 $handlerClass = $channelObject->getHandler();
 
                 //fd解绑Channel
-                $this->table->del($fd);
+                $this->bindTable->del($fd);
 
                 // 初始化事件器
                 if (class_exists($handlerClass)) {
@@ -249,10 +244,10 @@ class WebSocketServerApp
      * @param SwooleRequest $request
      * @param SwooleResponse $response
      */
-    public function run(SwooleRequest $request, SwooleResponse $response)
+    public function request(SwooleRequest $request, SwooleResponse $response)
     {
         //标识此次fd为http请求;
-        $this->table->set($request->fd, ['http' => 1]);
+        $this->bindTable->set($request->fd, ['http' => 1]);
 
         //初始化请求实体类
         RequestHelper::setInstance($request);
@@ -263,6 +258,23 @@ class WebSocketServerApp
         //初始化方法
         $methodName = $routeObject->getMethod();
         $controllerClass = $routeObject->getController();
+
+        //初始化PHPSESSID
+        if (in_array($routeObject->getProject(), Config::get('app.session_project', []))) {
+            if (!isset($request->cookie['PHPSESSID'])) {
+                $phpSessionId = md5(time() + rand(0, 99999));
+                $request->cookie['PHPSESSID'] = $phpSessionId;
+                $response->cookie(
+                    'PHPSESSID',
+                    $phpSessionId,
+                    time() + 3600 * 24,
+                    '/',
+                    explode(':', str_replace(['http://', 'https://'], "", $request->header['origin']))[0],
+                    false,
+                    true
+                );
+            }
+        }
 
         //初始化请求数据
         $getData = $request->get ?: [];
@@ -285,8 +297,9 @@ class WebSocketServerApp
             $response->end(ResponseHelper::response());
             return;
         }
+
+        //初始化控制器
         try {
-            //初始化控制器
             if (class_exists($controllerClass)) {
                 $controller = new $controllerClass($requestData);
                 if (method_exists($controller, $methodName)) {
@@ -338,4 +351,16 @@ class WebSocketServerApp
         $response->end(ResponseHelper::response());
     }
 
+    /**
+     * onWorkerExit
+     * @param SwooleSocketServer $server
+     * @param int $workerId
+     */
+    public function exit(SwooleSocketServer $server, int $workerId)
+    {
+        CoroutineMysqlClientPool::poolFree();
+        CoroutineRedisClientPool::poolFree();
+        EntityRabbit::delInstance();
+//        EntitySwooleRabbit::delInstance();
+    }
 }

@@ -229,7 +229,7 @@ export const constantRoutes = [
 ]
 
 export const homeRoute = [
-  { path: '/', redirect: '/user', hidden: true }
+  { path: '/', redirect: '/dashboard', hidden: true }
 ]
 
 export const asyncRoutes = [
@@ -241,7 +241,10 @@ export const asyncRoutes = [
         path: 'index',
         name: 'Form',
         component: () => import('@/views/form/index'),
-        meta: { title: 'Form', icon: 'form' }
+        meta: {
+          title: 'Form',
+          icon: 'form'
+        }
       }
     ]
   }
