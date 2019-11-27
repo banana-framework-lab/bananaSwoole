@@ -20,7 +20,7 @@ use Swoole\WebSocket\Frame as SwooleSocketFrame;
 abstract class AbstractHandler
 {
     /**
-     * AbstractEvent constructor.
+     * AbstractHandler constructor.
      */
     public function __construct()
     {

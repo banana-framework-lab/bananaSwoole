@@ -1,4 +1,5 @@
 <?php
+
 namespace Library\Server;
 
 use Library\Base\Server\BaseSwooleServer;
@@ -10,6 +11,7 @@ use Library\Helper\ResponseHelper;
 use Library\Router;
 use Library\Virtual\Server\AbstractServer;
 use Swoole\Http\Request as SwooleHttpRequest;
+use Swoole\Server\Task;
 use Swoole\Table;
 use Swoole\Timer;
 use Swoole\WebSocket\Frame as SwooleSocketFrame;
@@ -40,10 +42,10 @@ class SwooleWebSocketServer extends BaseSwooleServer
         $this->server = EntitySwooleServer::getInstance();
         $this->port = Config::get('swoole.socket.port');
         $this->workerNum = Config::get('swoole.socket.worker_num');
-        $this->workerNum = 1;
+        $this->taskNum = Config::get('swoole.socket.task_num', ($this->workerNum) * 4);
 
         // bindTable初始化
-        $this->bindTable = new Table($this->workerNum * 1000);
+        $this->bindTable = new Table($this->workerNum * 2000);
         $this->bindTable->column('channel', Table::TYPE_STRING, 50);
         $this->bindTable->column('handler', Table::TYPE_STRING, 100);
         $this->bindTable->column('http', Table::TYPE_INT);
@@ -66,11 +68,15 @@ class SwooleWebSocketServer extends BaseSwooleServer
     {
         $this->server->set([
             'worker_num' => $this->workerNum,
+            'task_worker_num' => $this->taskNum,
+            'task_enable_coroutine' => true,
             'reload_async' => true,
-            'max_wait_time' => 5
+            'max_wait_time' => 5,
+            'log_level' => 5
         ]);
         $this->server->on('WorkerStart', [$this, 'onWorkerStart']);
         $this->server->on('Request', [$this, 'onRequest']);
+        $this->server->on('Task', [$this, 'onTask']);
         $this->server->on('Open', [$this, 'onOpen']);
         $this->server->on('Close', [$this, 'onClose']);
         $this->server->on('Message', [$this, 'onMessage']);
@@ -94,17 +100,32 @@ class SwooleWebSocketServer extends BaseSwooleServer
         // 配置文件初始化
         Config::instanceStart();
 
-        if ($workerId <= 0) {
+        if (!$server->taskworker && $workerId <= 0) {
             $this->reloadTickId = Timer::tick(1000, $this->autoHotReload());
             $this->startEcho();
         }
 
-        if ($this->appServer->start($server, $workerId)) {
-            echo "###########" . str_pad("worker_pid: {$server->worker_pid}    worker_id: {$workerId}    start success", 53, ' ', STR_PAD_BOTH) . "###########\n";
-        } else {
-            echo "###########" . str_pad("worker_pid: {$server->worker_pid}    worker_id: {$workerId}    start fail", 53, ' ', STR_PAD_BOTH) . "###########\n";
-            $server->shutdown();
-        }
+        $courseName = $server->taskworker ? 'task' : 'worker';
+
+        go(function () use ($server, $workerId, $courseName) {
+            if ($this->appServer->start($server, $workerId)) {
+                echo "###########" . str_pad("{$courseName}_pid: {$server->worker_pid}    {$courseName}_id: {$workerId}    start success", 53, ' ', STR_PAD_BOTH) . "###########\n";
+            } else {
+                echo "###########" . str_pad("{$courseName}_pid: {$server->worker_pid}    {$courseName}_id: {$workerId}    start fail", 53, ' ', STR_PAD_BOTH) . "###########\n";
+                $server->shutdown();
+            }
+        });
+    }
+
+    /**
+     * onTask事件
+     * @param SwooleSocketServer $server
+     * @param Task $task
+     */
+    public function onTask(SwooleSocketServer $server, Task $task)
+    {
+        $this->appServer->task($server, $task);
+//        $task->finish(['finish_data' => $this->appServer->task($server, $task)]);
     }
 
     /**

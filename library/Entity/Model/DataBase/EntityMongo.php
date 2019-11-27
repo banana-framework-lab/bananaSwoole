@@ -68,6 +68,14 @@ class EntityMongo
     }
 
     /**
+     * 删除mongo数据库连接对象
+     */
+    public static function deleteInstance()
+    {
+        static::$instance = null;
+    }
+
+    /**
      * 返回当前实体类实例
      * @return MongoDbClient
      */

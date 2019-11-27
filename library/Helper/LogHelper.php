@@ -50,14 +50,14 @@ class LogHelper
     public static function __callStatic($name, $arguments)
     {
         $logObject = ((Router::getRouteInstance())->getProject());
-        if (!$logObject) {
-            if (isset($arguments[3]) && $arguments[3] != '') {
-                $fileName = dirname(__FILE__) . "/../../app/{$arguments[3]}/Runtime/logs/" . date('Ymd') . '/';
+        if (!isset($arguments[3]) && $arguments[3] != '') {
+            if ($logObject) {
+                $fileName = dirname(__FILE__) . '/../../app/' . $logObject . '/Runtime/logs/' . date('Ymd') . '/';
             } else {
                 $fileName = dirname(__FILE__) . '/../../runtime/Runtime/logs/' . date('Ymd') . '/';
             }
         } else {
-            $fileName = dirname(__FILE__) . '/../../app/' . $logObject . '/Runtime/logs/' . date('Ymd') . '/';
+            $fileName = dirname(__FILE__) . "/../../app/{$arguments[3]}/Runtime/logs/" . date('Ymd') . '/';
         }
 
         $logger = self::createLogger($name, $fileName);

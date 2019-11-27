@@ -6,8 +6,7 @@
  * Time: 14:29
  */
 
-namespace Library\Service;
-
+namespace Library\App\Service;
 
 class TimeTextService
 {

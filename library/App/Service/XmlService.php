@@ -1,13 +1,16 @@
 <?php
-namespace Library\Service;
-use SimpleXMLElement;
-
 /**
  * Created by PhpStorm.
  * User: Administrator
  * Date: 2019/6/13
  * Time: 10:11
  */
+
+namespace Library\App\Service;
+
+use SimpleXMLElement;
+
+
 class XmlService
 {
     /**

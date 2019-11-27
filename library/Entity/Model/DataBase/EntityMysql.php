@@ -101,6 +101,14 @@ class EntityMysql
     }
 
     /**
+     * 删除mysql数据库连接对象
+     */
+    public static function deleteInstance()
+    {
+        static::$instance = null;
+    }
+
+    /**
      * 保存Mysql实体对象
      * @param MysqlClient $instance
      * @return void

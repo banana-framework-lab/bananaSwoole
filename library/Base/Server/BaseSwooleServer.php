@@ -9,7 +9,7 @@
 namespace Library\Base\Server;
 
 use Library\Config;
-use Library\App\DefaultApp\DefaultServer;
+use Library\App\Server\DefaultServer;
 use Library\Virtual\Server\AbstractServer;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
@@ -43,6 +43,11 @@ class BaseSwooleServer
      * @var int $workerNum
      */
     protected $workerNum;
+
+    /**
+     * @var int $taskNum
+     */
+    protected $taskNum;
 
     /**
      * @var array $appServerList
@@ -108,7 +113,7 @@ class BaseSwooleServer
         echo "$yChar                                                                         $yChar\n";
         echo $yChar . str_pad("manage_pid: {$this->server->manager_pid}      master_pid: {$this->server->master_pid}      worker_number: {$this->workerNum}", 73, ' ', STR_PAD_BOTH) . "|\n";
         echo "$yChar                                                                         $yChar\n";
-        echo $yChar . str_pad("autoHotReloadId: {$this->reloadTickId}", 73, ' ', STR_PAD_BOTH) . "|\n";
+        echo $yChar . str_pad("autoHotReloadId: {$this->reloadTickId}   task_number: {$this->taskNum}", 73, ' ', STR_PAD_BOTH) . "|\n";
         echo "$yChar                                                                         $yChar\n";
         echo str_pad("", 75, $xChar, STR_PAD_BOTH) . "\n";
         echo "\n";

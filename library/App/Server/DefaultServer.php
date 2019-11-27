@@ -6,7 +6,7 @@
  * Time: 17:02
  */
 
-namespace Library\App\DefaultApp;
+namespace Library\App\Server;
 
 use Library\Channel;
 use Library\Config;
@@ -26,6 +26,7 @@ use Library\Virtual\Handler\AbstractHandler;
 use Library\Virtual\Middle\AbstractMiddleWare;
 use Library\Virtual\Server\AbstractServer;
 use Swoole\Http\Request as SwooleHttpRequest;
+use Swoole\Server\Task;
 use Swoole\WebSocket\Server as SwooleSocketServer;
 use Swoole\WebSocket\Frame as SwooleSocketFrame;
 use Swoole\Http\Request as SwooleRequest;
@@ -362,5 +363,17 @@ class DefaultServer extends AbstractServer
         CoroutineRedisClientPool::poolFree();
         EntityRabbit::delInstance();
 //        EntitySwooleRabbit::delInstance();
+    }
+
+    /**
+     * onRequest
+     * @param SwooleSocketServer $server
+     * @param Task $task
+     * @return mixed
+     */
+    public function task(SwooleSocketServer $server, Task $task)
+    {
+        // TODO: Implement task() method.
+        return null;
     }
 }

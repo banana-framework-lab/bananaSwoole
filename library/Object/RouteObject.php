@@ -54,6 +54,14 @@ class RouteObject
     }
 
     /**
+     * @return string
+     */
+    public function getTask(): string
+    {
+        return $this->controller;
+    }
+
+    /**
      * @param $controller
      */
     public function setController($controller)

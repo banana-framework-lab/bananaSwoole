@@ -1,13 +1,14 @@
 <?php
-
-namespace Library\Service;
-
 /**
  * Created by PhpStorm.
  * User: zzh
  * Date: 2019/4/23
  * Time: 14:12
  */
+
+namespace Library\App\Service;
+
+
 class PinYinService
 {
     /**
@@ -48,8 +49,8 @@ class PinYinService
         }
         $fchar = ord($str{0});
         if ($fchar >= ord('A') && $fchar <= ord('z')) return strtoupper($str{0});
-        $s1 = mb_convert_encoding($str, 'GBK','UTF-8');
-        $s2 = mb_convert_encoding($s1, 'UTF-8','GBK');
+        $s1 = mb_convert_encoding($str, 'GBK', 'UTF-8');
+        $s2 = mb_convert_encoding($s1, 'UTF-8', 'GBK');
         //保证字符串是utf-8编码
         $s = $s2 == $str ? $s1 : $str;
         //根据gb2312汉子排序得出的算法

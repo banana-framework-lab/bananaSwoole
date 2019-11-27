@@ -1,17 +1,16 @@
 <?php
-
-namespace Library;
-
-use Library\Entity\Swoole\EntitySwooleServer;
-use Library\Object\RouteObject;
-use Swoole\Coroutine;
-
 /**
  * Created by PhpStorm.
  * User: ZhongHao-Zh
  * Date: 2019/10/20
  * Time: 16:55
  */
+
+namespace Library;
+
+use Library\Entity\Swoole\EntitySwooleServer;
+use Library\Object\RouteObject;
+use Swoole\Coroutine;
 
 /**
  * Class Router
@@ -102,10 +101,14 @@ class Router
     /**
      * 路由
      * @param string $requestUrl
+     * @param string $type
      * @return RouteObject
      */
-    public static function router(string $requestUrl): RouteObject
+    public static function router(string $requestUrl, string $type = 'Controller'): RouteObject
     {
+        if ($type != 'Controller') {
+            $type = 'Task';
+        }
         $route = self::$routerPool[$requestUrl] ?? null;
         if (is_null($route)) {
             $requestUrl = trim($requestUrl, '/');
@@ -116,11 +119,12 @@ class Router
 
             $routerObject = new RouteObject();
             $routerObject->setProject($requestUrlArray[0]);
-            $routerObject->setController("\\App\\{$requestUrlArray[0]}\\Controller\\{$requestUrlArray[1]}Controller");
+            $routerObject->setController("\\App\\{$requestUrlArray[0]}\\{$type}\\{$requestUrlArray[1]}{$type}");
             $routerObject->setMethod($requestUrlArray[2]);
 
-            static::$routePool[EntitySwooleServer::getInstance()->worker_id][Coroutine::getuid()] = $routerObject;
-
+            if (in_array($type, ['Controller'])) {
+                static::$routePool[EntitySwooleServer::getInstance()->worker_id][Coroutine::getuid()] = $routerObject;
+            }
             return $routerObject;
         } else {
             $requestUrlArray = explode('@', $route);
@@ -130,8 +134,9 @@ class Router
             $routerObject->setController($requestUrlArray[0]);
             $routerObject->setMethod($requestUrlArray[1]);
 
-            static::$routePool[EntitySwooleServer::getInstance()->worker_id][Coroutine::getuid()] = $routerObject;
-
+            if (in_array($type, ['Controller'])) {
+                static::$routePool[EntitySwooleServer::getInstance()->worker_id][Coroutine::getuid()] = $routerObject;
+            }
             return $routerObject;
         }
     }

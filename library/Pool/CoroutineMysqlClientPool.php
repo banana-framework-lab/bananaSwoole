@@ -58,6 +58,7 @@ class CoroutineMysqlClientPool
      */
     public static function poolFree()
     {
+        EntityMysql::deleteInstance();
         self::$pool = [];
         self::$poolSize = 5;
         self::$freeSize = 0;

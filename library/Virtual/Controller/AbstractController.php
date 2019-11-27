@@ -12,7 +12,7 @@ namespace Library\Virtual\Controller;
  * Class AbstractController
  * @package Library\Virtual\Controller
  */
-class AbstractController {
+Abstract class AbstractController {
 
     /**
      * request请求对象
@@ -21,7 +21,7 @@ class AbstractController {
     protected $request;
 
     /**
-     * Base constructor.
+     * AbstractController constructor.
      * @param $request
      */
     public function __construct($request)

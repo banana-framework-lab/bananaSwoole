@@ -8,6 +8,7 @@
 
 namespace Library\Virtual\Server;
 
+use Swoole\Server\Task;
 use Swoole\Table;
 use Swoole\Http\Request as SwooleHttpRequest;
 use Swoole\WebSocket\Server as SwooleSocketServer;
@@ -44,7 +45,6 @@ abstract class AbstractServer
      * onOpen
      * @param SwooleSocketServer $server
      * @param SwooleRequest $request
-     * @return mixed
      */
     abstract public function open(SwooleSocketServer $server, SwooleHttpRequest $request);
 
@@ -52,7 +52,6 @@ abstract class AbstractServer
      * onMessage
      * @param SwooleSocketServer $server
      * @param SwooleSocketFrame $frame
-     * @return mixed
      */
     abstract public function message(SwooleSocketServer $server, SwooleSocketFrame $frame);
 
@@ -60,7 +59,6 @@ abstract class AbstractServer
      * onClose
      * @param SwooleSocketServer $server
      * @param int $fd
-     * @return mixed
      */
     abstract public function close(SwooleSocketServer $server, int $fd);
 
@@ -68,9 +66,16 @@ abstract class AbstractServer
      * onRequest
      * @param SwooleRequest $request
      * @param SwooleResponse $response
-     * @return mixed
      */
     abstract public function request(SwooleRequest $request, SwooleResponse $response);
+
+    /**
+     * onRequest
+     * @param SwooleSocketServer $server
+     * @param Task $task
+     * @return mixed
+     */
+    abstract public function task(SwooleSocketServer $server, Task $task);
 
     /**
      * onWorkerExit

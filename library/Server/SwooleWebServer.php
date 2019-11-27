@@ -8,6 +8,7 @@ use Library\Entity\Swoole\EntitySwooleServer;
 use Library\Helper\RequestHelper;
 use Library\Helper\ResponseHelper;
 use Library\Router;
+use Library\WebServerApp;
 use Library\Entity\Swoole\EntitySwooleWebSever;
 use Swoole\Http\Server as SwooleHttpServer;
 use Swoole\Http\Request as SwooleRequest;

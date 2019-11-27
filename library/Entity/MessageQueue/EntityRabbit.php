@@ -43,7 +43,9 @@ class EntityRabbit
      */
     public static function delInstance()
     {
-        static::$instance->close();
+        if(static::$instance){
+            static::$instance->close();
+        }
     }
 
     /**
