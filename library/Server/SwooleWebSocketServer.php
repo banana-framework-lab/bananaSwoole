@@ -101,7 +101,9 @@ class SwooleWebSocketServer extends BaseSwooleServer
         Config::instanceStart();
 
         if (!$server->taskworker && $workerId <= 0) {
-            $this->reloadTickId = Timer::tick(1000, $this->autoHotReload());
+            if (Config::get('app.debug')) {
+                $this->reloadTickId = Timer::tick(1000, $this->autoHotReload());
+            }
             $this->startEcho();
         }
 
@@ -125,7 +127,6 @@ class SwooleWebSocketServer extends BaseSwooleServer
     public function onTask(SwooleSocketServer $server, Task $task)
     {
         $this->appServer->task($server, $task);
-//        $task->finish(['finish_data' => $this->appServer->task($server, $task)]);
     }
 
     /**

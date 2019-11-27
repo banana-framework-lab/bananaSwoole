@@ -15,6 +15,7 @@ use Monolog\Handler\RotatingFileHandler;
  *
  * @method static bool info(string $message = '', array $context = [], string $levelName = '', string $channel = '')
  * @method static bool warning(string $message = '', array $context = [], string $levelName = '', string $channel = '')
+ * @method static bool task(string $message = '', array $context = [], string $levelName = '', string $channel = '')
  * @method static bool error(string $message = '', array $context = [], string $levelName = '', string $channel = '')
  * @method static bool success(string $message = '', array $context = [], string $levelName = '', string $channel = '')
  */
