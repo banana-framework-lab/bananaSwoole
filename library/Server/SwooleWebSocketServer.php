@@ -223,7 +223,8 @@ class SwooleWebSocketServer extends BaseSwooleServer
     public function onWorkerError(SwooleSocketServer $server, int $workerId, int $workerPid, int $exitCode, int $signal)
     {
         if ($server) {
-            echo "###########" . str_pad("worker_pid: {$workerPid}  worker_id: {$workerId}  exitCode: {$exitCode}  sign:{$signal}  error stop", 53, ' ', STR_PAD_BOTH) . "###########\n";
+            $courseName = $server->taskworker ? 'task' : 'worker';
+            echo "###########" . str_pad("{$courseName}_pid: {$workerPid}  {$courseName}_id: {$workerId}  exitCode: {$exitCode}  sign:{$signal}  error stop", 53, ' ', STR_PAD_BOTH) . "###########\n";
         }
     }
 
@@ -235,7 +236,8 @@ class SwooleWebSocketServer extends BaseSwooleServer
      */
     public function onWorkerStop(SwooleSocketServer $server, int $workerId)
     {
-        echo "###########" . str_pad("worker_pid: {$server->worker_pid}    worker_id: {$workerId}    stop", 53, ' ', STR_PAD_BOTH) . "###########\n";
+        $courseName = $server->taskworker ? 'task' : 'worker';
+        echo "###########" . str_pad("{$courseName}_pid: {$server->worker_pid}    {$courseName}_id: {$workerId}    stop", 53, ' ', STR_PAD_BOTH) . "###########\n";
     }
 
     /**
@@ -248,6 +250,7 @@ class SwooleWebSocketServer extends BaseSwooleServer
     {
         Timer::clear($this->reloadTickId);
         $this->appServer->exit($server, $workerId);
-        echo "###########" . str_pad("worker_pid: {$server->worker_pid}    worker_id: {$workerId}    Exit", 53, ' ', STR_PAD_BOTH) . "###########\n";
+        $courseName = $server->taskworker ? 'task' : 'worker';
+        echo "###########" . str_pad("{$courseName}_pid: {$server->worker_pid}    {$courseName}_id: {$workerId}    Exit", 53, ' ', STR_PAD_BOTH) . "###########\n";
     }
 }

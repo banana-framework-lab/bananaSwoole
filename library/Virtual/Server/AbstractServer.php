@@ -83,4 +83,27 @@ abstract class AbstractServer
      * @param int $workerId
      */
     abstract public function exit(SwooleSocketServer $server, int $workerId);
+
+    /**
+     * 使用session
+     * @param SwooleRequest $request
+     * @param SwooleResponse $response
+     * @param int $sessionLive
+     */
+    public function openSession(SwooleRequest &$request, SwooleResponse &$response, int $sessionLive = 86400)
+    {
+        if (!isset($request->cookie['PHPSESSID'])) {
+            $phpSessionId = md5(time() + rand(0, 99999));
+            $request->cookie['PHPSESSID'] = $phpSessionId;
+            $response->cookie(
+                'PHPSESSID',
+                $phpSessionId,
+                time() + $sessionLive,
+                '/',
+                explode(':', str_replace(['http://', 'https://'], "", $request->header['origin']))[0],
+                false,
+                true
+            );
+        }
+    }
 }

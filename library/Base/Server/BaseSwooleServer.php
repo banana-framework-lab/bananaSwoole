@@ -104,6 +104,7 @@ class BaseSwooleServer
      */
     protected function startEcho(string $serverType = "webSocketServer", string $xChar = '-', string $yChar = '|')
     {
+        $this->startDateTime = date('Y-m-d H:i:s');
         echo "\n";
         echo str_pad("", 75, $xChar, STR_PAD_BOTH) . "\n";
         echo $yChar . str_pad("$serverType start", 73, ' ', STR_PAD_BOTH) . "$yChar\n";

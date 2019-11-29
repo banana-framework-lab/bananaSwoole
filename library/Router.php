@@ -32,18 +32,26 @@ class Router
 
     /**
      * 初始化Router类
+     * @param string $lockFileName
      */
-    public static function instanceStart()
+    public static function instanceStart(string $lockFileName = '')
     {
-        $handler = opendir(dirname(__FILE__) . '/../route');
-        while (($fileName = readdir($handler)) !== false) {
-            if ($fileName != "." && $fileName != "..") {
-                $fileData = require dirname(__FILE__) . '/../route/' . $fileName;
-                $routerData = self::analysisRouter($fileData);
-                $routerData && self::$routerPool = array_merge(self::$routerPool, $routerData);
+        if (!empty($lockFileName) && file_exists(dirname(__FILE__) . '/../route/' . $lockFileName . '.php')) {
+            $fileData = require dirname(__FILE__) . '/../route/' . $lockFileName;
+            $routerData = self::analysisRouter($fileData);
+            $routerData && self::$routerPool = array_merge(self::$routerPool, $routerData);
+        } else {
+            $handler = opendir(dirname(__FILE__) . '/../route');
+            while (($fileName = readdir($handler)) !== false) {
+                if ($fileName != "." && $fileName != "..") {
+                    $fileData = require dirname(__FILE__) . '/../route/' . $fileName;
+                    $routerData = self::analysisRouter($fileData);
+                    $routerData && self::$routerPool = array_merge(self::$routerPool, $routerData);
+
+                }
             }
+            closedir($handler);
         }
-        closedir($handler);
     }
 
     /**
