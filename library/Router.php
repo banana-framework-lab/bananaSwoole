@@ -36,7 +36,7 @@ class Router
      */
     public static function instanceStart(string $lockFileName = '')
     {
-        if (!empty($lockFileName) && file_exists(dirname(__FILE__) . '/../route/' . $lockFileName . '.php')) {
+        if (!empty($lockFileName) && file_exists(dirname(__FILE__) . '/../route/' . $lockFileName)) {
             $fileData = require dirname(__FILE__) . '/../route/' . $lockFileName;
             $routerData = self::analysisRouter($fileData);
             $routerData && self::$routerPool = array_merge(self::$routerPool, $routerData);
@@ -47,7 +47,6 @@ class Router
                     $fileData = require dirname(__FILE__) . '/../route/' . $fileName;
                     $routerData = self::analysisRouter($fileData);
                     $routerData && self::$routerPool = array_merge(self::$routerPool, $routerData);
-
                 }
             }
             closedir($handler);
@@ -69,7 +68,7 @@ class Router
             if ($judgeBaseRoute) {
                 $baseRoute .= $key;
             } else {
-                $baseRoute = $key;
+                $baseRoute = "/{$key}";
             }
             if (is_string($value)) {
                 $routerData[$baseRoute] = $value;

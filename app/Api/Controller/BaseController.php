@@ -12,7 +12,7 @@ namespace App\Api\Controller;
 use App\Api\Object\SessionObject;
 use App\Api\Service\ResCodeService;
 use Exception;
-use Library\Expection\WebException;
+use Library\Exception\WebException;
 use Library\Helper\RequestHelper;
 use Library\Helper\ResponseHelper;
 use Library\Virtual\Controller\AbstractController;
