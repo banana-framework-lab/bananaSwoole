@@ -10,7 +10,7 @@ namespace Library\Base\Server;
 
 use Library\Config;
 use Library\App\Server\DefaultServer;
-use Library\Virtual\Server\AbstractServer;
+use Library\Virtual\Server\AbstractSwooleServer;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use SplFileInfo;
@@ -30,7 +30,7 @@ class BaseSwooleServer
     protected $server;
 
     /**
-     * @var AbstractServer $appServer
+     * @var AbstractSwooleServer $appServer
      */
     protected $appServer;
 
@@ -80,10 +80,15 @@ class BaseSwooleServer
     protected $startDateTime;
 
     /**
-     * SwooleServer constructor.
-     * @param AbstractServer $appServer
+     * @var string $serverConfigIndex
      */
-    public function __construct(AbstractServer $appServer)
+    protected $serverConfigIndex = 'server';
+
+    /**
+     * SwooleServer constructor.
+     * @param AbstractSwooleServer $appServer
+     */
+    public function __construct(AbstractSwooleServer $appServer)
     {
         // Config初始化
         Config::instanceSwooleStart();
@@ -178,5 +183,17 @@ class BaseSwooleServer
                 $this->isFirstStart = false;
             }
         };
+    }
+
+
+    /**
+     * 设置
+     * @param string $index
+     * @return BaseSwooleServer
+     */
+    public function setConfigIndex(string $index = 'server'): BaseSwooleServer
+    {
+        $this->serverConfigIndex = $index;
+        return $this;
     }
 }

@@ -24,7 +24,7 @@ use Library\Pool\CoroutineRedisClientPool;
 use Library\Router;
 use Library\Virtual\Handler\AbstractHandler;
 use Library\Virtual\Middle\AbstractMiddleWare;
-use Library\Virtual\Server\AbstractServer;
+use Library\Virtual\Server\AbstractSwooleServer;
 use Swoole\Http\Request as SwooleHttpRequest;
 use Swoole\Server\Task;
 use Swoole\WebSocket\Server as SwooleSocketServer;
@@ -38,7 +38,7 @@ use Throwable;
  * Class DefaultWebSocketServer
  * @package Library
  */
-class DefaultServer extends AbstractServer
+class DefaultSwooleServer extends AbstractSwooleServer
 {
     /**
      * 初始化webSocketApp对象

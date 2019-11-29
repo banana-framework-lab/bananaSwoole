@@ -9,7 +9,7 @@ use Library\Entity\Swoole\EntitySwooleWebSocketSever;
 use Library\Helper\RequestHelper;
 use Library\Helper\ResponseHelper;
 use Library\Router;
-use Library\Virtual\Server\AbstractServer;
+use Library\Virtual\Server\AbstractSwooleServer;
 use Swoole\Http\Request as SwooleHttpRequest;
 use Swoole\Server\Task;
 use Swoole\Table;
@@ -23,26 +23,22 @@ use Swoole\Http\Response as SwooleResponse;
  * Class SwooleWebSocketServer
  * @package Library\Server
  */
-class SwooleWebSocketServer extends BaseSwooleServer
+class SwooleServer extends BaseSwooleServer
 {
-
     /**
      * SwooleWebSocketServer constructor.
      */
-    public function __construct(AbstractServer $appServer)
+    public function __construct(AbstractSwooleServer $appServer)
     {
         parent::__construct($appServer);
 
-        //初始化SwooleWebSocketSever
-        EntitySwooleWebSocketSever::instanceStart();
-
         //初始化全局对象
-        EntitySwooleServer::setInstance(EntitySwooleWebSocketSever::getInstance());
+        EntitySwooleServer::instanceStart($this->serverConfigIndex);
 
         $this->server = EntitySwooleServer::getInstance();
-        $this->port = Config::get('swoole.socket.port');
-        $this->workerNum = Config::get('swoole.socket.worker_num');
-        $this->taskNum = Config::get('swoole.socket.task_num', ($this->workerNum) * 4);
+        $this->port = Config::get("swoole.{$this->serverConfigIndex}.port");
+        $this->workerNum = Config::get("swoole.{$this->serverConfigIndex}.worker_num");
+        $this->taskNum = Config::get("swoole.{$this->serverConfigIndex}.task_num", ($this->workerNum) * 4);
 
         // bindTable初始化
         $this->bindTable = new Table($this->workerNum * 2000);

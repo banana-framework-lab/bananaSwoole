@@ -25,6 +25,11 @@ class RequestHelper
     private static $instancePool = [];
 
     /**
+     * @var array $instance
+     */
+    private static $instance = [];
+
+    /**
      * RequestHelper constructor.
      */
     private function __construct()
@@ -54,12 +59,30 @@ class RequestHelper
     }
 
     /**
+     * 保存request对象
+     * @param array $instance
+     */
+    public static function setFpmInstance(array $instance)
+    {
+        static::$instance = $instance;
+    }
+
+    /**
      * 获取整个请求对象
      * @return array
      */
     public static function getInstance()
     {
         return static::$instancePool;
+    }
+
+    /**
+     * 获取request对象
+     * @return array
+     */
+    public static function getFpmInstance()
+    {
+        return static::$instance;
     }
 
     /**

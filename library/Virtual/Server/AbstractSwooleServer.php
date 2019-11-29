@@ -16,7 +16,7 @@ use Swoole\WebSocket\Frame as SwooleSocketFrame;
 use Swoole\Http\Request as SwooleRequest;
 use Swoole\Http\Response as SwooleResponse;
 
-abstract class AbstractServer
+abstract class AbstractSwooleServer
 {
     /**
      * 绑定关系的内存表

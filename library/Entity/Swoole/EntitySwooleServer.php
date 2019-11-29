@@ -8,7 +8,9 @@
 
 namespace Library\Entity\Swoole;
 
+use Library\Config;
 use Swoole\Server;
+use Swoole\WebSocket\Server as SwooleWebSocketServer;
 
 class EntitySwooleServer
 {
@@ -34,13 +36,14 @@ class EntitySwooleServer
     }
 
     /**
-     * 初始化EntitySwooleServer的实体类实体
-     * @param Server $server
+     * 初始化SwooleSever的实体类实体
+     * @param string $serverConfigIndex
      */
-    public static function setInstance(Server $server)
+    public static function instanceStart(string $serverConfigIndex)
     {
         if (!static::$instance) {
-            static::$instance = $server;
+            $webServer = new SwooleWebSocketServer("0.0.0.0", Config::get("swoole.{$serverConfigIndex}.port"));
+            static::$instance = $webServer;
         }
     }
 
