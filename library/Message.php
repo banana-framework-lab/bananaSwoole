@@ -10,11 +10,10 @@ namespace Library;
 
 use Library\Entity\MessageQueue\EntityRabbit;
 use Library\Entity\MessageQueue\EntitySwooleRabbit;
-use Library\Entity\Swoole\EntitySwooleWebSocketSever;
+use Library\Entity\Swoole\EntitySwooleServer;
 use Library\Virtual\Handler\AbstractHandler;
 use Library\Virtual\Object\AbstractMessageObject;
 use PhpAmqpLib\Channel\AMQPChannel;
-use PhpAmqpLib\Connection\AMQPSwooleConnection;
 use PhpAmqpLib\Message\AMQPMessage;
 
 /**
@@ -100,7 +99,7 @@ class Message
                     $handler = new $handlerClass();
 
                     //fd存在则触发发送函数
-                    if (EntitySwooleWebSocketSever::getInstance()->exist((int)($messageBody->toFd))) {
+                    if (EntitySwooleServer::getInstance()->exist((int)($messageBody->toFd))) {
                         $handler->consume($messageBody);
                     }
                 };

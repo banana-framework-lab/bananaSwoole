@@ -9,7 +9,8 @@
 namespace Library\Base\Server;
 
 use Library\Config;
-use Library\App\Server\DefaultServer;
+use Library\App\Server\DefaultSwooleServer;
+use Library\Entity\Swoole\EntitySwooleServer;
 use Library\Virtual\Server\AbstractSwooleServer;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
@@ -93,9 +94,12 @@ class BaseSwooleServer
         // Config初始化
         Config::instanceSwooleStart();
 
+        //初始化全局对象
+        EntitySwooleServer::instanceStart($this->serverConfigIndex);
+
         // 非法初始化的类由默认server覆盖
         if (!$appServer) {
-            $appServer = new DefaultServer();
+            $appServer = new DefaultSwooleServer();
         }
 
         $this->appServer = $appServer;
@@ -107,19 +111,19 @@ class BaseSwooleServer
      * @param string $xChar
      * @param string $yChar
      */
-    protected function startEcho(string $serverType = "webSocketServer", string $xChar = '-', string $yChar = '|')
+    protected function startEcho(string $serverType = "SwooleServer", string $xChar = '-', string $yChar = '|')
     {
         $this->startDateTime = date('Y-m-d H:i:s');
-        echo "\n";
+        echo "\n\n\n";
         echo str_pad("", 75, $xChar, STR_PAD_BOTH) . "\n";
         echo $yChar . str_pad("$serverType start", 73, ' ', STR_PAD_BOTH) . "$yChar\n";
         echo str_pad("", 75, $xChar, STR_PAD_BOTH) . "\n";
         echo "$yChar                                                                         $yChar\n";
-        echo $yChar . str_pad("listen_address: 0.0.0.0  listen_port: {$this->port}  time: {$this->startDateTime}", 73, ' ', STR_PAD_BOTH) . "|\n";
+        echo $yChar . str_pad("listen_address: 0.0.0.0  listen_port: {$this->port}  time: {$this->startDateTime}", 73, ' ', STR_PAD_BOTH) . "$yChar\n";
         echo "$yChar                                                                         $yChar\n";
-        echo $yChar . str_pad("manage_pid: {$this->server->manager_pid}      master_pid: {$this->server->master_pid}      worker_number: {$this->workerNum}", 73, ' ', STR_PAD_BOTH) . "|\n";
+        echo $yChar . str_pad("manage_pid: {$this->server->manager_pid}      master_pid: {$this->server->master_pid}      worker_number: {$this->workerNum}", 73, ' ', STR_PAD_BOTH) . "$yChar\n";
         echo "$yChar                                                                         $yChar\n";
-        echo $yChar . str_pad("autoHotReloadId: {$this->reloadTickId}   task_number: {$this->taskNum}", 73, ' ', STR_PAD_BOTH) . "|\n";
+        echo $yChar . str_pad("autoHotReloadId: {$this->reloadTickId}   task_number: {$this->taskNum}", 73, ' ', STR_PAD_BOTH) . "$yChar\n";
         echo "$yChar                                                                         $yChar\n";
         echo str_pad("", 75, $xChar, STR_PAD_BOTH) . "\n";
         echo "\n";

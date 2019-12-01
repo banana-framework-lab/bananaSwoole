@@ -30,6 +30,12 @@ class TestController extends AbstractController
         LogHelper::info($string, ['msg' => 'swoole并发测试']);
     }
 
+    public function testLogFpm()
+    {
+        $string = 'test' . time();
+        LogHelper::info($string, ['msg' => 'swoole并发测试']);
+    }
+
     public function testModelCover()
     {
         (new TestLogic())->sqlCover();

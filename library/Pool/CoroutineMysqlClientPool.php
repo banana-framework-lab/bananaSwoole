@@ -11,6 +11,7 @@ namespace Library\Pool;
 use Library\Config;
 use Library\Entity\Model\DataBase\EntityMysql;
 use Swoole\Coroutine\MySQL;
+use Throwable;
 
 class CoroutineMysqlClientPool
 {
@@ -39,10 +40,11 @@ class CoroutineMysqlClientPool
 
     /**
      * 初始化连接池
-     * @throws \Throwable
+     * @throws Throwable
      */
     public static function poolInit()
     {
+        self::$poolSize = Config::get('pool.mysql.size', 5);
         for ($i = 1; $i <= self::$poolSize; $i++) {
             if ($i <= 1) {
                 EntityMysql::instanceStart();

@@ -42,7 +42,7 @@ class EntitySwooleServer
     public static function instanceStart(string $serverConfigIndex)
     {
         if (!static::$instance) {
-            $webServer = new SwooleWebSocketServer("0.0.0.0", Config::get("swoole.{$serverConfigIndex}.port"));
+            $webServer = new SwooleWebSocketServer("0.0.0.0", Config::get("swoole.{$serverConfigIndex}.port"), SWOOLE_PROCESS);
             static::$instance = $webServer;
         }
     }
@@ -50,7 +50,7 @@ class EntitySwooleServer
     /**
      * @return Server
      */
-    public static function getInstance(): Server
+    public static function getInstance()
     {
         return self::$instance;
     }

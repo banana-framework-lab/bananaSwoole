@@ -41,6 +41,7 @@ class CoroutineRedisClientPool
      */
     public static function poolInit()
     {
+        self::$poolSize = Config::get('pool.redis.size', 5);
         for ($i = 1; $i <= self::$poolSize; $i++) {
             $client = self::getClient();
             self::$pool[] = $client;

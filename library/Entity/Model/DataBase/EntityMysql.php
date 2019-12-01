@@ -105,7 +105,9 @@ class EntityMysql
      */
     public static function deleteInstance()
     {
-        static::$instance = null;
+        if (static::$instance) {
+            static::$instance = null;
+        }
     }
 
     /**

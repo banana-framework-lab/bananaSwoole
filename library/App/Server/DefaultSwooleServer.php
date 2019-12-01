@@ -64,8 +64,8 @@ class DefaultSwooleServer extends AbstractSwooleServer
             // Redis缓存初始化
             EntityRedis::instanceStart();
 
-            // rabbitMq初始化
-            EntityRabbit::instanceStart();
+//            // rabbitMq初始化
+//            EntityRabbit::instanceStart();
 
             // 协程mysql连接池初始化
             CoroutineMysqlClientPool::poolInit();
@@ -74,13 +74,13 @@ class DefaultSwooleServer extends AbstractSwooleServer
             CoroutineRedisClientPool::poolInit();
 
             //开启php调试模式
-            if (Config::get('app.debug')) {
+            if (Config::get('app.debug', true)) {
                 error_reporting(E_ALL);
             }
 
             return true;
         } catch (Throwable $e) {
-            echo "///////////      worker_id:{$workerId}  启动时报错  " . $e->getMessage() . "\n";
+            echo "XXXXXXXXXXX      worker_id:{$workerId}  启动时报错  " . $e->getMessage() . "\n";
 
             return false;
         }
@@ -100,45 +100,47 @@ class DefaultSwooleServer extends AbstractSwooleServer
 
         //过滤错误的连接
         if (!$channelObject->getChannel()) {
-            $server->disconnect($request->fd, 1000, "找不到fd对应的Channel");
+            $server->disconnect(
+                $request->fd,
+                Config::get('response.code.no_channel', 10000),
+                "找不到fd对应的Channel"
+            );
             return;
         }
 
-        //初始化Handler
-        $handlerClass = $channelObject->getHandler();
-
+        //open实体方法
         try {
-            // 初始化事件器
+            $handlerClass = $channelObject->getHandler();
+            // 初始化Handler
             if (class_exists($handlerClass)) {
                 /* @var AbstractHandler $handler */
                 $handler = new $handlerClass();
                 if (method_exists($handlerClass, 'open')) {
                     //fd绑定通道
                     $this->bindTable->set($request->fd, $channelObject->toArray());
-
                     //fd打开事件
                     $handler->open($server, $request);
                 } else {
-                    if (Config::get('app.debug')) {
-                        $server->disconnect($request->fd, 1000, "找不到open方法");
-                    } else {
-                        $server->disconnect($request->fd, 1000, "close");
-                    }
+                    $server->disconnect(
+                        $request->fd,
+                        Config::get('response.code.no_open_function', 10001),
+                        Config::get('app.debug', true) ? "找不到open方法" : '已断开连接！'
+                    );
                 }
             } else {
-                if (Config::get('app.debug')) {
-                    $server->disconnect($request->fd, 1000, "找不到{$handlerClass}");
-                } else {
-                    $server->disconnect($request->fd, 1000, "close!");
-                }
+                $server->disconnect(
+                    $request->fd,
+                    Config::get('response.code.no_handler_class', 10002),
+                    Config::get('app.debug', true) ? "找不到{$handlerClass}" : '已断开连接.'
+                );
             }
         } catch (Throwable $e) {
-            if (Config::get('app.debug')) {
-                echo $e->getMessage() . "\n" . $e->getTraceAsString();
-                $server->disconnect($request->fd, 1000, "已断开连接.");
-            } else {
-                $server->disconnect($request->fd, 1000, "close.");
-            }
+            echo $e->getMessage() . "\n" . $e->getTraceAsString();
+            $server->disconnect(
+                $request->fd,
+                Config::get('response.code.fatal_error', 10003),
+                "已断开连接."
+            );
         }
     }
 
@@ -157,7 +159,11 @@ class DefaultSwooleServer extends AbstractSwooleServer
             $channelObject->setHandler($tableData['handler']);
 
             if (!$channelObject->getChannel()) {
-                $server->disconnect($frame->fd, 1000, "找不到fd对应的Channel");
+                $server->disconnect(
+                    $frame->fd,
+                    Config::get('response.code.no_channel', 10000),
+                    "找不到fd对应的Channel"
+                );
                 return;
             }
 
@@ -171,26 +177,26 @@ class DefaultSwooleServer extends AbstractSwooleServer
                 if (method_exists($handlerClass, 'open')) {
                     $handler->message($server, $frame);
                 } else {
-                    if (Config::get('app.debug')) {
-                        $server->disconnect($frame->fd, 1000, "找不到message方法");
-                    } else {
-                        $server->disconnect($frame->fd, 1000, "已断开连接");
-                    }
+                    $server->disconnect(
+                        $frame->fd,
+                        Config::get('response.code.no_message_function', 10004),
+                        Config::get('app.debug', true) ? "找不到message方法" : "已断开连接"
+                    );
                 }
             } else {
-                if (Config::get('app.debug')) {
-                    $server->disconnect($frame->fd, 1000, "找不到{$handlerClass}");
-                } else {
-                    $server->disconnect($frame->fd, 1000, "已断开连接!");
-                }
+                $server->disconnect(
+                    $frame->fd,
+                    Config::get('response.code.no_handler_class', 10002),
+                    Config::get('app.debug', true) ? "找不到{$handlerClass}" : "已断开连接!"
+                );
             }
         } catch (Throwable $e) {
-            if (Config::get('app.debug')) {
-                echo $e->getMessage() . "\n" . $e->getTraceAsString();
-                $server->disconnect($frame->fd, 1000, "已断开连接.");
-            } else {
-                $server->disconnect($frame->fd, 1000, "已断开连接.");
-            }
+            echo $e->getMessage() . "\n" . $e->getTraceAsString();
+            $server->disconnect(
+                $frame->fd,
+                Config::get('response.code.fatal_error', 10003),
+                "已断开连接."
+            );
         }
     }
 
@@ -215,7 +221,6 @@ class DefaultSwooleServer extends AbstractSwooleServer
                     echo "{$fd}找不到fd对应的Channel!\n";
                     return;
                 }
-
                 //初始化Handler
                 $handlerClass = $channelObject->getHandler();
 
@@ -262,19 +267,7 @@ class DefaultSwooleServer extends AbstractSwooleServer
 
         //初始化PHPSESSID
         if (in_array($routeObject->getProject(), Config::get('app.session_project', []))) {
-            if (!isset($request->cookie['PHPSESSID'])) {
-                $phpSessionId = md5(time() + rand(0, 99999));
-                $request->cookie['PHPSESSID'] = $phpSessionId;
-                $response->cookie(
-                    'PHPSESSID',
-                    $phpSessionId,
-                    time() + 3600 * 24,
-                    '/',
-                    explode(':', str_replace(['http://', 'https://'], "", $request->header['origin']))[0],
-                    false,
-                    true
-                );
-            }
+            $this->openSession($request, $response);
         }
 
         //初始化请求数据
@@ -293,7 +286,10 @@ class DefaultSwooleServer extends AbstractSwooleServer
                 $requestData = $middleWare->takeMiddleData();
             }
         } catch (Throwable $e) {
-            ResponseHelper::json(['code' => 10000, 'message' => $e->getMessage()]);
+            ResponseHelper::json([
+                'code' => Config::get('response.code.middleware_error', 10006),
+                'message' => $e->getMessage()
+            ]);
             $response->status(200);
             $response->end(ResponseHelper::response());
             return;
@@ -309,8 +305,11 @@ class DefaultSwooleServer extends AbstractSwooleServer
                         ResponseHelper::json($returnData);
                     }
                 } else {
-                    if (Config::get('app.debug')) {
-                        ResponseHelper::json(['code' => 10000, 'message' => "找不到{$methodName}"]);
+                    if (Config::get('app.debug', true)) {
+                        ResponseHelper::json([
+                            'code' => Config::get('response.code.http_fail', 10004),
+                            'message' => "找不到{$methodName}"
+                        ]);
                     } else {
                         $response->status(404);
                         $response->end();
@@ -318,8 +317,11 @@ class DefaultSwooleServer extends AbstractSwooleServer
                     }
                 }
             } else {
-                if (Config::get('app.debug')) {
-                    ResponseHelper::json(['message' => "找不到{$controllerClass}"]);
+                if (Config::get('app.debug', true)) {
+                    ResponseHelper::json([
+                        'code' => Config::get('response.code.no_controller', 10007),
+                        'message' => "找不到{$controllerClass}"
+                    ]);
                 } else {
                     $response->status(404);
                     $response->end();
@@ -332,7 +334,7 @@ class DefaultSwooleServer extends AbstractSwooleServer
                 'message' => $webE->getMessage()
             ]);
         } catch (Throwable $e) {
-            if (Config::get('app.debug')) {
+            if (Config::get('app.debug', true)) {
                 if ($e->getCode() != 888) {
                     $response->status(200);
                     $response->end($e->getMessage() . "\n" . $e->getTraceAsString());
@@ -341,6 +343,7 @@ class DefaultSwooleServer extends AbstractSwooleServer
                     $response->end(ResponseHelper::dumpResponse());
                 }
             } else {
+                echo $e->getMessage() . "\n" . $e->getTraceAsString();
                 $response->status(500);
                 $response->end();
             }
@@ -361,7 +364,10 @@ class DefaultSwooleServer extends AbstractSwooleServer
     {
         CoroutineMysqlClientPool::poolFree();
         CoroutineRedisClientPool::poolFree();
-        EntityRabbit::delInstance();
+        EntityMysql::deleteInstance();
+        EntityMongo::deleteInstance();
+        EntityRedis::deleteInstance();
+//        EntityRabbit::delInstance();
 //        EntitySwooleRabbit::delInstance();
     }
 
@@ -373,7 +379,6 @@ class DefaultSwooleServer extends AbstractSwooleServer
      */
     public function task(SwooleSocketServer $server, Task $task)
     {
-        // TODO: Implement task() method.
         return null;
     }
 }

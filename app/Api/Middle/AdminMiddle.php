@@ -17,8 +17,9 @@ class AdminMiddle extends AbstractMiddleWare
      */
     public function login()
     {
-        $this
-            ->setRequestField(['username', 'password'])
-            ->takeMiddleData();
+        $this->setRequestField([
+            'username',
+            'password'
+        ])->takeMiddleData();
     }
 }

@@ -5,7 +5,6 @@ namespace Library\Server;
 use Library\Base\Server\BaseSwooleServer;
 use Library\Config;
 use Library\Entity\Swoole\EntitySwooleServer;
-use Library\Entity\Swoole\EntitySwooleWebSocketSever;
 use Library\Helper\RequestHelper;
 use Library\Helper\ResponseHelper;
 use Library\Router;
@@ -27,13 +26,11 @@ class SwooleServer extends BaseSwooleServer
 {
     /**
      * SwooleWebSocketServer constructor.
+     * @param AbstractSwooleServer $appServer
      */
     public function __construct(AbstractSwooleServer $appServer)
     {
         parent::__construct($appServer);
-
-        //初始化全局对象
-        EntitySwooleServer::instanceStart($this->serverConfigIndex);
 
         $this->server = EntitySwooleServer::getInstance();
         $this->port = Config::get("swoole.{$this->serverConfigIndex}.port");
@@ -51,7 +48,7 @@ class SwooleServer extends BaseSwooleServer
         $this->appServer->setBindTable($this->bindTable);
 
         // reloadTable初始化
-        $this->reloadTable = new Table($this->workerNum * 100);
+        $this->reloadTable = new Table($this->workerNum * 500);
         $this->reloadTable->column('iNode', Table::TYPE_STRING, 50);
         $this->reloadTable->column('mTime', Table::TYPE_STRING, 50);
         $this->reloadTable->create();
@@ -85,7 +82,6 @@ class SwooleServer extends BaseSwooleServer
         $this->server->start();
     }
 
-
     /**
      * onWorkerStart事件
      * @param SwooleSocketServer $server
@@ -100,7 +96,7 @@ class SwooleServer extends BaseSwooleServer
             if (Config::get('app.debug')) {
                 $this->reloadTickId = Timer::tick(1000, $this->autoHotReload());
             }
-            $this->startEcho();
+            $this->startEcho('SwooleServer', '#', '|');
         }
 
         $courseName = $server->taskworker ? 'task' : 'worker';
@@ -136,10 +132,8 @@ class SwooleServer extends BaseSwooleServer
         defer(function () {
             //回收请求数据
             RequestHelper::delInstance();
-
             //回收返回数据
             ResponseHelper::delInstance();
-
             //回收路由数据
             Router::delRouteInstance();
         });
@@ -220,7 +214,7 @@ class SwooleServer extends BaseSwooleServer
     {
         if ($server) {
             $courseName = $server->taskworker ? 'task' : 'worker';
-            echo "###########" . str_pad("{$courseName}_pid: {$workerPid}  {$courseName}_id: {$workerId}  exitCode: {$exitCode}  sign:{$signal}  error stop", 53, ' ', STR_PAD_BOTH) . "###########\n";
+            echo "###########" . str_pad("{$courseName}_pid: {$workerPid} {$courseName}_id: {$workerId} exitCode: {$exitCode} sign:{$signal}  error", 53, ' ', STR_PAD_BOTH) . "###########\n";
         }
     }
 

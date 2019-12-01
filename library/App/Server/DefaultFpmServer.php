@@ -8,12 +8,12 @@
 
 namespace Library\App\Server;
 
+use Exception;
 use Library\Config;
 use Library\Entity\MessageQueue\EntityRabbit;
 use Library\Entity\Model\Cache\EntityRedis;
 use Library\Entity\Model\DataBase\EntityMongo;
 use Library\Entity\Model\DataBase\EntityMysql;
-use Library\Exception\WebException;
 use Library\Helper\ResponseHelper;
 use Library\Object\RouteObject;
 use Library\Router;
@@ -30,29 +30,31 @@ class DefaultFpmServer extends AbstractFpmServer
 {
     /**
      * onRequest执行入口
+     * @throws Throwable
      */
     public function request()
     {
-        try {
-            // 路由配置
-            Router::instanceStart();
-
-            // mysql数据库初始化
-            EntityMysql::instanceStart();
-
-            // mongo数据库初始化
-            EntityMongo::instanceStart();
-
-            // Redis缓存初始化
-            EntityRedis::instanceStart();
-
-            // rabbitMq初始化
-            EntityRabbit::instanceStart();
-
-        } catch (Throwable $e) {
-            var_dump($e->getMessage(), $e->getTraceAsString());
-            return;
+        //开启php调试模式
+        if (Config::get('app.debug', true)) {
+            ini_set("display_errors", "On");
+            error_reporting(E_ALL);
         }
+
+        // 路由配置
+        Router::instanceStart();
+
+        // mysql数据库初始化
+        EntityMysql::instanceStart();
+
+        // mongo数据库初始化
+        EntityMongo::instanceStart();
+
+        // Redis缓存初始化
+        EntityRedis::instanceStart();
+
+        // rabbitMq初始化
+//        EntityRabbit::instanceStart();
+
 
         $pathInfo = trim($_SERVER['PATH_INFO'], '/');
 
@@ -84,7 +86,10 @@ class DefaultFpmServer extends AbstractFpmServer
                 $requestData = $middleWare->takeMiddleData();
             }
         } catch (Throwable $e) {
-            ResponseHelper::json(['code' => 10000, 'message' => $e->getMessage()]);
+            ResponseHelper::json([
+                'code' => Config::get('response.code.middleware_error'),
+                'message' => $e->getMessage()
+            ]);
             return;
         }
 
@@ -99,30 +104,29 @@ class DefaultFpmServer extends AbstractFpmServer
                     }
                 } else {
                     if (Config::get('app.debug')) {
-                        ResponseHelper::json(['code' => 10000, 'message' => "找不到方法名：{$methodName}"]);
+                        ResponseHelper::json([
+                            'code' => Config::get('response.code.http_fail'),
+                            'message' => "找不到方法名：{$methodName}"]
+                        );
                     } else {
                         exit(404);
                     }
                 }
             } else {
                 if (Config::get('app.debug')) {
-                    ResponseHelper::json(['code' => 10000, 'message' => "找不到控制器：{$controllerClass}"]);
+                    ResponseHelper::json([
+                        'code' => Config::get('response.code.http_fail'),
+                        'message' => "找不到控制器：{$controllerClass}"
+                    ]);
                 } else {
                     exit(404);
                 }
             }
-        } catch (WebException $webE) {
+        } catch (Exception $webE) {
             ResponseHelper::json([
                 'code' => $webE->getCode(),
                 'message' => $webE->getMessage()
             ]);
-        } catch (Throwable $e) {
-            if (Config::get('app.debug')) {
-                var_dump($e->getMessage(), $e->getTraceAsString());
-                exit();
-            } else {
-                exit(500);
-            }
         }
     }
 }

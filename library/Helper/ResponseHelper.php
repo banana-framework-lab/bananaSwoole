@@ -71,9 +71,14 @@ class ResponseHelper
      */
     public static function json(array $jsonData = [], int $options = (JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK))
     {
-        $cid = Coroutine::getuid();
-        $workId = EntitySwooleServer::getInstance()->worker_id;
-        static::$instancePool[$workId][$cid] = json_encode($jsonData, $options);
+        if (EntitySwooleServer::getInstance()) {
+            $cid = Coroutine::getuid();
+            $workId = EntitySwooleServer::getInstance()->worker_id;
+            static::$instancePool[$workId][$cid] = json_encode($jsonData, $options);
+        } else {
+            echo json_encode($jsonData, $options);
+            exit;
+        }
     }
 
     /**
@@ -81,9 +86,13 @@ class ResponseHelper
      */
     public static function response()
     {
-        $cid = Coroutine::getuid();
-        $workerId = EntitySwooleServer::getInstance()->worker_id;
-        return ((static::dumpResponse() ?? "") . (static::$instancePool[$workerId][$cid] ?? ''));
+        if (EntitySwooleServer::getInstance()) {
+            $cid = Coroutine::getuid();
+            $workerId = EntitySwooleServer::getInstance()->worker_id;
+            return ((static::dumpResponse() ?? "") . (static::$instancePool[$workerId][$cid] ?? ''));
+        } else {
+            return [];
+        }
     }
 
 

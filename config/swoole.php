@@ -10,8 +10,9 @@ return [
         'port' => 9501,
         'worker_num' => 5
     ],
-    'socket' => [
+    'server' => [
         'port' => 9502,
-        'worker_num' => 5
+        'worker_num' => 1,
+        'task_num'=>1
     ]
 ];

@@ -107,18 +107,21 @@ class RequestHelper
      */
     public static function __callStatic($method, $args)
     {
-        $cid = Coroutine::getuid();
-        $instance = static::$instancePool[EntitySwooleServer::getInstance()->worker_id][$cid] ?? null;
+        if (EntitySwooleServer::getInstance()) {
+            $cid = Coroutine::getuid();
+            $instance = static::$instancePool[EntitySwooleServer::getInstance()->worker_id][$cid] ?? null;
 
-        if (!$instance) {
-            return '';
-        }
-
-        if (in_array($method, ['header', 'server', 'request', 'cookie', 'get', 'post', 'files'])) {
-            if ($args[0]) {
-                return $instance->$method[$args[0]] ?? '';
+            if (!$instance) {
+                return '';
             }
-            return $instance->$method;
+            if (in_array($method, ['header', 'server', 'request', 'cookie', 'get', 'post', 'files'])) {
+                if ($args[0]) {
+                    return $instance->$method[$args[0]] ?? '';
+                }
+                return $instance->$method;
+            } else {
+                return '';
+            }
         } else {
             return '';
         }

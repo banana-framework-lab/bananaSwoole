@@ -38,6 +38,6 @@ class FpmServer extends BaseFpmServer
             header('Access-Control-Allow-Methods:POST,GET,OPTIONS,DELETE'); //支持的http 动作
             header('Access-Control-Allow-Headers:x-requested-with,User-Platform,Content-Type,X-Token');  //响应头 请按照自己需求添加。
         }
-        $this->appServer->request($_REQUEST);
+        $this->appServer->request();
     }
 }

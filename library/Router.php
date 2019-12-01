@@ -85,9 +85,13 @@ class Router
      */
     public static function getRouteInstance(): RouteObject
     {
-        $workerId = EntitySwooleServer::getInstance()->worker_id;
-        $cid = Coroutine::getuid();
-        return static::$routePool[$workerId][$cid] ?? (new RouteObject());
+        if (EntitySwooleServer::getInstance()) {
+            $workerId = EntitySwooleServer::getInstance()->worker_id;
+            $cid = Coroutine::getuid();
+            return static::$routePool[$workerId][$cid] ?? (new RouteObject());
+        } else {
+            return static::$routePool[0][0] ?? (new RouteObject());
+        }
     }
 
     /**
@@ -130,7 +134,11 @@ class Router
             $routerObject->setMethod($requestUrlArray[2]);
 
             if (in_array($type, ['Controller'])) {
-                static::$routePool[EntitySwooleServer::getInstance()->worker_id][Coroutine::getuid()] = $routerObject;
+                if (EntitySwooleServer::getInstance()) {
+                    static::$routePool[EntitySwooleServer::getInstance()->worker_id][Coroutine::getuid()] = $routerObject;
+                } else {
+                    static::$routePool[0][0] = $routerObject;
+                }
             }
             return $routerObject;
         } else {
@@ -142,7 +150,11 @@ class Router
             $routerObject->setMethod($requestUrlArray[1]);
 
             if (in_array($type, ['Controller'])) {
-                static::$routePool[EntitySwooleServer::getInstance()->worker_id][Coroutine::getuid()] = $routerObject;
+                if (EntitySwooleServer::getInstance()) {
+                    static::$routePool[EntitySwooleServer::getInstance()->worker_id][Coroutine::getuid()] = $routerObject;
+                } else {
+                    static::$routePool[0][0] = $routerObject;
+                }
             }
             return $routerObject;
         }
