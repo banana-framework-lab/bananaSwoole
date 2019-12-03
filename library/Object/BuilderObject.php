@@ -46,6 +46,8 @@ use Swoole\Coroutine\MySQL;
  * @method BuilderObject skip(int $value)
  * @method BuilderObject limit(int $value)
  * @method array first(array | mixed $columns = ['*'])
+ * @method string toSql()
+ * @method array getBindings()
  * @method Expression raw(mixed $value)
  * @package Library\Object
  */
@@ -103,6 +105,10 @@ class BuilderObject
                 return $this->client->commit();
             case 'rollBack':
                 return $this->client->rollback();
+            case 'toSql':
+                return $this->builder->toSql();
+            case 'getBindings':
+                return $this->builder->getBindings();
             default:
                 $this->builder->$name(...$arguments);
                 return $this;

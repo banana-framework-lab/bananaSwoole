@@ -81,7 +81,8 @@ abstract class AbstractCoroutineMySqlModel extends Model
             $builder->select($this->listColumns);
             $this->listColumns = ['*'];
         }
-        return $builder->get();
+        $result = $builder->get();
+        return $result;
     }
 
     /**

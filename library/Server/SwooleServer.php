@@ -29,7 +29,7 @@ class SwooleServer extends BaseSwooleServer
      * @param AbstractSwooleServer $appServer
      * @return SwooleServer
      */
-    public function init(AbstractSwooleServer $appServer): SwooleServer
+    public function init(AbstractSwooleServer $appServer):SwooleServer
     {
         parent::init($appServer);
 
