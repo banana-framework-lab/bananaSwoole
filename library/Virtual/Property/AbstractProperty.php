@@ -2,6 +2,7 @@
 
 namespace Library\Virtual\Property;
 
+use Exception;
 use stdClass;
 
 /**
@@ -34,7 +35,7 @@ abstract class AbstractProperty
         $needParams = get_object_vars($this);
         foreach ($needParams as $key => $value) {
             if (!isset($params[$key]) && $value === NULL) {
-                throw new \Exception("{$key}不能为空");
+                throw new Exception("{$key}不能为空");
             } else {
                 $this->$key = $params[$key] ?? $this->$key;
             }

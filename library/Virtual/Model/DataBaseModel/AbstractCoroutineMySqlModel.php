@@ -129,12 +129,12 @@ abstract class AbstractCoroutineMySqlModel extends Model
 
     /**
      * 更新一个数据
-     * @param AbstractProperty $updateInfo
+     * @param array $updateInfo
      * @return int
      */
     public function updateOne($updateInfo): int
     {
-        foreach ($updateInfo->toArray() as $key => $value) {
+        foreach ($updateInfo as $key => $value) {
             $this->$key = $value;
         }
         return $this->save();

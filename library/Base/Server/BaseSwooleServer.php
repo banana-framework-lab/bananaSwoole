@@ -89,7 +89,7 @@ class BaseSwooleServer
      * SwooleServer constructor.
      * @param AbstractSwooleServer $appServer
      */
-    public function __construct(AbstractSwooleServer $appServer)
+    public function init(AbstractSwooleServer $appServer)
     {
         // Config初始化
         Config::instanceSwooleStart();
@@ -191,7 +191,7 @@ class BaseSwooleServer
 
 
     /**
-     * 设置
+     * 设置配置文件下标
      * @param string $index
      * @return BaseSwooleServer
      */

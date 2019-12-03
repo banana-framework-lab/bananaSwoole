@@ -63,17 +63,14 @@ class Router
     {
         $routerData = [];
 
-        $judgeBaseRoute = $baseRoute;
         foreach ($fileData as $key => $value) {
-            if ($judgeBaseRoute) {
-                $baseRoute .= $key;
-            } else {
-                $baseRoute = "/{$key}";
+            if (is_array($value)) {
+                $baseRoute .= "/{$key}";
             }
             if (is_string($value)) {
-                $routerData[$baseRoute] = $value;
+                $routerData["{$baseRoute}/{$key}"] = $value;
             } else {
-                $routerData = $routerData + self::analysisRouter($value, "{$baseRoute}/");
+                $routerData = $routerData + self::analysisRouter($value, $baseRoute);
             }
         }
         return $routerData;

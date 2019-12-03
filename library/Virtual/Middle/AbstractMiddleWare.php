@@ -2,6 +2,8 @@
 
 namespace Library\Virtual\Middle;
 
+use \Exception;
+
 /**
  * Class AbstractMiddleWare
  * @package Library\Virtual\Middle
@@ -27,6 +29,11 @@ abstract class AbstractMiddleWare
      * @var array 请求数据必要字段
      */
     private $requestField = [];
+
+    /**
+     * @var array 请求数据非严格字段
+     */
+    private $requestNoStrictField = [];
 
     /**
      * @var array 请求数据错误信息
@@ -76,6 +83,17 @@ abstract class AbstractMiddleWare
     }
 
     /**
+     * 设置非严格输入参数的key
+     * @param array $requestField
+     * @return AbstractMiddleWare
+     */
+    public function setNoStrictField(array $requestField): AbstractMiddleWare
+    {
+        $this->requestNoStrictField = $requestField;
+        return $this;
+    }
+
+    /**
      * 设置输入参数的报错信息
      * @param array $requestErrMsg
      * @return AbstractMiddleWare
@@ -86,30 +104,6 @@ abstract class AbstractMiddleWare
         return $this;
     }
 
-    /**
-     * 设置输入参数是否严格模式
-     * @param bool $strict
-     * @throws \Exception
-     */
-    public function setRequestStrict(bool $strict = true)
-    {
-        $request_field = [];
-        foreach ($this->requestField as $key => $field_name) {
-            if (isset($this->requestData[$field_name]) && $this->requestData[$field_name] !== '') {
-                $request_field[] = $field_name;
-            } else {
-                if (isset($this->requestDefault[$field_name])) {
-                    $request_field[] = $field_name;
-                } else {
-                    if ($strict) {
-                        throw new \Exception(isset($this->requestErrMsg[$field_name]) ? "{$this->requestErrMsg[$field_name]}不能为空" : "{$field_name}不能为空！");
-                    }
-                }
-            }
-            $this->requestField = $request_field;
-
-        }
-    }
 
     /**
      * 获取http传入的数据
@@ -119,20 +113,37 @@ abstract class AbstractMiddleWare
     public function takeMiddleData(): array
     {
         $httpData = [];
-        foreach ($this->requestField as $key => $field_name) {
-            if (isset($this->requestData[$field_name]) && $this->requestData[$field_name] !== '') {
-                $httpData[$field_name] = ($this->requestData[$field_name]);
+
+        //严格字段
+        foreach ($this->requestField as $key => $fieldName) {
+            if (isset($this->requestData[$fieldName]) && $this->requestData[$fieldName] !== '') {
+                $httpData[$fieldName] = ($this->requestData[$fieldName]);
             } else {
-                if (isset($this->requestDefault[$field_name])) {
-                    $httpData[$field_name] = ($this->requestDefault[$field_name]);
+                if (isset($this->requestDefault[$fieldName])) {
+                    $httpData[$fieldName] = ($this->requestDefault[$fieldName]);
                 } else {
-                    throw new \Exception(isset($this->requestErrMsg[$field_name]) ? "{$this->requestErrMsg[$field_name]}不能为空" : "{$field_name}不能为空!!");
+                    throw new Exception(isset($this->requestErrMsg[$fieldName]) ? "{$this->requestErrMsg[$fieldName]}不能为空" : "{$fieldName}不能为空!!");
                 }
             }
-            if (isset($httpData[$field_name]) && isset($this->requestAfter[$field_name])) {
-                $httpData[$field_name] = $this->requestAfter[$field_name]($httpData);
+            if (isset($httpData[$fieldName]) && isset($this->requestAfter[$fieldName])) {
+                $httpData[$fieldName] = $this->requestAfter[$fieldName]($httpData);
             }
         }
+
+        //非严格字段
+        foreach ($this->requestNoStrictField as $noStrictKey => $noStrictFieldName) {
+            if (isset($this->requestData[$noStrictFieldName]) && $this->requestData[$noStrictFieldName] !== '') {
+                $httpData[$noStrictFieldName] = ($this->requestData[$noStrictFieldName]);
+            } else {
+                if (isset($this->requestDefault[$noStrictFieldName])) {
+                    $httpData[$noStrictFieldName] = ($this->requestDefault[$noStrictFieldName]);
+                }
+            }
+            if (isset($httpData[$noStrictFieldName]) && isset($this->requestAfter[$noStrictFieldName])) {
+                $httpData[$noStrictFieldName] = $this->requestAfter[$noStrictFieldName]($httpData);
+            }
+        }
+
         return $httpData;
     }
 

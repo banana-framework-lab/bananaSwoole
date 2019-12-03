@@ -27,10 +27,11 @@ class SwooleServer extends BaseSwooleServer
     /**
      * SwooleWebSocketServer constructor.
      * @param AbstractSwooleServer $appServer
+     * @return SwooleServer
      */
-    public function __construct(AbstractSwooleServer $appServer)
+    public function init(AbstractSwooleServer $appServer): SwooleServer
     {
-        parent::__construct($appServer);
+        parent::init($appServer);
 
         $this->server = EntitySwooleServer::getInstance();
         $this->port = Config::get("swoole.{$this->serverConfigIndex}.port");
@@ -52,6 +53,8 @@ class SwooleServer extends BaseSwooleServer
         $this->reloadTable->column('iNode', Table::TYPE_STRING, 50);
         $this->reloadTable->column('mTime', Table::TYPE_STRING, 50);
         $this->reloadTable->create();
+
+        return $this;
     }
 
     /**
