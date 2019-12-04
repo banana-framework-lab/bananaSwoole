@@ -51,6 +51,7 @@ class Router
             }
             closedir($handler);
         }
+        var_dump(self::$routerPool);
     }
 
     /**
@@ -62,10 +63,15 @@ class Router
     private static function analysisRouter(array $fileData, string $baseRoute = '')
     {
         $routerData = [];
-
+        $originBaseRoute = $baseRoute;
         foreach ($fileData as $key => $value) {
             if (is_array($value)) {
-                $baseRoute .= "/{$key}";
+                if ($originBaseRoute) {
+                    $baseRoute .= "/{$key}";
+                } else {
+                    echo 1;
+                    $baseRoute = "/{$key}";
+                }
             }
             if (is_string($value)) {
                 $routerData["{$baseRoute}/{$key}"] = $value;
