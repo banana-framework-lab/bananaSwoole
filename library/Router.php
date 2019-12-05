@@ -51,7 +51,6 @@ class Router
             }
             closedir($handler);
         }
-        var_dump(self::$routerPool);
     }
 
     /**
@@ -69,7 +68,6 @@ class Router
                 if ($originBaseRoute) {
                     $baseRoute .= "/{$key}";
                 } else {
-                    echo 1;
                     $baseRoute = "/{$key}";
                 }
             }

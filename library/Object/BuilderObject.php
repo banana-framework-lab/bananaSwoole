@@ -27,7 +27,7 @@ use Swoole\Coroutine\MySQL;
  * @method BuilderObject groupBy(array ...$groups)
  * @method BuilderObject orderBy(string $column, string $direction)
  * @method mixed selectOne(string $query, array $bindings = [])
- * @method bool insert(string $query, array $bindings = [])
+ * @method bool insert(array $values)
  * @method int update(array $values, array $bindings = [])
  * @method int delete(string $query, array $bindings = [])
  * @method int count()

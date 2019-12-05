@@ -22,7 +22,6 @@ abstract class AbstractCommand
     public function __construct()
     {
         Config::instanceStart();
-        $this->execute();
     }
 
     /**

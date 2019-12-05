@@ -23,6 +23,17 @@ use Illuminate\Database\Connection;
 abstract class AbstractCoroutineMySqlModel extends Model
 {
     /**
+     * 自定义存储时间戳的字段名
+     */
+    const CREATED_AT = 'create_time';
+    const UPDATED_AT = 'update_time';
+
+    /**
+     * @var string $dateFormat 模型中日期字段的存储格式
+     */
+    protected $dateFormat = 'U';
+
+    /**
      * @var array getList中需要查询的列名
      */
     private $listColumns = ['*'];
@@ -99,7 +110,8 @@ abstract class AbstractCoroutineMySqlModel extends Model
             $columns = $this->listColumns;
             $this->listColumns = ['*'];
         }
-        return $builder->select($columns)->first();
+        $result = $builder->select($columns)->first();
+        return $result;
     }
 
     /**
