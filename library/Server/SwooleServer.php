@@ -170,6 +170,10 @@ class SwooleServer extends BaseSwooleServer
         }
         $response->header('Content-type', 'application/json');
 
+        //初始化请求实体类
+        RequestHelper::setInstance($request);
+        ResponseHelper::setInstance($response);
+
         $this->appServer->request($request, $response);
     }
 
