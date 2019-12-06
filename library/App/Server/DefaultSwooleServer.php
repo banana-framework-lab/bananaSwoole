@@ -255,9 +255,6 @@ class DefaultSwooleServer extends AbstractSwooleServer
         //标识此次fd为http请求;
         $this->bindTable->set($request->fd, ['http' => 1]);
 
-        //初始化请求实体类
-        RequestHelper::setInstance($request);
-
         /* @var RouteObject $routeObject */
         $routeObject = Router::router($request->server['request_uri']);
 
