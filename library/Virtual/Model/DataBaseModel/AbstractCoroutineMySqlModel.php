@@ -104,7 +104,7 @@ abstract class AbstractCoroutineMySqlModel extends Model
      */
     public function getFirst($where, $columns = ['*'])
     {
-        unset($where['page'], $where['limit']);
+        unset($where['page'], $where['pageSize']);
         $builder = $this->getCondition($where);
         if ($columns == ['*'] && $this->listColumns != ['*']) {
             $columns = $this->listColumns;
@@ -121,7 +121,7 @@ abstract class AbstractCoroutineMySqlModel extends Model
      */
     public function getCount($where): int
     {
-        unset($where['page'], $where['limit']);
+        unset($where['page'], $where['pageSize']);
         return $this->getCondition($where)->count();
     }
 
