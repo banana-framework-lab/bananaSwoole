@@ -5,6 +5,7 @@ namespace Library\Helper;
 use Error;
 use Library\Entity\Swoole\EntitySwooleServer;
 use Swoole\Coroutine;
+use Swoole\Http\Response;
 
 /**
  * Class ResponseHelper
@@ -16,6 +17,11 @@ class ResponseHelper
      * @var array $instancePool
      */
     private static $instancePool = [];
+
+    /**
+     * @var array $responsePool
+     */
+    private static $responsePool = [];
 
     /**
      * @var array $dumpPool
@@ -39,12 +45,37 @@ class ResponseHelper
     }
 
     /**
-     * 获取整个请求对象
-     * @return array
+     * @param Response $instance
+     */
+    public static function setInstance(Response $instance)
+    {
+        if (EntitySwooleServer::getInstance()) {
+            $cid = Coroutine::getuid();
+            $workId = EntitySwooleServer::getInstance()->worker_id;
+            if (!isset(static::$instancePool[$workId][$cid])) {
+                static::$instancePool[$workId][$cid] = $instance;
+            }
+        }
+    }
+
+    /**
+     * 获取response对象
+     * @return Response
      */
     public static function getInstance()
     {
-        return self::$instancePool;
+        $cid = Coroutine::getuid();
+        $workId = EntitySwooleServer::getInstance()->worker_id;
+        return static::$instancePool[$workId][$cid] ?? null;
+    }
+
+    /**
+     * 获取整个请求对象
+     * @return array
+     */
+    public static function getResponseInstance()
+    {
+        return self::$responsePool;
     }
 
     /**
@@ -56,9 +87,11 @@ class ResponseHelper
         if ($workerId == -1) {
             $cid = Coroutine::getuid();
             $workerId = EntitySwooleServer::getInstance()->worker_id;
+            unset(static::$responsePool[$workerId][$cid]);
             unset(static::$instancePool[$workerId][$cid]);
             unset(static::$dumpPool[$workerId][$cid]);
         } else {
+            unset(static::$responsePool[$workerId]);
             unset(static::$instancePool[$workerId]);
             unset(static::$dumpPool[$workerId]);
         }
@@ -74,7 +107,7 @@ class ResponseHelper
         if (EntitySwooleServer::getInstance()) {
             $cid = Coroutine::getuid();
             $workId = EntitySwooleServer::getInstance()->worker_id;
-            static::$instancePool[$workId][$cid] = json_encode($jsonData, $options);
+            static::$responsePool[$workId][$cid] = json_encode($jsonData, $options);
         } else {
             echo json_encode($jsonData, $options);
             exit;
@@ -89,7 +122,7 @@ class ResponseHelper
         if (EntitySwooleServer::getInstance()) {
             $cid = Coroutine::getuid();
             $workerId = EntitySwooleServer::getInstance()->worker_id;
-            return ((static::dumpResponse() ?? "") . (static::$instancePool[$workerId][$cid] ?? ''));
+            return ((static::dumpResponse() ?? "") . (static::$responsePool[$workerId][$cid] ?? ''));
         } else {
             return [];
         }
