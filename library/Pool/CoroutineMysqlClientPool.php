@@ -91,7 +91,7 @@ class CoroutineMysqlClientPool
      */
     public static function get(): MySQL
     {
-        $client = array_pop(self::$pool);
+        $client = array_shift(self::$pool);
         if (!$client || self::$freeSize <= 0) {
             self::$pool[] = self::getClient();
             ++self::$poolSize;
