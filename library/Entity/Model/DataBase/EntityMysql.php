@@ -12,6 +12,7 @@ use Illuminate\Database\Connection;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Database\Query\Expression;
 use Library\Config;
+use PDO;
 use Throwable;
 
 /**
@@ -77,6 +78,10 @@ class EntityMysql
                     $configData = Config::get('mysql.local', []);
                 }
                 if ($configData) {
+                    $configData['options'] = [
+                        PDO::ATTR_PERSISTENT => true,
+                    ];
+
                     $mysqlClient = new MysqlClient;
                     //设置数据库的配置
                     $mysqlClient->addConnection($configData);

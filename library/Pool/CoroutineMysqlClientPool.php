@@ -98,6 +98,11 @@ class CoroutineMysqlClientPool
             ++self::$freeSize;
             $client = array_pop(self::$pool);
         }
+
+        if (!$client->connected) {
+            $client = self::getClient();
+        }
+
         --self::$freeSize;
         ++self::$busySize;
 
