@@ -153,13 +153,7 @@ class SwooleServer extends BaseSwooleServer
             }
             return;
         }
-
-        if ($request->server['request_method'] == 'OPTIONS') {
-            $response->status(200);
-            $response->end();
-            return;
-        };
-
+        
         $allowOrigins = Config::get('app.allow_origin', []);
 
         if (isset($request->header['origin']) && in_array(strtolower($request->header['origin']), $allowOrigins)) {

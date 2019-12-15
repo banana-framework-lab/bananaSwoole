@@ -92,7 +92,7 @@ abstract class AbstractSwooleServer
      */
     public function openSession(SwooleRequest &$request, SwooleResponse &$response, int $sessionLive = 86400)
     {
-        if (!isset($request->cookie['PHPSESSID'])) {
+        if (!isset($request->cookie['PHPSESSID']) && isset($request->header['origin'])) {
             $phpSessionId = md5(time() + rand(0, 99999));
             $request->cookie['PHPSESSID'] = $phpSessionId;
             $response->cookie(

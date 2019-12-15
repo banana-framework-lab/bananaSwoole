@@ -1,13 +1,22 @@
 <?php
-/**
- * APP异常类
- * User: dhq
- * Date: 2018/10/11
- */
 
 namespace Library\Exception;
 
-class WebException extends \Exception
-{
+use Exception;
+use Throwable;
 
+class WebException extends Exception
+{
+    private $status;
+
+    public function __construct(string $message = "", int $code = 0, Throwable $previous = null, int $status = null)
+    {
+        parent::__construct($message, $code, $previous);
+        $this->status = $status;
+    }
+
+    public function getStatus()
+    {
+        return $this->status ?: $this->code;
+    }
 }
