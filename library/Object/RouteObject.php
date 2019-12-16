@@ -30,6 +30,11 @@ class RouteObject
     private $method = '';
 
     /**
+     * @var string $route 具体匹配出的路由
+     */
+    private $route = '';
+
+    /**
      * @return string
      */
     public function getProject(): string
@@ -62,6 +67,14 @@ class RouteObject
     }
 
     /**
+     * @return string
+     */
+    public function getRoute(): string
+    {
+        return $this->route;
+    }
+
+    /**
      * @param $controller
      */
     public function setController($controller)
@@ -83,5 +96,13 @@ class RouteObject
     public function setMethod($method)
     {
         $this->method = $method;
+    }
+
+    /**
+     * @param $route
+     */
+    public function setRoute($route)
+    {
+        $this->route = $route;
     }
 }

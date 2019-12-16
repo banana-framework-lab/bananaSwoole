@@ -77,6 +77,16 @@ class RequestHelper
     }
 
     /**
+     * 获取指定协程下的对象
+     * @return SwooleRequest
+     */
+    public static function getRequest()
+    {
+        $cid = Coroutine::getuid();
+        return static::$instancePool[EntitySwooleServer::getInstance()->worker_id][$cid] ?? null;
+    }
+
+    /**
      * 获取request对象
      * @return array
      */

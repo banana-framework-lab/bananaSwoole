@@ -133,6 +133,7 @@ class Router
             $routerObject->setProject($requestUrlArray[0]);
             $routerObject->setController("\\App\\{$requestUrlArray[0]}\\{$type}\\{$requestUrlArray[1]}{$type}");
             $routerObject->setMethod($requestUrlArray[2]);
+            $routerObject->setRoute($requestUrl);
 
             if (in_array($type, ['Controller'])) {
                 if (EntitySwooleServer::getInstance()) {
@@ -149,6 +150,7 @@ class Router
             $routerObject->setProject((explode('\\', $requestUrlArray[0]))[2]);
             $routerObject->setController($requestUrlArray[0]);
             $routerObject->setMethod($requestUrlArray[1]);
+            $routerObject->setRoute($requestUrl);
 
             if (in_array($type, ['Controller'])) {
                 if (EntitySwooleServer::getInstance()) {
