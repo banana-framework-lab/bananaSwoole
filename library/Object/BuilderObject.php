@@ -9,6 +9,7 @@
 namespace Library\Object;
 
 use Closure;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Database\Query\Expression;
 use Library\Entity\Model\DataBase\EntityMysql;

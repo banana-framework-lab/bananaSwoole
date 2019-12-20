@@ -8,6 +8,7 @@
 
 namespace Library\Virtual\Model\DataBaseModel;
 
+use Closure;
 use Library\Object\BuilderObject;
 use Library\Virtual\Property\AbstractProperty;
 use Illuminate\Database\Eloquent\Model;
@@ -19,6 +20,7 @@ use Illuminate\Database\Connection;
  * @property String tableName
  * @property Connection connection
  * @package Library\Virtual\Model\DataBaseModel
+ * @method BuilderObject where(string | array | Closure $column, mixed $operator = null, mixed $value = null, string $boolean = 'and')
  */
 abstract class AbstractCoroutineMySqlModel extends Model
 {
@@ -143,14 +145,19 @@ abstract class AbstractCoroutineMySqlModel extends Model
     /**
      * 更新一个数据
      * @param array $updateInfo
+     * @param $condition
      * @return int
      */
-    public function updateOne($updateInfo): int
+    public function updateOne($updateInfo, $condition): int
     {
+        /** @var Model $model */
+        $model = $this->where($condition)->first();
         foreach ($updateInfo as $key => $value) {
-            $this->$key = $value;
+            if ($key != 'id' && $key != 'create_time' && $key != 'update_time') {
+                $model->$key = $value;
+            }
         }
-        return $this->save();
+        return $model->save();
     }
 
 

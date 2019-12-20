@@ -14,6 +14,10 @@ namespace Library\Virtual\Model\HttpModel;
  */
 abstract class AbstractHttpModel
 {
+    public static $successCode = 1;
+
+    public static $failCode = 0;
+
     /**
      * @param $url
      * @param $postData
