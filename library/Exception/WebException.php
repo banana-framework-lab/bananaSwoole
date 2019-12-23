@@ -7,6 +7,9 @@ use Throwable;
 
 class WebException extends Exception
 {
+    /**
+     * @var int $status http返回状态
+     */
     private $status;
 
     public function __construct(string $message = "", int $code = 0, Throwable $previous = null, int $status = null)

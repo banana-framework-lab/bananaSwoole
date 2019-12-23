@@ -14,7 +14,11 @@ return [
         'no_message_function' => 10003,
         'fatal_error' => 10003,
         'middleware_error' => 10006,
-        'http_fail' => 10004,
-        'http_success' => 10005,
+
+        'error_param' => 10008
+    ],
+    'status' => [
+        'http_success' => 10000,
+        'http_fail' => 10001,
     ]
 ];

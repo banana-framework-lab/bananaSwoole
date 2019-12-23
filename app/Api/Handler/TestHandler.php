@@ -9,9 +9,8 @@
 namespace App\Api\Handler;
 
 use App\Api\Object\MessageObject;
-use Library\Entity\Swoole\EntitySwooleWebSocketSever;
+use Library\Entity\Swoole\EntitySwooleServer;
 use Library\Helper\LogHelper;
-use Library\Message;
 use Library\Virtual\Handler\AbstractHandler;
 use Library\Virtual\Object\AbstractMessageObject;
 use Swoole\Http\Request as SwooleHttpRequest;
@@ -39,7 +38,6 @@ class TestHandler extends AbstractHandler
     public function message(SwooleSocketServer $server, SwooleSocketFrame $frame)
     {
         echo "2\n";
-//        Message::publish(new MessageObject(1, 'Api', 'fuck your pussy'));
     }
 
     /**
@@ -61,6 +59,6 @@ class TestHandler extends AbstractHandler
     {
         /* @var MessageObject $messageBody */
         $messageBody = $messageObject;
-        EntitySwooleWebSocketSever::getInstance()->push($messageObject->toFd, $messageBody->message);
+        EntitySwooleServer::getInstance()->push($messageObject->toFd, $messageBody->message);
     }
 }

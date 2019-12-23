@@ -6,8 +6,10 @@
  * Time: 15:19
  */
 
-namespace Library;
+namespace Library\Helper;
 
+use Library\Channel;
+use Library\Config;
 use Library\Entity\MessageQueue\EntityRabbit;
 use Library\Entity\MessageQueue\EntitySwooleRabbit;
 use Library\Entity\Swoole\EntitySwooleServer;
@@ -17,10 +19,10 @@ use PhpAmqpLib\Channel\AMQPChannel;
 use PhpAmqpLib\Message\AMQPMessage;
 
 /**
- * Class Message
- * @package Library
+ * Class MessageHelper
+ * @package Library\Helper
  */
-class Message
+class MessageHelper
 {
     /**
      * 发送消息到消息队列

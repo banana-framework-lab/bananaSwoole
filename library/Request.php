@@ -1,14 +1,14 @@
 <?php
 
-namespace Library\Helper;
+namespace Library;
 
 use Library\Entity\Swoole\EntitySwooleServer;
 use Swoole\Coroutine;
 use Swoole\Http\Request as SwooleRequest;
 
 /**
- * Class RequestHelper
- * @package Library\Helper
+ * Class Request
+ * @package Library
  * @method static mixed header(string $name = '')
  * @method static mixed server(string $name = '')
  * @method static mixed request(string $name = '')
@@ -17,7 +17,7 @@ use Swoole\Http\Request as SwooleRequest;
  * @method static mixed post(string $name = '')
  * @method static mixed files(string $name = '')
  */
-class RequestHelper
+class Request
 {
     /**
      * @var array $instancePool

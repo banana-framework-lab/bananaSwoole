@@ -9,13 +9,12 @@
 namespace Library\Entity\Swoole;
 
 use Library\Config;
-use Swoole\Server;
 use Swoole\WebSocket\Server as SwooleWebSocketServer;
 
 class EntitySwooleServer
 {
     /**
-     * @var Server $instance
+     * @var SwooleWebSocketServer $instance
      */
     private static $instance = null;
 
@@ -48,7 +47,7 @@ class EntitySwooleServer
     }
 
     /**
-     * @return Server
+     * @return SwooleWebSocketServer
      */
     public static function getInstance()
     {

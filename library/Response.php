@@ -1,17 +1,17 @@
 <?php
 
-namespace Library\Helper;
+namespace Library;
 
 use Error;
 use Library\Entity\Swoole\EntitySwooleServer;
 use Swoole\Coroutine;
-use Swoole\Http\Response;
+use Swoole\Http\Response as SwooleResponse;
 
 /**
  * Class ResponseHelper
- * @package Library\Helper
+ * @package Library
  */
-class ResponseHelper
+class Response
 {
     /**
      * @var array $instancePool
@@ -47,7 +47,7 @@ class ResponseHelper
     /**
      * @param Response $instance
      */
-    public static function setInstance(Response $instance)
+    public static function setInstance(SwooleResponse $instance)
     {
         if (EntitySwooleServer::getInstance()) {
             $cid = Coroutine::getuid();

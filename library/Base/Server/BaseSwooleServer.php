@@ -8,6 +8,7 @@
 
 namespace Library\Base\Server;
 
+use Closure;
 use Library\Config;
 use Library\App\Server\DefaultSwooleServer;
 use Library\Entity\Swoole\EntitySwooleServer;
@@ -16,7 +17,6 @@ use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use SplFileInfo;
 use Swoole\Table;
-use Swoole\Http\Server as SwooleHttpServer;
 use Swoole\WebSocket\Server as SwooleWebSocketServer;
 
 /**
@@ -26,7 +26,7 @@ use Swoole\WebSocket\Server as SwooleWebSocketServer;
 class BaseSwooleServer
 {
     /**
-     * @var SwooleHttpServer|SwooleWebSocketServer $server
+     * @var SwooleWebSocketServer $server
      */
     protected $server;
 
@@ -83,18 +83,29 @@ class BaseSwooleServer
     /**
      * @var string $serverConfigIndex
      */
-    protected $serverConfigIndex = 'server';
+    protected $serverConfigIndex = 'index';
+
+    /**
+     * 设置配置文件下标
+     * @param string $index
+     * @return BaseSwooleServer
+     */
+    public function setConfigIndex(string $index = 'index'): BaseSwooleServer
+    {
+        $this->serverConfigIndex = $index;
+        return $this;
+    }
 
     /**
      * SwooleServer constructor.
      * @param AbstractSwooleServer $appServer
      */
-    public function init(AbstractSwooleServer $appServer)
+    public function setServerEntity(AbstractSwooleServer $appServer)
     {
         // Config初始化
         Config::instanceSwooleStart();
 
-        //初始化全局对象
+        // 初始化全局对象
         EntitySwooleServer::instanceStart($this->serverConfigIndex);
 
         // 非法初始化的类由默认server覆盖
@@ -110,34 +121,41 @@ class BaseSwooleServer
      * @param string $serverType
      * @param string $xChar
      * @param string $yChar
+     * @param int $echoWidth
      */
-    protected function startEcho(string $serverType = "SwooleServer", string $xChar = '-', string $yChar = '|')
+    protected function startEcho(string $serverType = "SwooleServer", string $xChar = '-', string $yChar = '|', int $echoWidth = 75)
     {
+        $logo = helloBananaSwoole(true, 'array');
         $this->startDateTime = date('Y-m-d H:i:s');
-        echo "\n\n\n";
-        echo str_pad("", 75, $xChar, STR_PAD_BOTH) . "\n";
-        echo $yChar . str_pad("$serverType start", 73, ' ', STR_PAD_BOTH) . "$yChar\n";
-        echo str_pad("", 75, $xChar, STR_PAD_BOTH) . "\n";
-        echo "$yChar                                                                         $yChar\n";
-        echo $yChar . str_pad("listen_address: 0.0.0.0  listen_port: {$this->port}  time: {$this->startDateTime}", 73, ' ', STR_PAD_BOTH) . "$yChar\n";
-        echo "$yChar                                                                         $yChar\n";
-        echo $yChar . str_pad("manage_pid: {$this->server->manager_pid}      master_pid: {$this->server->master_pid}      worker_number: {$this->workerNum}", 73, ' ', STR_PAD_BOTH) . "$yChar\n";
-        echo "$yChar                                                                         $yChar\n";
+
+        echo "\n";
+        foreach ($logo as $key => $value) {
+            echo ' ' . str_pad("{$value}", $echoWidth - 2, ' ', STR_PAD_BOTH) . " \n";
+        }
+        echo "\n";
+        echo str_pad("", $echoWidth, $xChar, STR_PAD_BOTH) . "\n";
+        echo $yChar . str_pad("$serverType start", $echoWidth - 2, ' ', STR_PAD_BOTH) . "$yChar\n";
+        echo str_pad("", $echoWidth, $xChar, STR_PAD_BOTH) . "\n";
+        echo $yChar . str_pad("", $echoWidth - 2, ' ', STR_PAD_BOTH) . "$yChar\n";
+        echo $yChar . str_pad("listen_address: 0.0.0.0  listen_port: {$this->port}  time: {$this->startDateTime}", $echoWidth - 2, ' ', STR_PAD_BOTH) . "$yChar\n";
+        echo $yChar . str_pad("", $echoWidth - 2, ' ', STR_PAD_BOTH) . "$yChar\n";
+        echo $yChar . str_pad("manage_pid: {$this->server->manager_pid}      master_pid: {$this->server->master_pid}      worker_number: {$this->workerNum}", $echoWidth - 2, ' ', STR_PAD_BOTH) . "$yChar\n";
+        echo $yChar . str_pad("", $echoWidth - 2, ' ', STR_PAD_BOTH) . "$yChar\n";
         echo $yChar . str_pad("autoHotReloadId: {$this->reloadTickId}   task_number: {$this->taskNum}", 73, ' ', STR_PAD_BOTH) . "$yChar\n";
-        echo "$yChar                                                                         $yChar\n";
-        echo str_pad("", 75, $xChar, STR_PAD_BOTH) . "\n";
+        echo $yChar . str_pad("", $echoWidth - 2, ' ', STR_PAD_BOTH) . "$yChar\n";
+        echo str_pad("", $echoWidth, $xChar, STR_PAD_BOTH) . "\n";
         echo "\n";
     }
 
 
     /**
      * worker启动完成后开启自动热加载
-     * @return \Closure
+     * @return Closure
      */
     protected function autoHotReload()
     {
         return function () {
-
+            // 读取需要热加载的路径
             $pathList = Config::get('reload.path_list', []);
             $isReload = false;
             $iNodeList = [];
@@ -187,17 +205,5 @@ class BaseSwooleServer
                 $this->isFirstStart = false;
             }
         };
-    }
-
-
-    /**
-     * 设置配置文件下标
-     * @param string $index
-     * @return BaseSwooleServer
-     */
-    public function setConfigIndex(string $index = 'server'): BaseSwooleServer
-    {
-        $this->serverConfigIndex = $index;
-        return $this;
     }
 }

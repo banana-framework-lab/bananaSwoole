@@ -10,18 +10,12 @@ namespace Library\App\Server;
 
 use Library\Channel;
 use Library\Config;
-use Library\Entity\Model\Cache\EntityRedis;
-use Library\Entity\Model\DataBase\EntityMongo;
-use Library\Entity\Model\DataBase\EntityMysql;
-use Library\Entity\MessageQueue\EntityRabbit;
 use Library\Exception\WebException;
-use Library\Helper\RequestHelper;
-use Library\Helper\ResponseHelper;
 use Library\Object\ChannelObject;
 use Library\Object\RouteObject;
-use Library\Pool\CoroutineMysqlClientPool;
-use Library\Pool\CoroutineRedisClientPool;
+use Library\Response;
 use Library\Router;
+use Library\Virtual\Controller\AbstractController;
 use Library\Virtual\Handler\AbstractHandler;
 use Library\Virtual\Middle\AbstractMiddleWare;
 use Library\Virtual\Server\AbstractSwooleServer;
@@ -54,24 +48,6 @@ class DefaultSwooleServer extends AbstractSwooleServer
 
             // 路由配置
             Router::instanceStart();
-
-            // mysql数据库初始化
-            EntityMysql::instanceStart();
-
-            // mongo数据库初始化
-            EntityMongo::instanceStart();
-
-            // Redis缓存初始化
-            EntityRedis::instanceStart();
-
-//            // rabbitMq初始化
-//            EntityRabbit::instanceStart();
-
-            // 协程mysql连接池初始化
-            CoroutineMysqlClientPool::poolInit();
-
-            // 协程redis连接池初始化
-            CoroutineRedisClientPool::poolInit();
 
             //开启php调试模式
             if (Config::get('app.debug', true)) {
@@ -208,6 +184,10 @@ class DefaultSwooleServer extends AbstractSwooleServer
     public function close(SwooleSocketServer $server, int $fd)
     {
         $tableData = $this->bindTable->get($fd) ?: [];
+        if (!isset($tableData['http'])) {
+            $this->bindTable->del($fd);
+            return;
+        }
         if ($tableData['http'] == 1) {
             $this->bindTable->del($fd);
             return;
@@ -252,59 +232,69 @@ class DefaultSwooleServer extends AbstractSwooleServer
      */
     public function request(SwooleRequest $request, SwooleResponse $response)
     {
-        //标识此次fd为http请求;
+        // 标识此次fd为http请求;
         $this->bindTable->set($request->fd, ['http' => 1]);
 
         /* @var RouteObject $routeObject */
         $routeObject = Router::router($request->server['request_uri']);
 
-        //初始化方法
+        // 初始化方法
         $methodName = $routeObject->getMethod();
         $controllerClass = $routeObject->getController();
 
-        //初始化PHPSESSID
+        // 初始化PHPSESSID
         if (in_array($routeObject->getProject(), Config::get('app.session_project', []))) {
             $this->openSession($request, $response);
         }
 
-        //初始化请求数据
+        // 初始化请求数据
         $getData = $request->get ?: [];
         $postData = $request->post ?: [];
         $rawContentData = json_decode($request->rawContent(), true) ?: [];
         $requestData = array_merge($getData, $postData, $rawContentData);
 
-        //初始化请求中间件
+        // 初始化请求中间件
         try {
             $middleClass = str_replace("Controller", "Middle", $controllerClass);;
+
             /* @var AbstractMiddleWare $middleWare */
             if (method_exists($middleClass, $methodName)) {
                 $middleWare = new $middleClass($requestData);
                 $middleWare->$methodName();
                 $requestData = $middleWare->takeMiddleData();
             }
+
+        } catch (WebException $webE) {
+            Response::json([
+                'status' => $webE->getStatus(),
+                'code' => $webE->getCode(),
+                'message' => $webE->getMessage()
+            ]);
         } catch (Throwable $e) {
-            ResponseHelper::json([
+            Response::json([
                 'code' => Config::get('response.code.middleware_error', 10006),
                 'message' => $e->getMessage()
             ]);
             $response->status(200);
-            $response->end(ResponseHelper::response());
+            $response->end(Response::response());
             return;
         }
 
-        //初始化控制器
+        //  初始化控制器
         try {
             if (class_exists($controllerClass)) {
+
+                /* @var AbstractController $controller */
                 $controller = new $controllerClass($requestData);
                 if (method_exists($controller, $methodName)) {
                     $returnData = $controller->$methodName();
-                    if ($returnData) {
-                        ResponseHelper::json($returnData);
+                    if (!empty($returnData)) {
+                        Response::json($returnData);
                     }
                 } else {
                     if (Config::get('app.debug', true)) {
-                        ResponseHelper::json([
-                            'code' => Config::get('response.code.http_fail', 10004),
+                        Response::json([
+                            'code' => Config::get('response.status.http_fail', 10001),
                             'message' => "找不到{$methodName}"
                         ]);
                     } else {
@@ -315,7 +305,7 @@ class DefaultSwooleServer extends AbstractSwooleServer
                 }
             } else {
                 if (Config::get('app.debug', true)) {
-                    ResponseHelper::json([
+                    Response::json([
                         'code' => Config::get('response.code.no_controller', 10007),
                         'message' => "找不到{$controllerClass}"
                     ]);
@@ -326,7 +316,8 @@ class DefaultSwooleServer extends AbstractSwooleServer
                 }
             }
         } catch (WebException $webE) {
-            ResponseHelper::json([
+            Response::json([
+                'status' => $webE->getStatus(),
                 'code' => $webE->getCode(),
                 'message' => $webE->getMessage()
             ]);
@@ -337,7 +328,7 @@ class DefaultSwooleServer extends AbstractSwooleServer
                     $response->end($e->getMessage() . "\n" . $e->getTraceAsString());
                 } else {
                     $response->status(200);
-                    $response->end(ResponseHelper::dumpResponse());
+                    $response->end(Response::dumpResponse());
                 }
             } else {
                 echo $e->getMessage() . "\n" . $e->getTraceAsString();
@@ -349,7 +340,7 @@ class DefaultSwooleServer extends AbstractSwooleServer
 
         // 支持跨域访问
         $response->status(200);
-        $response->end(ResponseHelper::response());
+        $response->end(Response::response());
     }
 
     /**
@@ -359,13 +350,7 @@ class DefaultSwooleServer extends AbstractSwooleServer
      */
     public function exit(SwooleSocketServer $server, int $workerId)
     {
-        CoroutineMysqlClientPool::poolFree();
-        CoroutineRedisClientPool::poolFree();
-        EntityMysql::deleteInstance();
-        EntityMongo::deleteInstance();
-        EntityRedis::deleteInstance();
-//        EntityRabbit::delInstance();
-//        EntitySwooleRabbit::delInstance();
+
     }
 
     /**

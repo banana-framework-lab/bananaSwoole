@@ -8,12 +8,15 @@
 
 namespace Library\Virtual\Controller;
 
+use Library\Exception\WebException;
+use Library\Validate;
+
 /**
  * Class AbstractController
  * @package Library\Virtual\Controller
  */
-Abstract class AbstractController {
-
+Abstract class AbstractController
+{
     /**
      * request请求对象
      * @var array $request
@@ -27,5 +30,13 @@ Abstract class AbstractController {
     public function __construct($request)
     {
         $this->request = $request;
+    }
+
+    /**
+     * @throws WebException
+     */
+    public function validateRequest()
+    {
+        $this->request = Validate::checkRequest($this->request);
     }
 }

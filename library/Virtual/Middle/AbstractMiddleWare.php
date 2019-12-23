@@ -2,7 +2,8 @@
 
 namespace Library\Virtual\Middle;
 
-use \Exception;
+use Library\Config;
+use Library\Exception\WebException;
 
 /**
  * Class AbstractMiddleWare
@@ -108,13 +109,13 @@ abstract class AbstractMiddleWare
     /**
      * 获取http传入的数据
      * @return array
-     * @throws \Exception
+     * @throws WebException
      */
     public function takeMiddleData(): array
     {
         $httpData = [];
 
-        //严格字段
+        // 严格字段
         foreach ($this->requestField as $key => $fieldName) {
             if (isset($this->requestData[$fieldName]) && $this->requestData[$fieldName] !== '') {
                 $httpData[$fieldName] = ($this->requestData[$fieldName]);
@@ -122,7 +123,12 @@ abstract class AbstractMiddleWare
                 if (isset($this->requestDefault[$fieldName])) {
                     $httpData[$fieldName] = ($this->requestDefault[$fieldName]);
                 } else {
-                    throw new Exception(isset($this->requestErrMsg[$fieldName]) ? "{$this->requestErrMsg[$fieldName]}不能为空" : "{$fieldName}不能为空!!");
+                    throw new WebException(
+                        isset($this->requestErrMsg[$fieldName]) ? "{$this->requestErrMsg[$fieldName]}不能为空" : "{$fieldName}不能为空!!",
+                        Config::get('response.code.middleware_error', 10006),
+                        null,
+                        Config::get('response.status.http_fail', 10001)
+                    );
                 }
             }
             if (isset($httpData[$fieldName]) && isset($this->requestAfter[$fieldName])) {
@@ -130,7 +136,7 @@ abstract class AbstractMiddleWare
             }
         }
 
-        //非严格字段
+        // 非严格字段
         foreach ($this->requestNoStrictField as $noStrictKey => $noStrictFieldName) {
             if (isset($this->requestData[$noStrictFieldName]) && $this->requestData[$noStrictFieldName] !== '') {
                 $httpData[$noStrictFieldName] = ($this->requestData[$noStrictFieldName]);

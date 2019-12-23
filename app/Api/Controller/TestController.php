@@ -14,8 +14,8 @@ use App\Api\Model\DataBaseModel\AdminCoroutineModel;
 use App\Api\Model\DataBaseModel\AdminModel;
 use Co;
 use Library\Helper\LogHelper;
-use Library\Helper\RequestHelper;
-use Library\Helper\ResponseHelper;
+use Library\Request;
+use Library\Response;
 use Library\Virtual\Controller\AbstractController;
 use Swoole\Coroutine;
 
@@ -24,9 +24,9 @@ class TestController extends AbstractController
 
     public function testLog()
     {
-        $start = json_encode(RequestHelper::server('request_time_float'));
+        $start = json_encode(Request::server('request_time_float'));
         Co::sleep(3.0);
-        $string = 'serverName ' . RequestHelper::server('server_name') . ' cid ' . Coroutine::getuid() . '  start' . $start . '  end' . json_encode(RequestHelper::server('request_time_float')) . "";
+        $string = 'serverName ' . Request::server('server_name') . ' cid ' . Coroutine::getuid() . '  start' . $start . '  end' . json_encode(Request::server('request_time_float')) . "";
         LogHelper::info($string, ['msg' => 'swoole并发测试']);
     }
 
@@ -43,7 +43,8 @@ class TestController extends AbstractController
 
     public function index()
     {
-        ResponseHelper::json(['msg' => 'hello world']);
+//        Response::json(['msg' => 'hello world']);
+        dd(fuck() . 'you mother');
     }
 
     public function indexError()
@@ -60,15 +61,15 @@ class TestController extends AbstractController
     public function getNumber()
     {
         $return = (new TestLogic())->getNumber();
-        ResponseHelper::json(['data' => $return]);
+        Response::json(['data' => $return]);
     }
 
     public function testVarDump()
     {
-        ResponseHelper::dump([1, 2, 3, 4, 5, 6, 7, 8]);
-//        ResponseHelper::dump([1, 2, 3, 4, 5, 6, 7, 8]);
-//        ResponseHelper::json(['msg' => 'success']);
-//        ResponseHelper::exit();
+        Response::dump([1, 2, 3, 4, 5, 6, 7, 8]);
+//        Response::dump([1, 2, 3, 4, 5, 6, 7, 8]);
+//        Response::json(['msg' => 'success']);
+//        Response::exit();
     }
 
     public function testLongCheck()
@@ -79,7 +80,7 @@ class TestController extends AbstractController
     public function login()
     {
         $return = (new TestLogic())->login('zhangzhonghao', '123456');
-        ResponseHelper::json(['data' => $return]);
+        Response::json(['data' => $return]);
     }
 
     public function testHotReload()
@@ -95,6 +96,6 @@ class TestController extends AbstractController
     public function coroutineLogin()
     {
         $return = (new TestLogic())->coroutineLogin('zhangzhonghao', '123456');
-        ResponseHelper::json(['data' => $return]);
+        Response::json(['data' => $return]);
     }
 }

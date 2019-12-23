@@ -8,6 +8,7 @@
 
 namespace Library\Entity\MessageQueue;
 
+use Exception;
 use Library\Config;
 use PhpAmqpLib\Connection\AMQPStreamConnection;
 
@@ -40,6 +41,7 @@ class EntityRabbit
 
     /**
      * 删除rabbit实体单例
+     * @throws Exception
      */
     public static function delInstance()
     {

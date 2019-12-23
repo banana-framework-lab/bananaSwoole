@@ -3,10 +3,11 @@
 namespace Library\Server;
 
 use Library\Base\Server\BaseSwooleServer;
+use Library\Common;
 use Library\Config;
 use Library\Entity\Swoole\EntitySwooleServer;
-use Library\Helper\RequestHelper;
-use Library\Helper\ResponseHelper;
+use Library\Request;
+use Library\Response;
 use Library\Router;
 use Library\Virtual\Server\AbstractSwooleServer;
 use Swoole\Http\Request as SwooleHttpRequest;
@@ -17,6 +18,7 @@ use Swoole\WebSocket\Frame as SwooleSocketFrame;
 use Swoole\WebSocket\Server as SwooleSocketServer;
 use Swoole\Http\Request as SwooleRequest;
 use Swoole\Http\Response as SwooleResponse;
+use Throwable;
 
 /**
  * Class SwooleWebSocketServer
@@ -29,13 +31,13 @@ class SwooleServer extends BaseSwooleServer
      * @param AbstractSwooleServer $appServer
      * @return SwooleServer
      */
-    public function init(AbstractSwooleServer $appServer):SwooleServer
+    public function init(AbstractSwooleServer $appServer): SwooleServer
     {
-        parent::init($appServer);
+        parent::setServerEntity($appServer);
 
         $this->server = EntitySwooleServer::getInstance();
-        $this->port = Config::get("swoole.{$this->serverConfigIndex}.port");
-        $this->workerNum = Config::get("swoole.{$this->serverConfigIndex}.worker_num");
+        $this->port = Config::get("swoole.{$this->serverConfigIndex}.port", 9501);
+        $this->workerNum = Config::get("swoole.{$this->serverConfigIndex}.worker_num", 4);
         $this->taskNum = Config::get("swoole.{$this->serverConfigIndex}.task_num", ($this->workerNum) * 4);
 
         // bindTable初始化
@@ -92,14 +94,20 @@ class SwooleServer extends BaseSwooleServer
      */
     public function onWorkerStart(SwooleSocketServer $server, int $workerId)
     {
-        // 配置文件初始化
-        Config::instanceStart();
-
-        if (!$server->taskworker && $workerId <= 0) {
-            if (Config::get('app.debug')) {
-                $this->reloadTickId = Timer::tick(1000, $this->autoHotReload());
+        try {
+            // 配置文件初始化
+            Config::instanceStart();
+            // 加载library的Common文件
+            Common::loadCommonFile();
+            // 当且仅当非task进程，id为0时的进程触发热重启
+            if (!$server->taskworker && $workerId <= 0) {
+                if (Config::get('app.debug')) {
+                    $this->reloadTickId = Timer::tick(1000, $this->autoHotReload());
+                }
+                $this->startEcho('SwooleServer', '#', '|');
             }
-            $this->startEcho('SwooleServer', '#', '|');
+        } catch (Throwable $error) {
+            $server->stop($workerId);
         }
 
         $courseName = $server->taskworker ? 'task' : 'worker';
@@ -134,14 +142,14 @@ class SwooleServer extends BaseSwooleServer
     {
         defer(function () {
             //回收请求数据
-            RequestHelper::delInstance();
+            Request::delInstance();
             //回收返回数据
-            ResponseHelper::delInstance();
+            Response::delInstance();
             //回收路由数据
             Router::delRouteInstance();
         });
 
-        // 屏蔽 favicon.ico
+        // 适配谷歌浏览器显示favicon.ico
         if ($request->server['request_uri'] == '/favicon.ico') {
             if (file_exists(dirname(__FILE__) . "/../../public/favicon.ico")) {
                 $response->status(200);
@@ -153,7 +161,7 @@ class SwooleServer extends BaseSwooleServer
             }
             return;
         }
-        
+
         $allowOrigins = Config::get('app.allow_origin', []);
 
         if (isset($request->header['origin']) && in_array(strtolower($request->header['origin']), $allowOrigins)) {
@@ -165,8 +173,8 @@ class SwooleServer extends BaseSwooleServer
         $response->header('Content-type', 'application/json');
 
         //初始化请求实体类
-        RequestHelper::setInstance($request);
-        ResponseHelper::setInstance($response);
+        Request::setInstance($request);
+        Response::setInstance($response);
 
         $this->appServer->request($request, $response);
     }

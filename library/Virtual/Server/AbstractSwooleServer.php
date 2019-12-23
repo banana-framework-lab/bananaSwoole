@@ -100,7 +100,7 @@ abstract class AbstractSwooleServer
                 $phpSessionId,
                 time() + $sessionLive,
                 '/',
-                explode(':', str_replace(['http://', 'https://'], "", $request->header['origin']))[0],
+                explode(':', str_replace(['http://', 'https://'], "", ''))[0],
                 false,
                 true
             );

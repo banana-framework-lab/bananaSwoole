@@ -142,7 +142,6 @@ class Router
                     static::$routePool[0][0] = $routerObject;
                 }
             }
-            return $routerObject;
         } else {
             $requestUrlArray = explode('@', $route);
 
@@ -159,8 +158,11 @@ class Router
                     static::$routePool[0][0] = $routerObject;
                 }
             }
-            return $routerObject;
         }
+
+        //根据路由判断是否加载过Common文件
+        Common::autoLoadProjectCommonFile($routerObject);
+        return $routerObject;
     }
 
 }
