@@ -30,7 +30,7 @@ class Request
     private static $instance = [];
 
     /**
-     * RequestHelper constructor.
+     * Request constructor.
      */
     private function __construct()
     {
@@ -38,7 +38,7 @@ class Request
     }
 
     /**
-     * RequestHelper clone.
+     * Request clone.
      */
     private function __clone()
     {

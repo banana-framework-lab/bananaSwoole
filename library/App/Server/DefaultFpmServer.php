@@ -14,7 +14,7 @@ use Library\Entity\MessageQueue\EntityRabbit;
 use Library\Entity\Model\Cache\EntityRedis;
 use Library\Entity\Model\DataBase\EntityMongo;
 use Library\Entity\Model\DataBase\EntityMysql;
-use Library\Helper\ResponseHelper;
+use Library\Response;
 use Library\Object\RouteObject;
 use Library\Router;
 use Library\Virtual\Middle\AbstractMiddleWare;
@@ -86,7 +86,7 @@ class DefaultFpmServer extends AbstractFpmServer
                 $requestData = $middleWare->takeMiddleData();
             }
         } catch (Throwable $e) {
-            ResponseHelper::json([
+            Response::json([
                 'code' => Config::get('response.code.middleware_error'),
                 'message' => $e->getMessage()
             ]);
@@ -100,11 +100,11 @@ class DefaultFpmServer extends AbstractFpmServer
                 if (method_exists($controller, $methodName)) {
                     $returnData = $controller->$methodName();
                     if ($returnData) {
-                        ResponseHelper::json($returnData);
+                        Response::json($returnData);
                     }
                 } else {
                     if (Config::get('app.debug')) {
-                        ResponseHelper::json([
+                        Response::json([
                             'code' => Config::get('response.code.http_fail'),
                             'message' => "找不到方法名：{$methodName}"]
                         );
@@ -114,7 +114,7 @@ class DefaultFpmServer extends AbstractFpmServer
                 }
             } else {
                 if (Config::get('app.debug')) {
-                    ResponseHelper::json([
+                    Response::json([
                         'code' => Config::get('response.code.http_fail'),
                         'message' => "找不到控制器：{$controllerClass}"
                     ]);
@@ -123,7 +123,7 @@ class DefaultFpmServer extends AbstractFpmServer
                 }
             }
         } catch (Exception $webE) {
-            ResponseHelper::json([
+            Response::json([
                 'code' => $webE->getCode(),
                 'message' => $webE->getMessage()
             ]);

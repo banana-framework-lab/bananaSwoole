@@ -3,7 +3,7 @@
 namespace App\Api\Model\DataBaseModel;
 
 use Illuminate\Database\Query\Builder;
-use Library\Helper\ResponseHelper;
+use Library\Response;
 use Library\Virtual\Model\DataBaseModel\AbstractMySqlModel;
 
 /**
@@ -59,7 +59,7 @@ class AdminModel extends AbstractMySqlModel
 
     public function longCheck()
     {
-        ResponseHelper::dump($this->builder->selectRaw('count(id)')->get());
+        Response::dump($this->builder->selectRaw('count(id)')->get());
     }
 
 }

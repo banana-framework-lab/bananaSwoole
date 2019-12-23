@@ -114,9 +114,9 @@ class SwooleServer extends BaseSwooleServer
 
         go(function () use ($server, $workerId, $courseName) {
             if ($this->appServer->start($server, $workerId)) {
-                echo "###########" . str_pad("{$courseName}_pid: {$server->worker_pid}    {$courseName}_id: {$workerId}    start success", 53, ' ', STR_PAD_BOTH) . "###########\n";
+                echo "###########" . str_pad("{$courseName}_pid: {$server->worker_pid}    {$courseName}_id: {$workerId}    start success", $this->echoWidth - 22, ' ', STR_PAD_BOTH) . "###########\n";
             } else {
-                echo "###########" . str_pad("{$courseName}_pid: {$server->worker_pid}    {$courseName}_id: {$workerId}    start fail", 53, ' ', STR_PAD_BOTH) . "###########\n";
+                echo "###########" . str_pad("{$courseName}_pid: {$server->worker_pid}    {$courseName}_id: {$workerId}    start fail", $this->echoWidth - 22, ' ', STR_PAD_BOTH) . "###########\n";
                 $server->shutdown();
             }
         });
@@ -223,7 +223,7 @@ class SwooleServer extends BaseSwooleServer
     {
         if ($server) {
             $courseName = $server->taskworker ? 'task' : 'worker';
-            echo "###########" . str_pad("{$courseName}_pid: {$workerPid} {$courseName}_id: {$workerId} exitCode: {$exitCode} sign:{$signal}  error", 53, ' ', STR_PAD_BOTH) . "###########\n";
+            echo "###########" . str_pad("{$courseName}_pid: {$workerPid} {$courseName}_id: {$workerId} exitCode: {$exitCode} sign:{$signal}  error", $this->echoWidth - 22, ' ', STR_PAD_BOTH) . "###########\n";
         }
     }
 
@@ -236,7 +236,7 @@ class SwooleServer extends BaseSwooleServer
     public function onWorkerStop(SwooleSocketServer $server, int $workerId)
     {
         $courseName = $server->taskworker ? 'task' : 'worker';
-        echo "###########" . str_pad("{$courseName}_pid: {$server->worker_pid}    {$courseName}_id: {$workerId}    stop", 53, ' ', STR_PAD_BOTH) . "###########\n";
+        echo "###########" . str_pad("{$courseName}_pid: {$server->worker_pid}    {$courseName}_id: {$workerId}    stop", $this->echoWidth - 22, ' ', STR_PAD_BOTH) . "###########\n";
     }
 
     /**
@@ -250,6 +250,6 @@ class SwooleServer extends BaseSwooleServer
         Timer::clear($this->reloadTickId);
         $this->appServer->exit($server, $workerId);
         $courseName = $server->taskworker ? 'task' : 'worker';
-        echo "###########" . str_pad("{$courseName}_pid: {$server->worker_pid}    {$courseName}_id: {$workerId}    Exit", 53, ' ', STR_PAD_BOTH) . "###########\n";
+        echo "###########" . str_pad("{$courseName}_pid: {$server->worker_pid}    {$courseName}_id: {$workerId}    Exit", $this->echoWidth - 22, ' ', STR_PAD_BOTH) . "###########\n";
     }
 }

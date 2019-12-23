@@ -13,8 +13,7 @@ use App\Api\Object\SessionObject;
 use App\Api\Service\ResCodeService;
 use Exception;
 use Library\Exception\WebException;
-use Library\Helper\RequestHelper;
-use Library\Helper\ResponseHelper;
+use Library\Request;
 use Library\Virtual\Controller\AbstractController;
 
 class BaseController extends AbstractController
@@ -37,9 +36,9 @@ class BaseController extends AbstractController
     public function __construct($request)
     {
         parent::__construct($request);
-        $this->sessionId = RequestHelper::cookie('PHPSESSID');
+        $this->sessionId = Request::cookie('PHPSESSID');
         $this->sessionInfo = new SessionObject($this->sessionId);
-        if (!in_array(strtolower(RequestHelper::server('request_uri')), [
+        if (!in_array(strtolower(Request::server('request_uri')), [
             '/api/admin/login'
         ])) {
             //验证用户信息

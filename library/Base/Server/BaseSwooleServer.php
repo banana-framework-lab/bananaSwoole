@@ -86,6 +86,11 @@ class BaseSwooleServer
     protected $serverConfigIndex = 'index';
 
     /**
+     * @var int $echoWidth
+     */
+    protected $echoWidth = 75;
+
+    /**
      * 设置配置文件下标
      * @param string $index
      * @return BaseSwooleServer
@@ -125,6 +130,8 @@ class BaseSwooleServer
      */
     protected function startEcho(string $serverType = "SwooleServer", string $xChar = '-', string $yChar = '|', int $echoWidth = 75)
     {
+        $this->echoWidth = $echoWidth;
+
         $logo = helloBananaSwoole(true, 'array');
         $this->startDateTime = date('Y-m-d H:i:s');
 
@@ -137,7 +144,7 @@ class BaseSwooleServer
         echo $yChar . str_pad("$serverType start", $echoWidth - 2, ' ', STR_PAD_BOTH) . "$yChar\n";
         echo str_pad("", $echoWidth, $xChar, STR_PAD_BOTH) . "\n";
         echo $yChar . str_pad("", $echoWidth - 2, ' ', STR_PAD_BOTH) . "$yChar\n";
-        echo $yChar . str_pad("listen_ip: 0.0.0.0  listen_port: {$this->port}  address: http://0.0.0.0{$this->port}", $echoWidth - 2, ' ', STR_PAD_BOTH) . "$yChar\n";
+        echo $yChar . str_pad("listen_ip: 0.0.0.0  listen_port: {$this->port}  address: http://0.0.0.0:{$this->port}", $echoWidth - 2, ' ', STR_PAD_BOTH) . "$yChar\n";
         echo $yChar . str_pad("", $echoWidth - 2, ' ', STR_PAD_BOTH) . "$yChar\n";
         echo $yChar . str_pad("manage_pid: {$this->server->manager_pid}      master_pid: {$this->server->master_pid}      worker_number: {$this->workerNum}", $echoWidth - 2, ' ', STR_PAD_BOTH) . "$yChar\n";
         echo $yChar . str_pad("", $echoWidth - 2, ' ', STR_PAD_BOTH) . "$yChar\n";

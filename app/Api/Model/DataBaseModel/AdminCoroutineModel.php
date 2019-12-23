@@ -4,7 +4,7 @@ namespace App\Api\Model\DataBaseModel;
 
 use App\Api\Middle\AdminMiddle;
 use App\Api\Property\AdminProperty;
-use Library\Helper\ResponseHelper;
+use Library\Response;
 use Library\Object\BuilderObject;
 use Library\Virtual\Model\DataBaseModel\AbstractCoroutineMySqlModel;
 use Library\Virtual\Property\AbstractProperty;
@@ -71,7 +71,7 @@ class AdminCoroutineModel extends AbstractCoroutineMySqlModel
      */
     public function longCheck()
     {
-        ResponseHelper::dump($this->builder->count());
+        Response::dump($this->builder->count());
     }
 
 }

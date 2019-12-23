@@ -3,7 +3,7 @@
 namespace App\Api\Logic;
 
 use App\Api\Model\DataBaseModel\AdminCoroutineModel;
-use Library\Helper\ResponseHelper;
+use Library\Response;
 
 /**
  * Created by PhpStorm.

@@ -8,7 +8,6 @@
 
 namespace App\Api\Model\CacheModel;
 
-use Library\Helper\ResponseHelper;
 use Library\Virtual\Model\CacheModel\AbstractCoroutineRedisModel;
 
 class SessionModel extends AbstractCoroutineRedisModel

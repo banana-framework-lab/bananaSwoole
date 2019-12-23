@@ -8,7 +8,7 @@ use Swoole\Coroutine;
 use Swoole\Http\Response as SwooleResponse;
 
 /**
- * Class ResponseHelper
+ * Class Response
  * @package Library
  */
 class Response
@@ -29,7 +29,7 @@ class Response
     private static $dumpPool = [];
 
     /**
-     * ResponseHelper constructor.
+     * Response constructor.
      */
     private function __construct()
     {
@@ -37,7 +37,7 @@ class Response
     }
 
     /**
-     * ResponseHelper clone.
+     * Response clone.
      */
     private function __clone()
     {
