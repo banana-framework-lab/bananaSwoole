@@ -11,14 +11,14 @@ namespace App\Api\Controller;
 
 use App\Api\Logic\AdminLogic;
 use App\Api\Model\CacheModel\SessionModel;
-use Library\Helper\ResponseHelper;
+use Exception;
 
 class AdminController extends BaseController
 {
     /**
      * 管理员登录
      * @return array
-     * @throws \Exception
+     * @throws Exception
      */
     public function login()
     {

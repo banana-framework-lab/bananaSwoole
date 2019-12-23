@@ -9,6 +9,7 @@ return [
     'code' => [
         'no_channel' => 10000,
         'no_controller' => 10007,
+        'no_controller_function' => 10009,
         'no_open_function' => 10001,
         'no_handler_class' => 10002,
         'no_message_function' => 10003,

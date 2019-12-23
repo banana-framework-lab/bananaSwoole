@@ -49,14 +49,14 @@ class DefaultSwooleServer extends AbstractSwooleServer
             // 路由配置
             Router::instanceStart();
 
-            //开启php调试模式
+            // 开启php调试模式
             if (Config::get('app.debug', true)) {
                 error_reporting(E_ALL);
             }
 
             return true;
         } catch (Throwable $e) {
-            echo "XXXXXXXXXXX      worker_id:{$workerId}  启动时报错  " . $e->getMessage() . "\n";
+            echo "XXXXXXXXXXX      worker_id:{$workerId}  启动时报错  \n" . $e->getMessage() . "\n";
 
             return false;
         }
@@ -74,7 +74,7 @@ class DefaultSwooleServer extends AbstractSwooleServer
         // 选出所需通道
         $channelObject = Channel::route($openData);
 
-        //过滤错误的连接
+        // 过滤错误的连接
         if (!$channelObject->getChannel()) {
             $server->disconnect(
                 $request->fd,
@@ -84,7 +84,7 @@ class DefaultSwooleServer extends AbstractSwooleServer
             return;
         }
 
-        //open实体方法
+        // open实体方法
         try {
             $handlerClass = $channelObject->getHandler();
             // 初始化Handler
@@ -92,9 +92,9 @@ class DefaultSwooleServer extends AbstractSwooleServer
                 /* @var AbstractHandler $handler */
                 $handler = new $handlerClass();
                 if (method_exists($handlerClass, 'open')) {
-                    //fd绑定通道
+                    // fd绑定通道
                     $this->bindTable->set($request->fd, $channelObject->toArray());
-                    //fd打开事件
+                    // fd打开事件
                     $handler->open($server, $request);
                 } else {
                     $server->disconnect(
@@ -143,7 +143,7 @@ class DefaultSwooleServer extends AbstractSwooleServer
                 return;
             }
 
-            //初始化Handler
+            // 初始化Handler
             $handlerClass = $channelObject->getHandler();
 
             // 初始化事件器
@@ -201,10 +201,10 @@ class DefaultSwooleServer extends AbstractSwooleServer
                     echo "{$fd}找不到fd对应的Channel!\n";
                     return;
                 }
-                //初始化Handler
+                // 初始化Handler
                 $handlerClass = $channelObject->getHandler();
 
-                //fd解绑Channel
+                // fd解绑Channel
                 $this->bindTable->del($fd);
 
                 // 初始化事件器
@@ -272,6 +272,7 @@ class DefaultSwooleServer extends AbstractSwooleServer
             ]);
         } catch (Throwable $e) {
             Response::json([
+                'status' => Config::get('response.status.http_fail', 10001),
                 'code' => Config::get('response.code.middleware_error', 10006),
                 'message' => $e->getMessage()
             ]);
@@ -280,7 +281,7 @@ class DefaultSwooleServer extends AbstractSwooleServer
             return;
         }
 
-        //  初始化控制器
+        // 初始化控制器
         try {
             if (class_exists($controllerClass)) {
 
@@ -294,7 +295,8 @@ class DefaultSwooleServer extends AbstractSwooleServer
                 } else {
                     if (Config::get('app.debug', true)) {
                         Response::json([
-                            'code' => Config::get('response.status.http_fail', 10001),
+                            'status' => Config::get('response.status.http_fail', 10001),
+                            'code' => Config::get('response.code.no_controller_function', 10009),
                             'message' => "找不到{$methodName}"
                         ]);
                     } else {
@@ -306,6 +308,7 @@ class DefaultSwooleServer extends AbstractSwooleServer
             } else {
                 if (Config::get('app.debug', true)) {
                     Response::json([
+                        'status' => Config::get('response.status.http_fail', 10001),
                         'code' => Config::get('response.code.no_controller', 10007),
                         'message' => "找不到{$controllerClass}"
                     ]);
@@ -354,7 +357,7 @@ class DefaultSwooleServer extends AbstractSwooleServer
     }
 
     /**
-     * onRequest
+     * onTask事件
      * @param SwooleSocketServer $server
      * @param Task $task
      * @return mixed
