@@ -4,6 +4,7 @@ namespace Library\Helper;
 
 use Library\Config;
 use Library\Entity\Swoole\EntitySwooleServer;
+use Library\Request;
 use Library\Router;
 use Monolog\Logger;
 use Monolog\Formatter\LineFormatter;
@@ -85,7 +86,7 @@ class LogHelper
         if (empty(self::$loggers[$name])) {
 
             // 根据业务域名与方法名进行日志名称的确定
-            $category = RequestHelper::server('server_name') ?: Config::get('app.server_name');
+            $category = Request::server('server_name') ?: Config::get('app.server_name');
             // 日志保存时间
             $maxFiles = self::$maxFiles;
             // 日志等级
@@ -100,10 +101,10 @@ class LogHelper
             // 组装请求信息
             if (EntitySwooleServer::getInstance()) {
                 $requestInfo = [
-                    'ip' => RequestHelper::server('remote_addr') ?: '',
-                    'method' => RequestHelper::server('request_method') ?: '',
-                    'host' => RequestHelper::server('http_host') ?: '',
-                    'uri' => RequestHelper::server('request_uri') ?: ''
+                    'ip' => Request::server('remote_addr') ?: '',
+                    'method' => Request::server('request_method') ?: '',
+                    'host' => Request::server('http_host') ?: '',
+                    'uri' => Request::server('request_uri') ?: ''
                 ];
             } else {
                 $requestInfo = [
