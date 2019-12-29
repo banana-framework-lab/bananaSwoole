@@ -12,6 +12,7 @@ use Closure;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Database\Query\Expression;
+use Illuminate\Support\Arr;
 use Library\Entity\Model\DataBase\EntityMysql;
 use Library\Pool\CoroutineMysqlClientPool;
 use Swoole\Coroutine\MySQL;
@@ -90,6 +91,12 @@ class BuilderObject
     public function __call($name, $arguments)
     {
         switch ($name) {
+            case 'insert':
+                return ($this->client->prepare(
+                    $this->builder->grammar->compileInsert($this->builder, $arguments))
+                )->execute(
+                    Arr::flatten($arguments, 1)
+                );
             case 'get':
                 return $this->builderDo();
             case 'first':
