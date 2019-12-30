@@ -3,6 +3,7 @@
 namespace App\Api\Logic;
 
 use App\Api\Model\DataBaseModel\AdminCoroutineModel;
+use Exception;
 use Library\Response;
 
 /**
@@ -17,7 +18,7 @@ class AdminLogic
      * @param string $username
      * @param string $password
      * @return array
-     * @throws \Exception
+     * @throws Exception
      */
     public function login(string $username, string $password): array
     {
