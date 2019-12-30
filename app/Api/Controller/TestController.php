@@ -43,8 +43,9 @@ class TestController extends AbstractController
 
     public function index()
     {
+        $return = (new TestLogic())->index();
 //        Response::json(['msg' => 'hello world']);
-        dd(fuck() . 'you mother');
+//        dd(fuck() . 'you mother');
     }
 
     public function indexError()

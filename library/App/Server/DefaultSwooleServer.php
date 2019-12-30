@@ -13,6 +13,7 @@ use Library\Config;
 use Library\Exception\WebException;
 use Library\Object\ChannelObject;
 use Library\Object\RouteObject;
+use Library\Pool\CoroutineMysqlClientPool;
 use Library\Response;
 use Library\Router;
 use Library\Virtual\Controller\AbstractController;
@@ -48,6 +49,9 @@ class DefaultSwooleServer extends AbstractSwooleServer
 
             // 路由配置
             Router::instanceStart();
+
+            // 初始化mysql连接池
+            CoroutineMysqlClientPool::poolInit();
 
             // 开启php调试模式
             if (Config::get('app.debug', true)) {

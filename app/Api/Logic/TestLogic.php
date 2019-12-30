@@ -45,7 +45,8 @@ class TestLogic
      * 协程登陆判断
      * @param string $username
      * @param string $password
-     * @return array|bool
+     * @return \App\Api\Property\AdminProperty|null
+     * @throws \Exception
      */
     public function coroutineLogin(string $username, string $password)
     {
@@ -60,5 +61,21 @@ class TestLogic
     {
         $numberModel = new NumberModel();
         return $numberModel->getList();
+    }
+
+    public function index()
+    {
+        $adminModel = new AdminCoroutineModel();
+        return $adminModel->builder->where(['id' => 4])->update([
+            'username' => '2',
+            'nickname' => '1',
+            'name' => '1',
+            'password' => '1',
+            'avatar' => '1',
+            'role_id' => 1,
+            'create_time' => time(),
+            'update_time' => time(),
+            'last_login_time' => time(),
+        ]);
     }
 }

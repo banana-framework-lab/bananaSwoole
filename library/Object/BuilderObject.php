@@ -9,7 +9,6 @@
 namespace Library\Object;
 
 use Closure;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Database\Query\Expression;
 use Illuminate\Support\Arr;
@@ -37,12 +36,12 @@ use Swoole\Coroutine\MySQL;
  * @method int affectingStatement(string $query, array $bindings = [])
  * @method bool unprepared(string $query)
  * @method array prepareBindings(array $bindings)
- * @method mixed transaction(\Closure $callback, int $attempts = 1)
+ * @method mixed transaction(Closure $callback, int $attempts = 1)
  * @method void beginTransaction()
  * @method void commit()
  * @method void rollBack()
  * @method int transactionLevel()
- * @method array pretend(\Closure $callback)
+ * @method array pretend(Closure $callback)
  * @method array get(array | mixed $columns = ['*'])
  * @method BuilderObject forPage(int $page, int $perSize)
  * @method BuilderObject skip(int $value)
@@ -92,11 +91,27 @@ class BuilderObject
     {
         switch ($name) {
             case 'insert':
-                return ($this->client->prepare(
-                    $this->builder->grammar->compileInsert($this->builder, $arguments))
-                )->execute(
-                    Arr::flatten($arguments, 1)
+                $sqlObject = $this->client->prepare(
+                    $this->builder->grammar->compileInsert($this->builder, $arguments[0])
                 );
+                if ($sqlObject == false) {
+                    return 0;
+                } else {
+                    return $sqlObject->execute(
+                        Arr::flatten($arguments[0], 1)
+                    );
+                }
+            case 'update':
+                $sqlObject = $this->client->prepare(
+                    $this->builder->grammar->compileUpdate($this->builder, $arguments[0])
+                );
+                if ($sqlObject == false) {
+                    return 0;
+                } else {
+                    return $sqlObject->execute(
+                        $this->builder->grammar->prepareBindingsForUpdate($this->builder->bindings, $arguments[0])
+                    );
+                }
             case 'get':
                 return $this->builderDo();
             case 'first':
