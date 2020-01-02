@@ -10,6 +10,8 @@ namespace Library\Virtual\Model\DataBaseModel;
 
 use Illuminate\Support\Collection;
 use Library\Entity\Model\DataBase\EntityMysql;
+use Library\Entity\Swoole\EntitySwooleServer;
+use Library\Object\BuilderObject;
 use Library\Virtual\Property\AbstractProperty;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\Builder;
@@ -44,13 +46,17 @@ abstract class AbstractMySqlModel extends Model
     /**
      * 获取数据库对象
      * @param $name
-     * @return Connection|Builder|string
+     * @return Connection|Builder|BuilderObject|string
      */
     public function __get($name)
     {
         switch ($name) {
             case 'connection':
-                return EntityMysql::connection();
+                if (EntitySwooleServer::getInstance()) {
+                    return new BuilderObject($this->table);
+                } else {
+                    return EntityMysql::table($this->table);
+                }
             case 'builder':
                 return EntityMysql::table($this->table);
             case 'tableName':
