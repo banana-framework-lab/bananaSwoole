@@ -5,7 +5,7 @@
  * Time: 17:27
  */
 
-namespace Library\Virtual\Model\DataBaseModel;
+namespace Library\Virtual\Model\DatabaseModel;
 
 use Library\Entity\Model\DataBase\EntityMongo;
 use MongoDB\Client;

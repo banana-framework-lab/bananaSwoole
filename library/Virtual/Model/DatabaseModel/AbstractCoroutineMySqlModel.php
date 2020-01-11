@@ -6,7 +6,7 @@
  * Time: 17:28
  */
 
-namespace Library\Virtual\Model\DataBaseModel;
+namespace Library\Virtual\Model\DatabaseModel;
 
 use Closure;
 use Library\Object\BuilderObject;

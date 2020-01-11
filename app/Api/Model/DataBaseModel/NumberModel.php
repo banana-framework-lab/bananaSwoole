@@ -2,7 +2,7 @@
 
 namespace App\Api\Model\DataBaseModel;
 
-use Library\Virtual\Model\DataBaseModel\AbstractMongoModel;
+use Library\Virtual\Model\DatabaseModel\AbstractMongoModel;
 
 /**
  * Created by PhpStorm.

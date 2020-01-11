@@ -18,7 +18,7 @@ use Library\Response;
 use Library\Router;
 use Library\Virtual\Controller\AbstractController;
 use Library\Virtual\Handler\AbstractHandler;
-use Library\Virtual\Middle\AbstractMiddleWare;
+use Library\Virtual\MiddleWare\AbstractMiddleWare;
 use Library\Virtual\Server\AbstractSwooleServer;
 use Swoole\Http\Request as SwooleHttpRequest;
 use Swoole\Server\Task;

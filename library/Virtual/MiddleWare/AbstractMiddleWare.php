@@ -1,6 +1,6 @@
 <?php
 
-namespace Library\Virtual\Middle;
+namespace Library\Virtual\MiddleWare;
 
 use Library\Config;
 use Library\Exception\WebException;

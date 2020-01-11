@@ -4,7 +4,7 @@ namespace App\Api\Model\DataBaseModel;
 
 use Illuminate\Database\Query\Builder;
 use Library\Response;
-use Library\Virtual\Model\DataBaseModel\AbstractMySqlModel;
+use Library\Virtual\Model\DatabaseModel\AbstractMySqlModel;
 
 /**
  * Created by PhpStorm.

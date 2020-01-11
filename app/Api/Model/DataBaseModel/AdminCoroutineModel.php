@@ -6,7 +6,7 @@ use App\Api\Middle\AdminMiddle;
 use App\Api\Property\AdminProperty;
 use Library\Response;
 use Library\Object\BuilderObject;
-use Library\Virtual\Model\DataBaseModel\AbstractCoroutineMySqlModel;
+use Library\Virtual\Model\DatabaseModel\AbstractCoroutineMySqlModel;
 use Library\Virtual\Property\AbstractProperty;
 
 /**
