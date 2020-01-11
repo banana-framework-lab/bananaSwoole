@@ -1,0 +1,10 @@
+<?php
+
+use Library\Command;
+
+require dirname(__FILE__) . '/../vendor/autoload.php';
+
+$paramNumber = $argc;
+$paramData = $argv;
+$command = new Command($argc, $argv);
+$command->cli();
