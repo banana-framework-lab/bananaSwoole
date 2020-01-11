@@ -121,7 +121,21 @@ abstract class AbstractMiddleWare
                 $httpData[$fieldName] = ($this->requestData[$fieldName]);
             } else {
                 if (isset($this->requestDefault[$fieldName])) {
-                    $httpData[$fieldName] = ($this->requestDefault[$fieldName]);
+                    if(is_callable($this->requestDefault[$fieldName])){
+                        $defaultData = ($this->requestDefault[$fieldName])();
+                        if($defaultData !== ''){
+                            $httpData[$fieldName] = $defaultData;
+                        }else{
+                            throw new WebException(
+                                isset($this->requestErrMsg[$fieldName]) ? "{$this->requestErrMsg[$fieldName]}不能为空" : "{$fieldName}不能为空.",
+                                Config::get('response.code.middleware_error', 10006),
+                                null,
+                                Config::get('response.status.http_fail', 10001)
+                            );
+                        }
+                    }else{
+                        $httpData[$fieldName] = ($this->requestDefault[$fieldName]);
+                    }
                 } else {
                     throw new WebException(
                         isset($this->requestErrMsg[$fieldName]) ? "{$this->requestErrMsg[$fieldName]}不能为空" : "{$fieldName}不能为空!!",
