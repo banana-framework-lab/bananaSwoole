@@ -64,14 +64,17 @@ class SwooleServer extends BaseSwooleServer
      */
     public function run()
     {
+        $pidFilePath = dirname(__FILE__) . "/../Runtime/CommandStack/{$this->serverName}";
         $this->server->set([
             'worker_num' => $this->workerNum,
             'task_worker_num' => $this->taskNum,
             'task_enable_coroutine' => true,
             'reload_async' => true,
             'max_wait_time' => 5,
-            'log_level' => 5
+            'log_level' => 5,
+            'pid_file' => Config::get("swoole.{$this->serverConfigIndex}.pid_file", $pidFilePath),
         ]);
+
         $this->server->on('WorkerStart', [$this, 'onWorkerStart']);
         $this->server->on('Request', [$this, 'onRequest']);
         $this->server->on('Task', [$this, 'onTask']);

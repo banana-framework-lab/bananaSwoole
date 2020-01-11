@@ -9,6 +9,8 @@
 namespace Library;
 
 
+use swoole_process;
+
 class Command
 {
     /**
@@ -22,14 +24,19 @@ class Command
     public $paramData;
 
     /**
-     * @var string $rootFile ;
-     */
-    private $rootFile = 'bananaSwoole';
-
-    /**
      * @var array $actionType
      */
     private $actionType = ['start', 'stop', 'reload', 'command'];
+
+    /**
+     * @var string $actionName
+     */
+    private $actionName;
+
+    /**
+     * @var string $serverName
+     */
+    private $serverName;
 
     /**
      * Command constructor.
@@ -40,6 +47,8 @@ class Command
     {
         $this->paramNumber = $paramNumber;
         $this->paramData = $paramData;
+        $this->actionName = $this->paramData[1];
+        $this->serverName = $this->paramData[2];
     }
 
     /**
@@ -47,12 +56,7 @@ class Command
      */
     public function cli()
     {
-        if ($this->rootFile != $this->paramData[0]) {
-            echo "错误根脚本文件\n";
-            exit;
-        }
-
-        if (!in_array($this->paramData[1], $this->actionType)) {
+        if (!in_array($this->actionName, $this->actionType)) {
             echo "错误命令行为\n";
             exit;
         }
@@ -60,35 +64,75 @@ class Command
         if ($this->paramData[1] == 'command') {
 
         } else {
-            switch ($this->paramData[1]) {
+            switch ($this->actionName) {
                 case 'start' :
-                    $serverName = $this->paramData[2];
-                    $filePath = dirname(__FILE__) . "/./../public/{$serverName}.php";
-                    $serverPidFile = fopen(dirname(__FILE__) . "/./../library/Runtime/CommandStack/$serverName", 'w+');
-                    fwrite($serverPidFile, getmypid());
-                    fclose($serverPidFile);
-                    require $filePath;
+                    $this->start();
                     break;
                 case 'stop':
-                    $serverName = $this->paramData[2];
-                    $filePath = dirname(__FILE__) . "/./../library/Runtime/CommandStack/$serverName";
-                    $serverPidFile = fopen($filePath, 'r');
-                    $pid = fread($serverPidFile, filesize($filePath));
-                    fclose($serverPidFile);
-                    $shell = "kill -15 $pid";
-                    exec($shell, $result, $status);
-                    unlink($filePath);
+                    $this->stop();
                     break;
                 case 'reload':
-                    $serverName = $this->paramData[2];
-                    $filePath = dirname(__FILE__) . "/./../library/Runtime/CommandStack/$serverName";
-                    $serverPidFile = fopen($filePath, 'r');
-                    $pid = fread($serverPidFile, filesize($filePath));
-                    fclose($serverPidFile);
-                    $shell = "kill -USR1 $pid";
-                    exec($shell, $result, $status);
+                    $this->reload();
                     break;
             }
         }
+    }
+
+    /**
+     * 启动进程
+     */
+    private function start()
+    {
+        $filePath = dirname(__FILE__) . "/./../public/{$this->serverName}.php";
+        if (file_exists($filePath)) {
+            require $filePath;
+        } else {
+            echo "{$this->paramData[2]}服务不存在\n";
+        }
+    }
+
+    /**
+     * 退出进程
+     */
+    private function stop()
+    {
+        $filePath = dirname(__FILE__) . "/./../library/Runtime/CommandStack/$this->serverName";
+        $pid = intval(file_get_contents($filePath));
+        if (!swoole_process::kill($pid, 0)) {
+            echo "{$pid}进程不存在\n";
+        }
+        swoole_process::kill($pid, 15);
+        $time = time();
+        while (true) {
+            usleep(1000);
+            if (!swoole_process::kill($pid, 0)) {
+                if (is_file($filePath)) {
+                    unlink($filePath);
+                }
+                echo "{$this->serverName}-{$pid}已经正常退出\n";
+                break;
+            } else {
+                if (time() - $time > 5) {
+                    echo "{$this->serverName}-{$pid}退出失败，请再试一遍\n";
+                    break;
+                }
+            }
+        }
+        echo "{$this->serverName}-{$pid}退出失败";
+    }
+
+    /**
+     * swoole所有进程重启
+     */
+    private function reload()
+    {
+        $filePath = dirname(__FILE__) . "/./../library/Runtime/CommandStack/$this->serverName";
+        $pid = intval(file_get_contents($filePath));
+        if (!swoole_process::kill($pid, 0)) {
+            echo "{$pid}进程不存在\n";
+        }
+        $shell = "kill -USR1 $pid";
+        exec($shell);
+        echo "{$this->serverName}-{$pid}已经正常热重启\n";
     }
 }

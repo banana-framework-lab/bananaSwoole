@@ -91,6 +91,39 @@ class BaseSwooleServer
     protected $echoWidth = 75;
 
     /**
+     * @var int $cliParamNumber
+     */
+    protected $cliParamNumber;
+
+    /**
+     * @var array $cliParamData
+     */
+    protected $cliParamData;
+
+    /**
+     * @var string $serverName
+     */
+    protected $serverName;
+
+    /**
+     * BaseSwooleServer constructor.
+     */
+    public function __construct()
+    {
+        global $argc;
+        $this->cliParamNumber = $argc;
+
+        global $argv;
+        $this->cliParamData = $argv;
+
+        if ($this->cliParamData[0] != 'bananaSwoole') {
+            $this->serverName = str_replace('.php', '', $this->cliParamData[0]);
+        } else {
+            $this->serverName = $this->cliParamData[2];
+        }
+    }
+
+    /**
      * 设置配置文件下标
      * @param string $index
      * @return BaseSwooleServer
