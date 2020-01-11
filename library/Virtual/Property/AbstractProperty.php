@@ -20,7 +20,7 @@ abstract class AbstractProperty
      * }
      * @param array $params
      * @return $this
-     * @throws \Exception
+     * @throws Exception
      */
     abstract public function setProperty(array $params);
 
@@ -28,7 +28,7 @@ abstract class AbstractProperty
      * 设置属性
      * @param array $params
      * @return $this
-     * @throws \Exception
+     * @throws Exception
      */
     protected function __setProperty(array $params)
     {
@@ -50,19 +50,9 @@ abstract class AbstractProperty
     public function toArray(): array
     {
         $result = [];
-        $ref = null;
-        try {
-            $ref = new \ReflectionClass(static::class);
-        } catch (\ReflectionException $e) {
-        }
-        $ownProps = array_filter($ref->getProperties(), function ($property) {
-            return $property->class == static::class;
-        });
-        /**
-         * @var \ReflectionProperty $value
-         */
-        foreach ($ownProps as $key => $value) {
-            $result[$value->getName()] = $this->{$value->getName()};
+        $needParams = get_object_vars($this);
+        foreach ($needParams as $key => $value) {
+            $result[$key] = $value;
         }
         return $result;
     }
@@ -74,19 +64,9 @@ abstract class AbstractProperty
     public function toObject(): stdClass
     {
         $collect = new stdClass();
-        $ref = null;
-        try {
-            $ref = new \ReflectionClass(static::class);
-        } catch (\ReflectionException $e) {
-        }
-        $ownProps = array_filter($ref->getProperties(), function ($property) {
-            return $property->class == static::class;
-        });
-        /**
-         * @var \ReflectionProperty $value
-         */
-        foreach ($ownProps as $key => $value) {
-            $collect->{$value->getName()} = $this->{$value->getName()};
+        $needParams = get_object_vars($this);
+        foreach ($needParams as $key => $value) {
+            $collect->{$key} = $value;
         }
         return $collect;
     }

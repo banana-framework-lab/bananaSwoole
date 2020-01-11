@@ -6,11 +6,11 @@
  * Time: 17:09
  */
 
-namespace App\Api\Middle;
+namespace App\Api\MiddleWare;
 
-use Library\Virtual\Middle\AbstractMiddleWare;
+use Library\Virtual\MiddleWare\AbstractMiddleWare;
 
-class AdminMiddle extends AbstractMiddleWare
+class AdminMiddleWare extends AbstractMiddleWare
 {
     /**
      * @throws \Exception

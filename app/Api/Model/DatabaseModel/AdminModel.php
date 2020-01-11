@@ -1,13 +1,10 @@
 <?php
 
-namespace App\Api\Model\DataBaseModel;
+namespace App\Api\Model\DatabaseModel;
 
-use App\Api\Middle\AdminMiddle;
-use App\Api\Property\AdminProperty;
+use Illuminate\Database\Query\Builder;
 use Library\Response;
-use Library\Object\BuilderObject;
-use Library\Virtual\Model\DatabaseModel\AbstractCoroutineMySqlModel;
-use Library\Virtual\Property\AbstractProperty;
+use Library\Virtual\Model\DatabaseModel\AbstractMySqlModel;
 
 /**
  * Created by PhpStorm.
@@ -15,7 +12,7 @@ use Library\Virtual\Property\AbstractProperty;
  * Date: 2019/10/26
  * Time: 20:18
  */
-class AdminCoroutineModel extends AbstractCoroutineMySqlModel
+class AdminModel extends AbstractMySqlModel
 {
     /**
      * AdminModel constructor.
@@ -30,9 +27,9 @@ class AdminCoroutineModel extends AbstractCoroutineMySqlModel
     /**
      * @param array $where 查询条件
      * @param array $orderBy 排序条件
-     * @return BuilderObject 查询构造器对象
+     * @return Builder 查询构造器对象
      */
-    protected function getCondition($where, $orderBy = []): BuilderObject
+    protected function getCondition($where, $orderBy = []): Builder
     {
         $builder = $this->builder;
         if (isset($where['username'])) {
@@ -48,30 +45,21 @@ class AdminCoroutineModel extends AbstractCoroutineMySqlModel
      * 登陆检验
      * @param string $username
      * @param string $password
-     * @return AdminProperty|null
-     * @throws \Exception
+     * @return \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Query\Builder|null|object
      */
     public function login(string $username, string $password)
     {
-        $this->setListColumns(['id', 'username', 'nickname', 'name', 'avatar', 'role_id', 'create_time', 'update_time', 'last_login_time', 'status']);
-        $result = $this->getFirst([
+        $this->setListColumns(['id', 'username', 'nickname', 'name', 'avatar', 'role_id', 'last_login_time']);
+        return $this->getFirst([
             'username' => $username,
-            'password' => $password
+            'password' => $password,
+            'status' => 1
         ]);
-        if ($result) {
-            $result['password'] = '*';
-            return (new AdminProperty())->setProperty($result);
-        } else {
-            return null;
-        }
     }
 
-    /**
-     * 测试慢查询
-     */
     public function longCheck()
     {
-        Response::dump($this->builder->count());
+        Response::dump($this->builder->selectRaw('count(id)')->get());
     }
 
 }

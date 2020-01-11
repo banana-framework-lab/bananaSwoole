@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Api\Model\DataBaseModel;
+namespace App\Api\Model\DatabaseModel;
 
 use Library\Virtual\Model\DatabaseModel\AbstractMongoModel;
 

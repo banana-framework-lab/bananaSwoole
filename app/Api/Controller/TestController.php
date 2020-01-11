@@ -10,8 +10,8 @@ namespace App\Api\Controller;
 
 
 use App\Api\Logic\TestLogic;
-use App\Api\Model\DataBaseModel\AdminCoroutineModel;
-use App\Api\Model\DataBaseModel\AdminModel;
+use App\Api\Model\DatabaseModel\AdminCoroutineModel;
+use App\Api\Model\DatabaseModel\AdminModel;
 use Co;
 use Library\Helper\LogHelper;
 use Library\Request;

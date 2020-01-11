@@ -2,9 +2,9 @@
 
 namespace App\Api\Logic;
 
-use App\Api\Model\DataBaseModel\AdminCoroutineModel;
-use App\Api\Model\DataBaseModel\AdminModel;
-use App\Api\Model\DataBaseModel\NumberModel;
+use App\Api\Model\DatabaseModel\AdminCoroutineModel;
+use App\Api\Model\DatabaseModel\AdminModel;
+use App\Api\Model\DatabaseModel\NumberModel;
 use Co;
 use Library\Helper\LogHelper;
 

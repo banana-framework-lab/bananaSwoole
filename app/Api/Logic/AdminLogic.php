@@ -2,7 +2,7 @@
 
 namespace App\Api\Logic;
 
-use App\Api\Model\DataBaseModel\AdminCoroutineModel;
+use App\Api\Model\DatabaseModel\AdminCoroutineModel;
 use Exception;
 use Library\Response;
 
