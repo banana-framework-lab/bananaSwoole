@@ -45,7 +45,7 @@ project  项目的根目录<br>
 ├─vendor&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;扩展资源文件目录<br>
 └─web&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;项目前端目文件录<br>
 
-######框架的核心目录结构<br>
+###### 框架的核心目录结构<br>
 
 library根目录<br>
 ├─App&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;框架提供的一些实体类目录<br>
@@ -69,7 +69,7 @@ library根目录<br>
 3.给Server类注入具体的业务Server类<br>
 4.调用Server的run方法<br>
 
-######Swoole的形式
+###### Swoole的形式
 ```php
  use Library\App\Server\DefaultSwooleServer;
  use Library\Server\SwooleServer;
@@ -86,7 +86,7 @@ library根目录<br>
  $server->run();
 ```
 
-######FPM的形式
+###### FPM的形式
 ```php
 use Library\App\Server\DefaultFpmServer;
 use Library\Server\FpmServer;
@@ -110,7 +110,7 @@ $server->run();
 php bananaSwoole [action] [server] [command]
 ```
 
-######命令启动有4中action形式
+###### 命令启动有4中action形式
 1. start
 ```
 // 启动在public中的index服务
