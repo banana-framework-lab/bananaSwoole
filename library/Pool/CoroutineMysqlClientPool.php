@@ -9,7 +9,7 @@
 namespace Library\Pool;
 
 use Library\Config;
-use Library\Entity\Model\DataBase\EntityMysql;
+use Library\Entity\Model\Database\EntityMysql;
 use Swoole\Coroutine\MySQL;
 use Throwable;
 

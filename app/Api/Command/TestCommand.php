@@ -1,7 +1,7 @@
 <?php
 namespace  App\Api\Command;
 
-use Library\Entity\Model\DataBase\EntityMysql;
+use Library\Entity\Model\Database\EntityMysql;
 use Library\Virtual\Command\AbstractCommand;
 
 /**

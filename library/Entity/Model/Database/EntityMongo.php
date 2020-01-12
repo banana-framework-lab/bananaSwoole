@@ -5,7 +5,7 @@
  * Date: 2018/10/10
  */
 
-namespace Library\Entity\Model\DataBase;
+namespace Library\Entity\Model\Database;
 
 use Library\Config;
 use MongoDB\Client as MongoDbClient;

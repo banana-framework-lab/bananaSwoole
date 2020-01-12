@@ -7,7 +7,7 @@
 
 namespace Library\Virtual\Model\DatabaseModel;
 
-use Library\Entity\Model\DataBase\EntityMongo;
+use Library\Entity\Model\Database\EntityMongo;
 use MongoDB\Client;
 use MongoDB\Collection;
 use MongoDB\Driver\Manager;

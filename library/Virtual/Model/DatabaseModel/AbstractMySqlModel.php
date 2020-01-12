@@ -9,7 +9,7 @@
 namespace Library\Virtual\Model\DatabaseModel;
 
 use Illuminate\Support\Collection;
-use Library\Entity\Model\DataBase\EntityMysql;
+use Library\Entity\Model\Database\EntityMysql;
 use Library\Entity\Swoole\EntitySwooleServer;
 use Library\Object\BuilderObject;
 use Library\Virtual\Property\AbstractProperty;

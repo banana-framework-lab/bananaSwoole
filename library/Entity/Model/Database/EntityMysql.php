@@ -5,7 +5,7 @@
  * Date: 2018/10/10
  */
 
-namespace Library\Entity\Model\DataBase;
+namespace Library\Entity\Model\Database;
 
 use Illuminate\Database\Capsule\Manager as MysqlClient;
 use Illuminate\Database\Connection;
