@@ -45,7 +45,7 @@ class Response
     }
 
     /**
-     * @param Response $instance
+     * @param SwooleResponse $instance
      */
     public static function setInstance(SwooleResponse $instance)
     {

@@ -8,22 +8,12 @@
 
 namespace Library\Virtual\Command;
 
-use Library\Config;
-
 /**
  * Class AbstractCommand
  * @package Library\Virtual\Command
  */
 abstract class AbstractCommand
 {
-    /**
-     * AbstractCommand constructor.
-     */
-    public function __construct()
-    {
-        Config::instanceStart();
-    }
-
     /**
      * 执行脚本的方法,在构造函数时会被调用
      */

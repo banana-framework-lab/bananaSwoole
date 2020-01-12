@@ -9,6 +9,7 @@
 namespace Library;
 
 
+use Library\Virtual\Command\AbstractCommand;
 use swoole_process;
 
 class Command
@@ -39,6 +40,11 @@ class Command
     private $serverName;
 
     /**
+     * @var string $commandName
+     */
+    private $commandName;
+
+    /**
      * Command constructor.
      * @param int $paramNumber
      * @param array $paramData
@@ -49,6 +55,9 @@ class Command
         $this->paramData = $paramData;
         $this->actionName = $this->paramData[1];
         $this->serverName = $this->paramData[2];
+        $this->commandName = $this->paramData[3] ?? '';
+
+        Config::instanceStart();
     }
 
     /**
@@ -58,11 +67,19 @@ class Command
     {
         if (!in_array($this->actionName, $this->actionType)) {
             echo "错误命令行为\n";
-            exit;
+            return;
         }
-
         if ($this->paramData[1] == 'command') {
-
+            $commandClass = "\\App\\{$this->serverName}\\Command\\{$this->commandName}Command";
+            /* @var AbstractCommand $command */
+            if (method_exists($commandClass, 'execute')) {
+                $command = new $commandClass;
+                $command->execute();
+                return;
+            } else {
+                echo "找不到{$this->commandName}Command\n";
+                return;
+            }
         } else {
             switch ($this->actionName) {
                 case 'start' :
@@ -75,6 +92,7 @@ class Command
                     $this->reload();
                     break;
             }
+            return;
         }
     }
 
@@ -88,6 +106,7 @@ class Command
             require $filePath;
         } else {
             echo "{$this->paramData[2]}服务不存在\n";
+            return;
         }
     }
 
@@ -97,9 +116,14 @@ class Command
     private function stop()
     {
         $filePath = dirname(__FILE__) . "/./../library/Runtime/CommandStack/$this->serverName";
+        if (!file_exists($filePath)) {
+            echo "{$this->serverName}服务不存在\n";
+            return;
+        }
         $pid = intval(file_get_contents($filePath));
         if (!swoole_process::kill($pid, 0)) {
             echo "{$pid}进程不存在\n";
+            return;
         }
         swoole_process::kill($pid, 15);
         $time = time();
@@ -110,15 +134,16 @@ class Command
                     unlink($filePath);
                 }
                 echo "{$this->serverName}-{$pid}已经正常退出\n";
-                break;
+                return;
             } else {
                 if (time() - $time > 5) {
                     echo "{$this->serverName}-{$pid}退出失败，请再试一遍\n";
-                    break;
+                    return;
                 }
             }
         }
         echo "{$this->serverName}-{$pid}退出失败";
+        return;
     }
 
     /**
@@ -134,5 +159,6 @@ class Command
         $shell = "kill -USR1 $pid";
         exec($shell);
         echo "{$this->serverName}-{$pid}已经正常热重启\n";
+        return;
     }
 }
