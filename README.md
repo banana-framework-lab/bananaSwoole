@@ -16,7 +16,7 @@ panjiachen的前端vue-admin-template，在此致敬panjiachen
 
 #### 目录结构
 
-######项目的基础目录结构<br>
+###### 项目的基础目录结构<br>
 project  项目的根目录<br>
 ├─app&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;服务程序目录<br>
 │&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─Demo&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;服务程序名称(此处Demo为服务程序的名称)<br>
@@ -63,7 +63,7 @@ library根目录<br>
 
 #### 入口文件
 
-######入口文件的写法
+###### 入口文件的写法
 1.引入自动加载文件<br>
 2.新建Server类，来规定Swoole还是FPM的执行方式<br>
 3.给Server类注入具体的业务Server类<br>
