@@ -147,15 +147,20 @@ abstract class AbstractMySqlModel extends Model
 
     /**
      * 更新一个数据
-     * @param AbstractProperty $updateInfo
+     * @param array $updateInfo
+     * @param $condition
      * @return int
      */
-    public function updateOne($updateInfo): int
+    public function updateOne($updateInfo, $condition): int
     {
-        foreach ($updateInfo->toArray() as $key => $value) {
-            $this->$key = $value;
+        /** @var Model $model */
+        $model = $this->builder->where($condition)->first();
+        foreach ($updateInfo as $key => $value) {
+            if ($key != 'id' && $key != 'create_time' && $key != 'update_time') {
+                $model->$key = $value;
+            }
         }
-        return $this->save();
+        return $model->save();
     }
 
 
