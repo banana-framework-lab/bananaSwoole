@@ -10,14 +10,13 @@ namespace App\Api\Handler;
 
 use App\Api\Object\MessageObject;
 use Library\Entity\Swoole\EntitySwooleServer;
-use Library\Helper\LogHelper;
 use Library\Virtual\Handler\AbstractHandler;
 use Library\Virtual\Object\AbstractMessageObject;
 use Swoole\Http\Request as SwooleHttpRequest;
 use Swoole\WebSocket\Frame as SwooleSocketFrame;
 use Swoole\WebSocket\Server as SwooleSocketServer;
 
-class TestHandler extends AbstractHandler
+class DemoHandler extends AbstractHandler
 {
     /**
      * 用户连接webSocket事件
@@ -26,8 +25,7 @@ class TestHandler extends AbstractHandler
      */
     public function open(SwooleSocketServer $server, SwooleHttpRequest $request)
     {
-        echo "1\n";
-        LogHelper::info('测试', ['msg' => 'websocket日志测试'], '', 'Api');
+        echo "open function\n";
     }
 
     /**
@@ -37,7 +35,7 @@ class TestHandler extends AbstractHandler
      */
     public function message(SwooleSocketServer $server, SwooleSocketFrame $frame)
     {
-        echo "2\n";
+        echo "message function\n";
     }
 
     /**
@@ -47,7 +45,7 @@ class TestHandler extends AbstractHandler
      */
     public function close(SwooleSocketServer $server, int $fd)
     {
-        echo "3\n";
+        echo "close function\n";
     }
 
 

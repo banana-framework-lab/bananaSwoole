@@ -40,10 +40,6 @@ class SessionModel extends AbstractCoroutineRedisModel
      */
     public function setSessionInfo(string $sessionId, array $sessionInfo)
     {
-        if ($sessionInfo) {
-            $sessionInfo['roleId'] = $sessionInfo['role_id'];
-            unset($sessionInfo['role_id']);
-        }
         $this->redis->set("{$this->sessionKeyHead}{$sessionId}", serialize($sessionInfo));
     }
 }

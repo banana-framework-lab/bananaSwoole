@@ -11,34 +11,14 @@ namespace App\Api\Property;
 use Library\Virtual\Property\AbstractProperty;
 
 /**
- * Class AdminProperty
+ * Class DemoProperty
  * @package App\Api\Property
  */
-class AdminProperty extends AbstractProperty
+class DemoProperty extends AbstractProperty
 {
     public $id;
 
-    public $username;
-
-    public $nickname;
-
-    public $name;
-
-    public $password;
-
-    public $avatar;
-
-    public $role_id;
-
-    public $create_time;
-
-    public $update_time;
-
-    public $last_login_time;
-
-    public $status;
-
-    public $permission = [];
+    public $msg;
 
     /**
      * 设置属性

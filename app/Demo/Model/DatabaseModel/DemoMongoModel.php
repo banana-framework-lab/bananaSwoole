@@ -1,16 +1,17 @@
 <?php
-
-namespace App\Api\Model\DatabaseModel;
-
-use Library\Virtual\Model\DatabaseModel\AbstractMongoModel;
-
 /**
  * Created by PhpStorm.
  * User: ZhongHao-Zh
  * Date: 2019/10/26
  * Time: 20:18
  */
-class NumberModel extends AbstractMongoModel
+
+namespace App\Api\Model\DatabaseModel;
+
+use Library\Virtual\Model\DatabaseModel\AbstractMongoModel;
+
+
+class DemoMongoModel extends AbstractMongoModel
 {
     /**
      * AdminModel constructor.
