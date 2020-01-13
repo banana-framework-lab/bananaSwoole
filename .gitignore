@@ -8,7 +8,14 @@ Thumbs.db
 /.buildpath
 /.idea
 
+# Config files
+/config
 
 #Runtime
-*/Runtime
-*/*/Runtime
+app/Runtime
+runtime/Runtime
+library/Runtime/CommandStack/*
+!library/Runtime/CommandStack/.runtime
+*/*/File
+
+/vendor
