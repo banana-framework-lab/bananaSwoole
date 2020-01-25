@@ -4,8 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "c1cca85d5452678e0ac74684b8d15abc",
-    "content-hash": "7a06f548e82708e782d8645cbd9c3c7d",
+    "content-hash": "0a6b48050bb76dadfec87c7dc7658ae5",
     "packages": [
         {
             "name": "doctrine/inflector",
@@ -72,7 +71,7 @@
                 "singularize",
                 "string"
             ],
-            "time": "2018-01-09 20:05:19"
+            "time": "2018-01-09T20:05:19+00:00"
         },
         {
             "name": "illuminate/container",
@@ -117,7 +116,7 @@
             ],
             "description": "The Illuminate Container package.",
             "homepage": "https://laravel.com",
-            "time": "2019-08-20 02:00:23"
+            "time": "2019-08-20T02:00:23+00:00"
         },
         {
             "name": "illuminate/contracts",
@@ -161,7 +160,7 @@
             ],
             "description": "The Illuminate Contracts package.",
             "homepage": "https://laravel.com",
-            "time": "2019-07-30 13:57:21"
+            "time": "2019-07-30T13:57:21+00:00"
         },
         {
             "name": "illuminate/database",
@@ -221,7 +220,7 @@
                 "orm",
                 "sql"
             ],
-            "time": "2019-08-31 17:01:57"
+            "time": "2019-08-31T17:01:57+00:00"
         },
         {
             "name": "illuminate/support",
@@ -282,7 +281,7 @@
             ],
             "description": "The Illuminate Support package.",
             "homepage": "https://laravel.com",
-            "time": "2019-09-03 16:36:47"
+            "time": "2019-09-03T16:36:47+00:00"
         },
         {
             "name": "lustre/php-dfa-sensitive",
@@ -321,7 +320,7 @@
                 }
             ],
             "description": "To achieve the filtering of sensitive words, based on the determination of finite automata (DFA) algorithm.",
-            "time": "2019-05-10 08:20:16"
+            "time": "2019-05-10T08:20:16+00:00"
         },
         {
             "name": "mongodb/mongodb",
@@ -381,7 +380,7 @@
                 "mongodb",
                 "persistence"
             ],
-            "time": "2019-07-02 18:04:14"
+            "time": "2019-07-02T18:04:14+00:00"
         },
         {
             "name": "monolog/monolog",
@@ -459,7 +458,7 @@
                 "logging",
                 "psr-3"
             ],
-            "time": "2019-09-06 13:49:17"
+            "time": "2019-09-06T13:49:17+00:00"
         },
         {
             "name": "nesbot/carbon",
@@ -526,7 +525,7 @@
                 "datetime",
                 "time"
             ],
-            "time": "2019-08-31 16:37:55"
+            "time": "2019-08-31T16:37:55+00:00"
         },
         {
             "name": "php-amqplib/php-amqplib",
@@ -600,7 +599,7 @@
                 "queue",
                 "rabbitmq"
             ],
-            "time": "2019-08-08 18:28:18"
+            "time": "2019-08-08T18:28:18+00:00"
         },
         {
             "name": "psr/container",
@@ -649,7 +648,7 @@
                 "container-interop",
                 "psr"
             ],
-            "time": "2017-02-14 16:28:37"
+            "time": "2017-02-14T16:28:37+00:00"
         },
         {
             "name": "psr/log",
@@ -696,7 +695,7 @@
                 "psr",
                 "psr-3"
             ],
-            "time": "2018-11-20 15:27:04"
+            "time": "2018-11-20T15:27:04+00:00"
         },
         {
             "name": "psr/simple-cache",
@@ -744,7 +743,41 @@
                 "psr-16",
                 "simple-cache"
             ],
-            "time": "2017-10-23 01:57:42"
+            "time": "2017-10-23T01:57:42+00:00"
+        },
+        {
+            "name": "swoole/ide-helper",
+            "version": "4.4.15",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/swoole/ide-helper.git",
+                "reference": "db5d83c0158054e9d4037d00e3d4e95c11d87932"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/swoole/ide-helper/zipball/db5d83c0158054e9d4037d00e3d4e95c11d87932",
+                "reference": "db5d83c0158054e9d4037d00e3d4e95c11d87932",
+                "shasum": ""
+            },
+            "require-dev": {
+                "guzzlehttp/guzzle": "~6.5.0",
+                "squizlabs/php_codesniffer": "~3.5.0",
+                "symfony/filesystem": "~4.3.0",
+                "zendframework/zend-code": "~3.3.0"
+            },
+            "type": "library",
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "Apache-2.0"
+            ],
+            "authors": [
+                {
+                    "name": "Team Swoole",
+                    "email": "team@swoole.com"
+                }
+            ],
+            "description": "IDE help files for Swoole.",
+            "time": "2020-01-15T07:16:10+00:00"
         },
         {
             "name": "symfony/polyfill-mbstring",
@@ -803,7 +836,7 @@
                 "portable",
                 "shim"
             ],
-            "time": "2019-08-06 08:03:45"
+            "time": "2019-08-06T08:03:45+00:00"
         },
         {
             "name": "symfony/translation",
@@ -879,7 +912,7 @@
             ],
             "description": "Symfony Translation Component",
             "homepage": "https://symfony.com",
-            "time": "2019-08-26 08:55:16"
+            "time": "2019-08-26T08:55:16+00:00"
         },
         {
             "name": "symfony/translation-contracts",
@@ -936,7 +969,7 @@
                 "interoperability",
                 "standards"
             ],
-            "time": "2019-08-02 12:15:04"
+            "time": "2019-08-02T12:15:04+00:00"
         }
     ],
     "packages-dev": [],

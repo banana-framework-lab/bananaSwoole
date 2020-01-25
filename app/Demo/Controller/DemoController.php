@@ -10,7 +10,6 @@ namespace App\Api\Controller;
 
 use App\Api\Logic\DemoLogic;
 use App\Api\Service\DemoService;
-use Co;
 use Library\Helper\LogHelper;
 use Library\Request;
 use Library\Response;
@@ -22,7 +21,7 @@ class DemoController extends AbstractController
     public function demoLog()
     {
         $start = json_encode(Request::server('request_time_float'));
-        Co::sleep(3.0);
+        Coroutine::sleep(3.0);
         $string = ' cid ' . Coroutine::getuid() . '  start' . $start . '  end' . json_encode(Request::server('request_time_float')) . "";
         LogHelper::info($string, ['msg' => 'demoLog记录日志']);
     }
