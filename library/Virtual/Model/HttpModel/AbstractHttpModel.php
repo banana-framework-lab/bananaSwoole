@@ -36,6 +36,7 @@ abstract class AbstractHttpModel
      */
     private function getUrlData(string $url)
     {
+
         echo 1;
     }
 
