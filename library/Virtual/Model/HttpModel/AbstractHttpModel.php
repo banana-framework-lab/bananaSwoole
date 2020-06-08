@@ -36,21 +36,7 @@ abstract class AbstractHttpModel
      */
     private function getUrlData(string $url)
     {
-        $data = [];
-        if (mb_strpos('http://', $url)) {
-            $url = str_replace('http://', '', $url);
-            $data['port'] = 80;
-            $data['domain'] = (explode('/', $url))[0];
-            $data['path'] = str_replace($data['domain'], '', $url);
-        } elseif (mb_strpos('https://', $url)) {
-            $url = str_replace('https://', '', $url);
-            $data['port'] = 443;
-            $data['domain'] = (explode('/', $url))[0];
-            $data['path'] = str_replace($data['domain'], '', $url);
-        } else {
-            return [];
-        }
-        return $data;
+        echo 1;
     }
 
     /**
