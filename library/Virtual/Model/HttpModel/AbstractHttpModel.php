@@ -50,6 +50,9 @@ abstract class AbstractHttpModel
         } else {
             return [];
         }
+        if(true){
+        	var_dump(2);
+        }
         return $data;
     }
 
