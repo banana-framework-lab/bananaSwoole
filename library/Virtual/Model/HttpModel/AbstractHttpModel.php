@@ -36,6 +36,7 @@ abstract class AbstractHttpModel
      */
     private function getUrlData(string $url)
     {
+    	echo 1;
         $data = [];
         if (mb_strpos('http://', $url)) {
             $url = str_replace('http://', '', $url);
