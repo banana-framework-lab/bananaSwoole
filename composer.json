@@ -17,5 +17,8 @@
             "type": "composer",
             "url": "https://mirrors.aliyun.com/composer/"
         }
+    },
+    "require-dev": {
+        "swoole/ide-helper": "~4.4.7"
     }
 }
