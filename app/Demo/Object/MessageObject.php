@@ -6,7 +6,7 @@
  * Time: 19:44
  */
 
-namespace App\Api\Object;
+namespace App\Demo\Object;
 
 use Library\Virtual\Object\AbstractMessageObject;
 

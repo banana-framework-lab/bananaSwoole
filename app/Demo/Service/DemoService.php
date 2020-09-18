@@ -6,7 +6,7 @@
  * Time: 20:49
  */
 
-namespace App\Api\Service;
+namespace App\Demo\Service;
 
 class DemoService
 {

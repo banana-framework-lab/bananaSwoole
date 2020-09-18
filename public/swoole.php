@@ -7,5 +7,5 @@ require dirname(__FILE__) . '/../vendor/autoload.php';
 
 $adminServer = new SwooleServer();
 $adminServer->setConfigIndex('server');
-$adminServer->init(new DefaultSwooleServer());
+$adminServer->setServer(new DefaultSwooleServer());
 $adminServer->run();

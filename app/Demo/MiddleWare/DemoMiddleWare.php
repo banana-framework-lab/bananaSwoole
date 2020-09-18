@@ -6,7 +6,7 @@
  * Time: 17:09
  */
 
-namespace App\Api\MiddleWare;
+namespace App\Demo\MiddleWare;
 
 use Exception;
 use Library\Virtual\MiddleWare\AbstractMiddleWare;

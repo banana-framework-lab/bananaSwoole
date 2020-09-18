@@ -6,7 +6,7 @@
  * Time: 17:08
  */
 
-namespace App\Api\Handler;
+namespace App\Demo\Handler;
 
 use App\Api\Object\MessageObject;
 use Library\Entity\Swoole\EntitySwooleServer;

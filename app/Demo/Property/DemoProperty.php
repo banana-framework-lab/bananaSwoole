@@ -6,8 +6,9 @@
  * Time: 20:06
  */
 
-namespace App\Api\Property;
+namespace App\Demo\Property;
 
+use Exception;
 use Library\Virtual\Property\AbstractProperty;
 
 /**
@@ -29,7 +30,7 @@ class DemoProperty extends AbstractProperty
      * }
      * @param array $params
      * @return $this
-     * @throws \Exception
+     * @throws Exception
      */
     public function setProperty(array $params)
     {

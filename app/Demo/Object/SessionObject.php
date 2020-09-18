@@ -6,9 +6,10 @@
  * Time: 19:44
  */
 
-namespace App\Api\Object;
+namespace App\Demo\Object;
 
-use App\Api\Model\CacheModel\SessionModel;
+
+use App\Demp\Model\CacheModel\SessionModel;
 
 class SessionObject
 {

@@ -6,7 +6,7 @@
  * Time: 20:18
  */
 
-namespace App\Api\Model\DatabaseModel;
+namespace App\Demo\Model\DatabaseModel;
 
 use Library\Virtual\Model\DatabaseModel\AbstractMongoModel;
 

@@ -6,11 +6,10 @@
  * Time: 16:28
  */
 
-namespace App\Api\Controller;
+namespace App\Demo\Controller;
 
-use App\Api\Logic\DemoLogic;
-use App\Api\Service\DemoService;
-use Co;
+use App\Demo\Logic\DemoLogic;
+use App\Demo\Service\DemoService;
 use Library\Helper\LogHelper;
 use Library\Request;
 use Library\Response;
@@ -22,7 +21,7 @@ class DemoController extends AbstractController
     public function demoLog()
     {
         $start = json_encode(Request::server('request_time_float'));
-        Co::sleep(3.0);
+        sleep(3);
         $string = ' cid ' . Coroutine::getuid() . '  start' . $start . '  end' . json_encode(Request::server('request_time_float')) . "";
         LogHelper::info($string, ['msg' => 'demoLog记录日志']);
     }
@@ -40,14 +39,12 @@ class DemoController extends AbstractController
 
     public function demoLogic()
     {
-        $return = (new DemoLogic())->demoLogic();
-        return $return;
+        return (new DemoLogic())->demoLogic();
     }
 
     public function demoLogicForModel()
     {
-        $return = (new DemoLogic())->demoLogicForModel();
-        return $return;
+        return (new DemoLogic())->demoLogicForModel();
     }
 
     public function demoForDd()

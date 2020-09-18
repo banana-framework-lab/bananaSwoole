@@ -5,9 +5,9 @@
  * Date: 2019/9/5 0005
  * Time: 16:28
  */
-namespace App\Api\Controller;
+namespace App\Demo\Controller;
 
-use App\Api\Object\SessionObject;
+use App\Demo\Object\SessionObject;
 use Exception;
 use Library\Request;
 use Library\Virtual\Controller\AbstractController;
