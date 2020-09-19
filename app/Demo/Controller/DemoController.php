@@ -23,7 +23,14 @@ class DemoController extends AbstractController
         $start = json_encode(Request::server('request_time_float'));
         sleep(3);
         $string = ' cid ' . Coroutine::getuid() . '  start' . $start . '  end' . json_encode(Request::server('request_time_float')) . "";
-        LogHelper::info($string, ['msg' => 'demoLog记录日志']);
+//        LogHelper::info($string, [
+//            'msg' => 'demoLog记录日志',
+//            'string' => $string
+//        ]);
+        return [
+            'msg' => 'demoLog记录日志',
+            'string' => $string
+        ];
     }
 
     public function demoFpm()

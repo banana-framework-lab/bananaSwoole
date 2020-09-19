@@ -7,6 +7,8 @@
 
 namespace Library\Entity\Model\Database;
 
+use Closure;
+use Exception;
 use Illuminate\Database\Capsule\Manager as MysqlClient;
 use Illuminate\Database\Connection;
 use Illuminate\Database\Query\Builder;
@@ -33,12 +35,12 @@ use Throwable;
  * @method static int affectingStatement(string $query, array $bindings = [])
  * @method static bool unprepared(string $query)
  * @method static array prepareBindings(array $bindings)
- * @method static mixed transaction(\Closure $callback, int $attempts = 1)
+ * @method static mixed transaction(Closure $callback, int $attempts = 1)
  * @method static void beginTransaction()
  * @method static void commit()
  * @method static void rollBack()
  * @method static int transactionLevel()
- * @method static array pretend(\Closure $callback)
+ * @method static array pretend(Closure $callback)
  *
  * @see \Illuminate\Database\DatabaseManager
  * @see \Illuminate\Database\Connection
@@ -129,19 +131,19 @@ class EntityMysql
      * @param $method
      * @param $args
      * @return mixed
-     * @throws \Exception
+     * @throws Exception
      */
     public static function __callStatic($method, $args)
     {
         $instance = self::$instance;
 
         if (!$instance) {
-            throw new \Exception('找不到Mysql数据库对象');
+            throw new Exception('找不到Mysql数据库对象');
         } else {
             if (method_exists($instance, $method)) {
                 return $instance->$method(...$args);
             } else {
-                throw new \Exception("Mysql数据库对象没有方法{$method}");
+                throw new Exception("Mysql数据库对象没有方法{$method}");
             }
         }
 
