@@ -6,7 +6,7 @@
  * Time: 19:52
  */
 
-namespace App\Api\Model\CacheModel;
+namespace App\Demp\Model\CacheModel;
 
 use Library\Virtual\Model\CacheModel\AbstractCoroutineRedisModel;
 

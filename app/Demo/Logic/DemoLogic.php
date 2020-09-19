@@ -6,7 +6,7 @@
  * Time: 20:15
  */
 
-namespace App\Api\Logic;
+namespace App\Demo\Logic;
 
 
 use App\Api\Model\DatabaseModel\DemoMysqlModel;

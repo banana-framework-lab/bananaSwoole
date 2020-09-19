@@ -131,27 +131,14 @@ class BaseSwooleServer
     public function setConfigIndex(string $index = 'index'): BaseSwooleServer
     {
         $this->serverConfigIndex = $index;
-        return $this;
-    }
 
-    /**
-     * SwooleServer constructor.
-     * @param AbstractSwooleServer $appServer
-     */
-    public function setServerEntity(AbstractSwooleServer $appServer)
-    {
         // Config初始化
         Config::instanceSwooleStart();
 
         // 初始化全局对象
         EntitySwooleServer::instanceStart($this->serverConfigIndex);
 
-        // 非法初始化的类由默认server覆盖
-        if (!$appServer) {
-            $appServer = new DefaultSwooleServer();
-        }
-
-        $this->appServer = $appServer;
+        return $this;
     }
 
     /**

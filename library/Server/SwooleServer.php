@@ -31,10 +31,9 @@ class SwooleServer extends BaseSwooleServer
      * @param AbstractSwooleServer $appServer
      * @return SwooleServer
      */
-    public function init(AbstractSwooleServer $appServer): SwooleServer
+    public function setServer(AbstractSwooleServer $appServer): SwooleServer
     {
-        parent::setServerEntity($appServer);
-
+        $this->appServer = $appServer;
         $this->server = EntitySwooleServer::getInstance();
         $this->port = Config::get("swoole.{$this->serverConfigIndex}.port", 9501);
         $this->workerNum = Config::get("swoole.{$this->serverConfigIndex}.worker_num", 4);
@@ -68,11 +67,14 @@ class SwooleServer extends BaseSwooleServer
         $this->server->set([
             'worker_num' => $this->workerNum,
             'task_worker_num' => $this->taskNum,
+            'dispatch_mode'=> 2,
             'task_enable_coroutine' => true,
             'reload_async' => true,
             'max_wait_time' => 5,
-            'log_level' => 5,
+            'log_level' => LOG_NOTICE,
             'pid_file' => Config::get("swoole.{$this->serverConfigIndex}.pid_file", $pidFilePath),
+            'hook_flags' => SWOOLE_HOOK_ALL,
+            'enable_coroutine' => true
         ]);
 
         $this->server->on('WorkerStart', [$this, 'onWorkerStart']);
@@ -117,7 +119,7 @@ class SwooleServer extends BaseSwooleServer
 
         go(function () use ($server, $workerId, $courseName) {
             if ($this->appServer->start($server, $workerId)) {
-                echo "###########" . str_pad("{$courseName}_pid: {$server->worker_pid}    {$courseName}_id: {$workerId}    start success", $this->echoWidth - 22, ' ', STR_PAD_BOTH) . "###########\n";
+            echo "###########" . str_pad("{$courseName}_pid: {$server->worker_pid}    {$courseName}_id: {$workerId}    start success", $this->echoWidth - 22, ' ', STR_PAD_BOTH) . "###########\n";
             } else {
                 echo "###########" . str_pad("{$courseName}_pid: {$server->worker_pid}    {$courseName}_id: {$workerId}    start fail", $this->echoWidth - 22, ' ', STR_PAD_BOTH) . "###########\n";
                 $server->shutdown();

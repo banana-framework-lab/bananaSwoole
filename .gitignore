@@ -12,7 +12,7 @@ Thumbs.db
 /config
 
 #Runtime
-app/Runtime
+app/*/Runtime
 runtime/Runtime
 library/Runtime/CommandStack/*
 !library/Runtime/CommandStack/.runtime
