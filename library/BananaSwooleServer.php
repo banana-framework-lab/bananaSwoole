@@ -123,19 +123,19 @@ class BananaSwooleServer extends BaseSwooleServer
         }
 
         $courseName = $server->taskworker ? 'task' : 'worker';
-        $startMsgHead = "{$courseName}_pid: {$server->worker_pid}    {$courseName}_id: {$workerId}";
+        $msgHead = "{$courseName}_pid: {$server->worker_pid}    {$courseName}_id: {$workerId}";
 
-        go(function () use ($server, $workerId, $startMsgHead) {
+        go(function () use ($server, $workerId, $msgHead) {
             if ($this->appServer->start($server, $workerId)) {
                 echo "###########" . str_pad(
-                        "{$startMsgHead}  start success",
+                        "{$msgHead}  start success",
                         $this->echoWidth - 22,
                         ' ',
                         STR_PAD_BOTH
                     ) . "###########\n";
             } else {
                 echo "###########" . str_pad(
-                        "{$startMsgHead}  start fail",
+                        "{$msgHead}  start fail",
                         $this->echoWidth - 22,
                         ' ',
                         STR_PAD_BOTH
@@ -201,7 +201,14 @@ class BananaSwooleServer extends BaseSwooleServer
         Container::getRequest()->setRequest($request, $this->server->worker_id, $cId);
         Container::getResponse()->setResponse($response, $this->server->worker_id, $cId);
 
-        $this->appServer->request($request, $response);
+        try {
+            $this->appServer->request($request, $response);
+        } catch (Throwable $error) {
+            $workerId = Container::getSwooleServer()->worker_id;
+            $errorMsg = $error->getMessage();
+            echo "###########" . str_pad("worker_id: {$workerId} error", $this->echoWidth - 22, ' ', STR_PAD_BOTH) . "###########\n";
+            echo "$errorMsg\n";
+        }
     }
 
     /**

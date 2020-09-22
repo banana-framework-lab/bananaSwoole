@@ -10,13 +10,13 @@ namespace Library\Container\Pool;
 
 use Exception;
 use Library\Container;
-use Redis;
+use MongoDB\Client;
 use Swoole\Coroutine\Channel;
 
-class RedisPool
+class MongoPool
 {
     /**
-     * Redis连接池
+     * Mongo连接池
      * @var Channel $pool
      */
     private $pool;
@@ -35,7 +35,7 @@ class RedisPool
     public function __construct($configName = 'server')
     {
         $this->pool = new Channel(
-            Container::getConfig()->get('pool.redis.size', 5)
+            Container::getConfig()->get('pool.mongo.size', 5)
         );
         for ($i = 1; $i <= $this->poolSize; $i++) {
             $this->pool->push($this->getClient($configName));
@@ -43,41 +43,40 @@ class RedisPool
     }
 
     /**
-     * 获取
+     * 获取mongo客户端连接
      * @param string $configName
-     * @return Redis
+     * @return Client
      * @throws Exception
      */
     private function getClient($configName = 'server')
     {
-        $redisConf = Container::getConfig()->get("redis.{$configName}");
+        $mongoUri = Container::getConfig()->get("mongo.{$configName}.url", '');
 
-        if ($redisConf) {
-            $redisServer = new Redis();
-            $redisServer->connect($redisConf['host'], $redisConf['port'], 0.0);
-            $redisServer->auth($redisConf['auth']);
-            $redisServer->select($redisConf['database']);
+        if ($mongoUri) {
+            $mongodbServer = new Client($mongoUri);
+            //访问数据库，确认连接成功
+            $mongodbServer->listDatabases();
 
-            return $redisServer;
+            return $mongodbServer;
         } else {
-            throw new Exception('请配置mysql信息');
+            throw new Exception('请配置mongo信息');
         }
     }
 
     /**
      * 获取连接
-     * @return Redis
+     * @return Client
      */
-    public function get(): Redis
+    public function get(): Client
     {
         return $this->pool->pop();
     }
 
     /**
      * 归还连接
-     * @param Redis $client
+     * @param Client $client
      */
-    public function back(Redis $client)
+    public function back(Client $client)
     {
         $this->pool->push($client);
     }

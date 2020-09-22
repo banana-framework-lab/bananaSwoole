@@ -10,7 +10,9 @@ namespace Library;
 
 use Exception;
 use Library\Container\Config;
+use Library\Container\Pool\MongoPool;
 use Library\Container\Pool\MysqlPool;
+use Library\Container\Pool\RabbitPool;
 use Library\Container\Pool\RedisPool;
 use Library\Container\Request;
 use Library\Container\Response;
@@ -164,13 +166,38 @@ class Container
     }
 
     /**
+     * mongo连接池
+     * @var MongoPool $mongoPool
+     */
+    static private $mongoPool;
+
+    /**
+     * 设置mongo连接池
+     * @param string $configName
+     * @throws Exception
+     */
+    static public function setMongoPool($configName = 'server')
+    {
+        self::$mongoPool = new MongoPool($configName);
+    }
+
+    /**
+     * 返回mongo连接池
+     * @return MongoPool
+     */
+    static public function getMongoPool()
+    {
+        return self::$mongoPool;
+    }
+
+    /**
      * redis连接池
      * @var RedisPool $redisPool
      */
     static private $redisPool;
 
     /**
-     * 设置mysql连接池
+     * 设置redis连接池
      * @param string $configName
      * @throws Exception
      */
@@ -180,11 +207,36 @@ class Container
     }
 
     /**
-     * 返回mysql连接池
+     * 返回redis连接池
      * @return RedisPool
      */
     static public function getRedisPool()
     {
         return self::$redisPool;
+    }
+
+    /**
+     * RabbitMq的连接池
+     * @var RabbitPool $rabbitPool
+     */
+    static private $rabbitPool;
+
+    /**
+     * 设置RabbitMq的连接池
+     * @param string $configName
+     * @throws Exception
+     */
+    static public function setRabbitPool($configName = 'server')
+    {
+        self::$rabbitPool = new RabbitPool($configName);
+    }
+
+    /**
+     * 返回RabbitMq的连接池
+     * @return RabbitPool
+     */
+    static public function getRabbitPool()
+    {
+        return self::$rabbitPool;
     }
 }

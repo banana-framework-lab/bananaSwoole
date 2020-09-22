@@ -10,13 +10,14 @@ namespace Library\Container\Pool;
 
 use Exception;
 use Library\Container;
+use PhpAmqpLib\Connection\AMQPStreamConnection;
 use Redis;
 use Swoole\Coroutine\Channel;
 
-class RedisPool
+class RabbitPool
 {
     /**
-     * Redis连接池
+     * Rabbit连接池
      * @var Channel $pool
      */
     private $pool;
@@ -45,37 +46,40 @@ class RedisPool
     /**
      * 获取
      * @param string $configName
-     * @return Redis
+     * @return AMQPStreamConnection
      * @throws Exception
      */
     private function getClient($configName = 'server')
     {
-        $redisConf = Container::getConfig()->get("redis.{$configName}");
+        $rabbitConfig = Container::getConfig()->get("rabbit.{$configName}");
 
-        if ($redisConf) {
-            $redisServer = new Redis();
-            $redisServer->connect($redisConf['host'], $redisConf['port'], 0.0);
-            $redisServer->auth($redisConf['auth']);
-            $redisServer->select($redisConf['database']);
+        if ($rabbitConfig) {
+            $rabbitClient = new AMQPStreamConnection(
+                $rabbitConfig['host'],
+                $rabbitConfig['port'],
+                $rabbitConfig['user'],
+                $rabbitConfig['password'],
+                $rabbitConfig['vhost']
+            );
 
-            return $redisServer;
+            return $rabbitClient;
         } else {
-            throw new Exception('请配置mysql信息');
+            throw new Exception('请配置rabbit信息');
         }
     }
 
     /**
      * 获取连接
-     * @return Redis
+     * @return AMQPStreamConnection
      */
-    public function get(): Redis
+    public function get(): AMQPStreamConnection
     {
         return $this->pool->pop();
     }
 
     /**
      * 归还连接
-     * @param Redis $client
+     * @param AMQPStreamConnection $client
      */
     public function back(Redis $client)
     {
