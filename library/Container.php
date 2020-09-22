@@ -8,9 +8,13 @@
 
 namespace Library;
 
+use Exception;
 use Library\Container\Config;
+use Library\Container\Pool\MysqlPool;
+use Library\Container\Pool\RedisPool;
 use Library\Container\Request;
 use Library\Container\Response;
+use Library\Container\Router;
 use Library\Container\SwooleServer;
 use Swoole\WebSocket\Server;
 
@@ -109,5 +113,78 @@ class Container
     static public function getResponse()
     {
         return self::$response;
+    }
+
+    /**
+     * 路由对象
+     * @var Router $router
+     */
+    static private $router;
+
+    /**
+     * 设置路由对象
+     */
+    static public function setRouter()
+    {
+        self::$router = new Router();
+    }
+
+    /**
+     * 返回路由对象
+     * @return Router
+     */
+    static public function getRouter()
+    {
+        return self::$router;
+    }
+
+    /**
+     * mysql连接池
+     * @var MysqlPool $mysqlPool
+     */
+    static private $mysqlPool;
+
+    /**
+     * 设置mysql连接池
+     * @param string $configName
+     * @throws Exception
+     */
+    static public function setMysqlPool($configName = 'server')
+    {
+        self::$mysqlPool = new MysqlPool($configName);
+    }
+
+    /**
+     * 返回mysql连接池
+     * @return MysqlPool
+     */
+    static public function getMysqlPool()
+    {
+        return self::$mysqlPool;
+    }
+
+    /**
+     * redis连接池
+     * @var RedisPool $redisPool
+     */
+    static private $redisPool;
+
+    /**
+     * 设置mysql连接池
+     * @param string $configName
+     * @throws Exception
+     */
+    static public function setRedisPool($configName = 'server')
+    {
+        self::$redisPool = new RedisPool($configName);
+    }
+
+    /**
+     * 返回mysql连接池
+     * @return RedisPool
+     */
+    static public function getRedisPool()
+    {
+        return self::$redisPool;
     }
 }

@@ -18,12 +18,6 @@ use Library\Object\RouteObject;
 class Common
 {
     /**
-     * 已经加载过公共文件的项目名
-     * @var array $loadIndex
-     */
-    private static $loadIndex = [];
-
-    /**
      * 加载公共文件
      * @param string $projectName
      */
@@ -32,25 +26,11 @@ class Common
         if ($projectName == '') {
             include_once dirname(__FILE__) . "/Common/functions.php";
         } else {
+            include_once dirname(__FILE__) . "/Common/functions.php";
             $filePath = dirname(__FILE__) . "/../app/{$projectName}/Common/functions.php";
             if (file_exists($filePath)) {
                 include_once $filePath;
-                self::$loadIndex[$projectName] = true;
-            } else {
-                self::$loadIndex[$projectName] = true;
             }
-        }
-    }
-
-    /**
-     * 自动根据路由加载文件
-     * @param RouteObject $router
-     */
-    public static function autoLoadProjectCommonFile(RouteObject $router)
-    {
-        $project = $router->getProject();
-        if (!isset(self::$loadIndex[$project])) {
-            self::loadCommonFile($project);
         }
     }
 }

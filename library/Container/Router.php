@@ -8,9 +8,8 @@
 
 namespace Library\Container;
 
-use Library\Entity\Swoole\EntitySwooleServer;
+use Library\Common;
 use Library\Object\RouteObject;
-use Swoole\Coroutine;
 
 /**
  * Class Router
@@ -20,33 +19,33 @@ class Router
 {
     /**
      * 路由对象
-     * @var array $routePool
+     * @var array $pool
      */
-    private static $routePool = [];
+    private $pool = [];
 
     /**
      * 路由规则对象
      * @var array $routerPool
      */
-    private static $routerPool = [];
+    private $routerPool = [];
 
     /**
      * 初始化Router类
      * @param string $lockFileName
      */
-    public static function instanceStart(string $lockFileName = '')
+    public function __construct(string $lockFileName = '')
     {
-        if (!empty($lockFileName) && file_exists(dirname(__FILE__) . '/../route/' . $lockFileName)) {
-            $fileData = require dirname(__FILE__) . '/../route/' . $lockFileName;
-            $routerData = self::analysisRouter($fileData);
-            $routerData && self::$routerPool = array_merge(self::$routerPool, $routerData);
+        if (!empty($lockFileName) && file_exists(dirname(__FILE__) . '/../../route/' . $lockFileName)) {
+            $fileData = require dirname(__FILE__) . '/../../route/' . $lockFileName;
+            $routerData = $this->analysisRouter($fileData);
+            $routerData && $this->routerPool = array_merge($this->routerPool, $routerData);
         } else {
-            $handler = opendir(dirname(__FILE__) . '/../route');
+            $handler = opendir(dirname(__FILE__) . '/../../route');
             while (($fileName = readdir($handler)) !== false) {
                 if ($fileName != "." && $fileName != "..") {
-                    $fileData = require dirname(__FILE__) . '/../route/' . $fileName;
-                    $routerData = self::analysisRouter($fileData);
-                    $routerData && self::$routerPool = array_merge(self::$routerPool, $routerData);
+                    $fileData = require dirname(__FILE__) . '/../../route/' . $fileName;
+                    $routerData = $this->analysisRouter($fileData);
+                    $routerData && $this->routerPool = array_merge($this->routerPool, $routerData);
                 }
             }
             closedir($handler);
@@ -59,7 +58,7 @@ class Router
      * @param string $baseRoute
      * @return array
      */
-    private static function analysisRouter(array $fileData, string $baseRoute = '')
+    private function analysisRouter(array $fileData, string $baseRoute = '')
     {
         $routerData = [];
         $originBaseRoute = $baseRoute;
@@ -82,46 +81,34 @@ class Router
 
     /**
      * 获取当前处理的匹配出的路由
+     * @param int $workerId
+     * @param int $cId
      * @return RouteObject
      */
-    public static function getRouteInstance(): RouteObject
+    public function getRoute(int $workerId = 0, int $cId = 0): RouteObject
     {
-        if (EntitySwooleServer::getInstance()) {
-            $workerId = EntitySwooleServer::getInstance()->worker_id;
-            $cid = Coroutine::getuid();
-            return static::$routePool[$workerId][$cid] ?? (new RouteObject());
-        } else {
-            return static::$routePool[0][0] ?? (new RouteObject());
-        }
+        return $this->pool[$workerId][$cId] ?? (new RouteObject());
     }
 
     /**
      * 删除当前路由对象
      * @param int $workerId
      */
-    public static function delRouteInstance(int $workerId = -1)
+    public function delRoute(int $workerId = 0, int $cId = 0)
     {
-        if ($workerId == -1) {
-            $cid = Coroutine::getuid();
-            $workerId = EntitySwooleServer::getInstance()->worker_id;
-            unset(static::$routePool[$workerId][$cid]);
-        } else {
-            unset(static::$routePool[$workerId]);
-        }
+        unset($this->pool[$workerId][$cId]);
     }
 
     /**
      * 路由
      * @param string $requestUrl
-     * @param string $type
+     * @param int $workerId
+     * @param int $cId
      * @return RouteObject
      */
-    public static function router(string $requestUrl, string $type = 'Controller'): RouteObject
+    public function controllerRouter(string $requestUrl, int $workerId = 0, int $cId = 0): RouteObject
     {
-        if ($type != 'Controller') {
-            $type = 'Task';
-        }
-        $route = self::$routerPool[$requestUrl] ?? null;
+        $route = $this->routerPool[$requestUrl] ?? null;
         if (is_null($route)) {
             $requestUrl = trim($requestUrl, '/');
             $requestUrlArray = explode('/', $requestUrl);
@@ -131,17 +118,9 @@ class Router
 
             $routerObject = new RouteObject();
             $routerObject->setProject($requestUrlArray[0]);
-            $routerObject->setController("\\App\\{$requestUrlArray[0]}\\{$type}\\{$requestUrlArray[1]}{$type}");
+            $routerObject->setController("\\App\\{$requestUrlArray[0]}\\Controller}\\{$requestUrlArray[1]}Controller}");
             $routerObject->setMethod($requestUrlArray[2]);
             $routerObject->setRoute($requestUrl);
-
-            if (in_array($type, ['Controller'])) {
-                if (EntitySwooleServer::getInstance()) {
-                    static::$routePool[EntitySwooleServer::getInstance()->worker_id][Coroutine::getuid()] = $routerObject;
-                } else {
-                    static::$routePool[0][0] = $routerObject;
-                }
-            }
         } else {
             $requestUrlArray = explode('@', $route);
 
@@ -150,18 +129,12 @@ class Router
             $routerObject->setController($requestUrlArray[0]);
             $routerObject->setMethod($requestUrlArray[1]);
             $routerObject->setRoute($requestUrl);
-
-            if (in_array($type, ['Controller'])) {
-                if (EntitySwooleServer::getInstance()) {
-                    static::$routePool[EntitySwooleServer::getInstance()->worker_id][Coroutine::getuid()] = $routerObject;
-                } else {
-                    static::$routePool[0][0] = $routerObject;
-                }
-            }
         }
 
+        $this->pool[$workerId][$cId] = $routerObject;
+
         //根据路由判断是否加载过Common文件
-        Common::autoLoadProjectCommonFile($routerObject);
+        Common::loadCommonFile($routerObject->getProject());
         return $routerObject;
     }
 

@@ -24,7 +24,7 @@ class SwooleServer
      */
     public function __construct(string $serverConfigIndex)
     {
-        $this->instance = Server(
+        $this->instance = new Server(
             "0.0.0.0",
             Container::getConfig()->get("swoole.{$serverConfigIndex}.port"),
             SWOOLE_PROCESS

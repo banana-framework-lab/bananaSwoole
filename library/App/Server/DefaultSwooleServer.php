@@ -9,13 +9,10 @@
 namespace Library\App\Server;
 
 use Library\Channel;
-use Library\Config;
+use Library\Container;
 use Library\Exception\WebException;
 use Library\Object\ChannelObject;
 use Library\Object\RouteObject;
-use Library\Pool\CoroutineMysqlClientPool;
-use Library\Response;
-use Library\Router;
 use Library\Virtual\Controller\AbstractController;
 use Library\Virtual\Handler\AbstractHandler;
 use Library\Virtual\MiddleWare\AbstractMiddleWare;
@@ -44,17 +41,14 @@ class DefaultSwooleServer extends AbstractSwooleServer
     public function start(SwooleSocketServer $server, int $workerId): bool
     {
         try {
-            // 通道配置
-            Channel::instanceStart();
-
-            // 路由配置
-            Router::instanceStart();
-
             // 初始化mysql连接池
-            CoroutineMysqlClientPool::poolInit();
+            Container::setMysqlPool();
+
+            // 初始化redis连接池
+            Container::setRedisPool();
 
             // 开启php调试模式
-            if (Config::get('app.debug', true)) {
+            if (Container::getConfig()->get('app.debug', true)) {
                 error_reporting(E_ALL);
             }
 

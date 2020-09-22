@@ -9,14 +9,14 @@
 namespace Library\Container\Pool;
 
 use Exception;
-use Illuminate\Database\Capsule\Manager;
 use Library\Container;
+use Redis;
 use Swoole\Coroutine\Channel;
 
-class MysqlPool
+class RedisPool
 {
     /**
-     * 数据库连接池
+     * Redis连接池
      * @var Channel $pool
      */
     private $pool;
@@ -35,7 +35,7 @@ class MysqlPool
     public function __construct($configName = 'server')
     {
         $this->pool = new Channel(
-            Container::getConfig()->get('pool.mysql.size', 5)
+            Container::getConfig()->get('pool.redis.size', 5)
         );
         for ($i = 1; $i <= $this->poolSize; $i++) {
             $this->pool->push($this->getClient($configName));
@@ -45,7 +45,7 @@ class MysqlPool
     /**
      * 获取
      * @param string $configName
-     * @return Manager
+     * @return Redis
      * @throws Exception
      */
     private function getClient($configName = 'server')
@@ -53,16 +53,13 @@ class MysqlPool
         $configData = Container::getConfig()->get("mysql.{$configName}", []);
 
         if ($configData) {
-            $mysqlClient = new Manager();
-            //设置数据库的配置
-            $mysqlClient->addConnection($configData);
-            // 使得数据库对象全局可用
-            $mysqlClient->setAsGlobal();
-            //设置可用Eloquent
-            $mysqlClient->bootEloquent();
-            //真正连接数据库
-            $mysqlClient->connection()->getPdo();
-            return $mysqlClient;
+            $redisConf = Container::getConfig()->get("redis.{$configName}");
+            $redisServer = new Redis();
+            $redisServer->connect($redisConf['host'], $redisConf['port'], 0.0);
+            $redisServer->auth($redisConf['auth']);
+            $redisServer->select($redisConf['database']);
+
+            return $redisServer;
         } else {
             throw new Exception('请配置mysql信息');
         }
@@ -70,18 +67,18 @@ class MysqlPool
 
     /**
      * 获取连接
-     * @return Manager
+     * @return Redis
      */
-    public function get(): Manager
+    public function get(): Redis
     {
         return $this->pool->pop();
     }
 
     /**
      * 归还连接
-     * @param Manager $client
+     * @param Redis $client
      */
-    public function back(Manager $client)
+    public function back(Redis $client)
     {
         $this->pool->push($client);
     }

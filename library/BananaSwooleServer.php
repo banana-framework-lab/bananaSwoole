@@ -65,6 +65,11 @@ class BananaSwooleServer extends BaseSwooleServer
      */
     public function run()
     {
+        if (!$this->appServer) {
+            echo "appServer对象不能为空\n";
+            exit;
+        }
+
         $pidFilePath = dirname(__FILE__) . "/../Runtime/CommandStack/{$this->serverName}";
         $this->server->set([
             'worker_num' => $this->workerNum,
@@ -118,12 +123,23 @@ class BananaSwooleServer extends BaseSwooleServer
         }
 
         $courseName = $server->taskworker ? 'task' : 'worker';
+        $startMsgHead = "{$courseName}_pid: {$server->worker_pid}    {$courseName}_id: {$workerId}";
 
-        go(function () use ($server, $workerId, $courseName) {
+        go(function () use ($server, $workerId, $startMsgHead) {
             if ($this->appServer->start($server, $workerId)) {
-                echo "###########" . str_pad("{$courseName}_pid: {$server->worker_pid}    {$courseName}_id: {$workerId}    start success", $this->echoWidth - 22, ' ', STR_PAD_BOTH) . "###########\n";
+                echo "###########" . str_pad(
+                        "{$startMsgHead}  start success",
+                        $this->echoWidth - 22,
+                        ' ',
+                        STR_PAD_BOTH
+                    ) . "###########\n";
             } else {
-                echo "###########" . str_pad("{$courseName}_pid: {$server->worker_pid}    {$courseName}_id: {$workerId}    start fail", $this->echoWidth - 22, ' ', STR_PAD_BOTH) . "###########\n";
+                echo "###########" . str_pad(
+                        "{$startMsgHead}  start fail",
+                        $this->echoWidth - 22,
+                        ' ',
+                        STR_PAD_BOTH
+                    ) . "###########\n";
                 $server->shutdown();
             }
         });
@@ -154,7 +170,7 @@ class BananaSwooleServer extends BaseSwooleServer
             //回收返回数据
             Container::getResponse()->delResponse($this->server->worker_id, $cId);
             //回收路由数据
-            Router::delRouteInstance();
+            Container::getRouter()->delRoute($this->server->worker_id, $cId);
         });
 
         // 适配谷歌浏览器显示favicon.ico
