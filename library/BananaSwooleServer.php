@@ -1,43 +1,45 @@
 <?php
 
-namespace Library\Server;
+namespace Library;
 
 use Library\Base\Server\BaseSwooleServer;
-use Library\Common;
-use Library\Config;
-use Library\Entity\Swoole\EntitySwooleServer;
-use Library\Request;
-use Library\Response;
-use Library\Router;
 use Library\Virtual\Server\AbstractSwooleServer;
-use Swoole\Http\Request as SwooleHttpRequest;
+use Swoole\Coroutine;
 use Swoole\Server\Task;
 use Swoole\Table;
 use Swoole\Timer;
-use Swoole\WebSocket\Frame as SwooleSocketFrame;
-use Swoole\WebSocket\Server as SwooleSocketServer;
-use Swoole\Http\Request as SwooleRequest;
-use Swoole\Http\Response as SwooleResponse;
+use Swoole\WebSocket\Frame;
+use Swoole\WebSocket\Server;
+use Swoole\Http\Request;
+use Swoole\Http\Response;
 use Throwable;
 
 /**
  * Class SwooleWebSocketServer
  * @package Library\Server
  */
-class SwooleServer extends BaseSwooleServer
+class BananaSwooleServer extends BaseSwooleServer
 {
+    public function __construct(string $serverConfigIndex = 'index')
+    {
+        $this->serverConfigIndex = $serverConfigIndex;
+        Container::setSwooleSever($serverConfigIndex);
+        Container::setRequest();
+        parent::__construct();
+    }
+
     /**
      * SwooleWebSocketServer constructor.
      * @param AbstractSwooleServer $appServer
-     * @return SwooleServer
+     * @return BananaSwooleServer
      */
-    public function setServer(AbstractSwooleServer $appServer): SwooleServer
+    public function setServer(AbstractSwooleServer $appServer): BananaSwooleServer
     {
         $this->appServer = $appServer;
-        $this->server = EntitySwooleServer::getInstance();
-        $this->port = Config::get("swoole.{$this->serverConfigIndex}.port", 9501);
-        $this->workerNum = Config::get("swoole.{$this->serverConfigIndex}.worker_num", 4);
-        $this->taskNum = Config::get("swoole.{$this->serverConfigIndex}.task_num", ($this->workerNum) * 4);
+        $this->server = Container::getSwooleServer();
+        $this->port = Container::getConfig()->get("swoole.{$this->serverConfigIndex}.port", 9501);
+        $this->workerNum = Container::getConfig()->get("swoole.{$this->serverConfigIndex}.worker_num", 4);
+        $this->taskNum = Container::getConfig()->get("swoole.{$this->serverConfigIndex}.task_num", ($this->workerNum) * 4);
 
         // bindTable初始化
         $this->bindTable = new Table($this->workerNum * 2000);
@@ -72,7 +74,7 @@ class SwooleServer extends BaseSwooleServer
             'reload_async' => true,
             'max_wait_time' => 5,
             'log_level' => LOG_NOTICE,
-            'pid_file' => Config::get("swoole.{$this->serverConfigIndex}.pid_file", $pidFilePath),
+            'pid_file' => Container::getConfig()->get("swoole.{$this->serverConfigIndex}.pid_file", $pidFilePath),
             'hook_flags' => SWOOLE_HOOK_ALL,
             'enable_coroutine' => true
         ]);
@@ -94,19 +96,19 @@ class SwooleServer extends BaseSwooleServer
 
     /**
      * onWorkerStart事件
-     * @param SwooleSocketServer $server
+     * @param Server $server
      * @param int $workerId
      */
-    public function onWorkerStart(SwooleSocketServer $server, int $workerId)
+    public function onWorkerStart(Server $server, int $workerId)
     {
         try {
             // 配置文件初始化
-            Config::instanceStart();
+            Container::getConfig()->initConfig();
             // 加载library的Common文件
             Common::loadCommonFile();
             // 当且仅当非task进程，id为0时的进程触发热重启
             if (!$server->taskworker && $workerId <= 0) {
-                if (Config::get('app.debug')) {
+                if (Container::getConfig()->get('app.is_auto_reload', false)) {
                     $this->reloadTickId = Timer::tick(1000, $this->autoHotReload());
                 }
                 $this->startEcho('SwooleServer', '#', '|');
@@ -129,10 +131,10 @@ class SwooleServer extends BaseSwooleServer
 
     /**
      * onTask事件
-     * @param SwooleSocketServer $server
+     * @param Server $server
      * @param Task $task
      */
-    public function onTask(SwooleSocketServer $server, Task $task)
+    public function onTask(Server $server, Task $task)
     {
         $this->appServer->task($server, $task);
     }
@@ -140,16 +142,17 @@ class SwooleServer extends BaseSwooleServer
     /**
      * 处理Http的请求
      *
-     * @param SwooleRequest $request
-     * @param SwooleResponse $response
+     * @param Request $request
+     * @param Response $response
      */
-    public function onRequest(SwooleRequest $request, SwooleResponse $response)
+    public function onRequest(Request $request, Response $response)
     {
         defer(function () {
+            $cId = Coroutine::getuid();
             //回收请求数据
-            Request::delInstance();
+            Container::getRequest()->delRequest($this->server->worker_id, $cId);
             //回收返回数据
-            Response::delInstance();
+            Container::getResponse()->delResponse($this->server->worker_id, $cId);
             //回收路由数据
             Router::delRouteInstance();
         });
@@ -167,7 +170,7 @@ class SwooleServer extends BaseSwooleServer
             return;
         }
 
-        $allowOrigins = Config::get('app.allow_origin', []);
+        $allowOrigins = Container::getConfig()->get('app.allow_origin', []);
 
         if (isset($request->header['origin']) && in_array(strtolower($request->header['origin']), $allowOrigins)) {
             $response->header('Access-Control-Allow-Origin', $request->header['origin']);
@@ -178,18 +181,19 @@ class SwooleServer extends BaseSwooleServer
         $response->header('Content-type', 'application/json');
 
         //初始化请求实体类
-        Request::setInstance($request);
-        Response::setInstance($response);
+        $cId = Coroutine::getuid();
+        Container::getRequest()->setRequest($request, $this->server->worker_id, $cId);
+        Container::getResponse()->setResponse($response, $this->server->worker_id, $cId);
 
         $this->appServer->request($request, $response);
     }
 
     /**
      * open事件回调
-     * @param SwooleSocketServer $server
-     * @param SwooleHttpRequest $request
+     * @param Server $server
+     * @param Request $request
      */
-    public function onOpen(SwooleSocketServer $server, SwooleHttpRequest $request)
+    public function onOpen(Server $server, Request $request)
     {
         $this->appServer->open($server, $request);
     }
@@ -197,20 +201,20 @@ class SwooleServer extends BaseSwooleServer
 
     /**
      * 收到消息回调
-     * @param SwooleSocketServer $server
-     * @param SwooleSocketFrame $frame
+     * @param Server $server
+     * @param Frame $frame
      */
-    public function onMessage(SwooleSocketServer $server, SwooleSocketFrame $frame)
+    public function onMessage(Server $server, Frame $frame)
     {
         $this->appServer->message($server, $frame);
     }
 
     /**
      * 关闭webSocket时的回调
-     * @param SwooleSocketServer $server
+     * @param Server $server
      * @param int $fd
      */
-    public function onClose(SwooleSocketServer $server, int $fd)
+    public function onClose(Server $server, int $fd)
     {
         $this->appServer->close($server, $fd);
     }
@@ -218,13 +222,13 @@ class SwooleServer extends BaseSwooleServer
     /**
      * onWorkerError事件
      *
-     * @param SwooleSocketServer $server
+     * @param Server $server
      * @param int $workerId
      * @param int $workerPid
      * @param int $exitCode
      * @param int $signal
      */
-    public function onWorkerError(SwooleSocketServer $server, int $workerId, int $workerPid, int $exitCode, int $signal)
+    public function onWorkerError(Server $server, int $workerId, int $workerPid, int $exitCode, int $signal)
     {
         if ($server) {
             $courseName = $server->taskworker ? 'task' : 'worker';
@@ -235,10 +239,10 @@ class SwooleServer extends BaseSwooleServer
     /**
      * onWorkerStop事件
      *
-     * @param SwooleSocketServer $server
+     * @param Server $server
      * @param int $workerId
      */
-    public function onWorkerStop(SwooleSocketServer $server, int $workerId)
+    public function onWorkerStop(Server $server, int $workerId)
     {
         $courseName = $server->taskworker ? 'task' : 'worker';
         echo "###########" . str_pad("{$courseName}_pid: {$server->worker_pid}    {$courseName}_id: {$workerId}    stop", $this->echoWidth - 22, ' ', STR_PAD_BOTH) . "###########\n";
@@ -247,10 +251,10 @@ class SwooleServer extends BaseSwooleServer
     /**
      * onWorkerExit事件
      *
-     * @param SwooleSocketServer $server
+     * @param Server $server
      * @param int $workerId
      */
-    public function onWorkerExit(SwooleSocketServer $server, int $workerId)
+    public function onWorkerExit(Server $server, int $workerId)
     {
         Timer::clear($this->reloadTickId);
         $this->appServer->exit($server, $workerId);

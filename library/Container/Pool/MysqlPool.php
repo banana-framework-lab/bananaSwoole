@@ -6,7 +6,7 @@
  * Time: 16:41
  */
 
-namespace Library\Pool;
+namespace Library\Container\Pool;
 
 use Exception;
 use Illuminate\Database\Capsule\Manager;
@@ -14,7 +14,7 @@ use Library\Config;
 use PDO;
 use Swoole\Coroutine\Channel;
 
-class MysqlClientPool
+class MysqlPool
 {
     /**
      * 数据库连接池

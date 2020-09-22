@@ -124,24 +124,6 @@ class BaseSwooleServer
     }
 
     /**
-     * 设置配置文件下标
-     * @param string $index
-     * @return BaseSwooleServer
-     */
-    public function setConfigIndex(string $index = 'index'): BaseSwooleServer
-    {
-        $this->serverConfigIndex = $index;
-
-        // Config初始化
-        Config::instanceSwooleStart();
-
-        // 初始化全局对象
-        EntitySwooleServer::instanceStart($this->serverConfigIndex);
-
-        return $this;
-    }
-
-    /**
      * worker启动完成后报的程序信息
      * @param string $serverType
      * @param string $xChar

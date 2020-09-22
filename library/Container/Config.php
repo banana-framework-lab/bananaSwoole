@@ -1,6 +1,8 @@
 <?php
 
-namespace Library;
+namespace Library\Container;
+use Exception;
+
 /**
  * Created by PhpStorm.
  * User: ZhongHao-Zh
@@ -9,27 +11,27 @@ namespace Library;
  */
 /**
  * Class Config
- * @package Library
+ * @package Library\Container
  */
 class Config
 {
     /**
      * @var array $configPool
      */
-    private static $configPool = [];
+    private $configPool = [];
 
     /**
      * 初始化Config类
      */
-    public static function instanceStart()
+    public function initConfig()
     {
-        $handler = opendir(dirname(__FILE__) . '/../config');
+        $handler = opendir(dirname(__FILE__) . '/../../config');
         while (($fileName = readdir($handler)) !== false) {
             if ($fileName != "." && $fileName != "..") {
                 $fileIndex = (explode('.', $fileName))[0];
                 if ($fileIndex != 'swoole') {
-                    $fileData = include dirname(__FILE__) . '/../config/' . $fileName;
-                    static::$configPool[$fileIndex] = $fileData;
+                    $fileData = include dirname(__FILE__) . '/../../config/' . $fileName;
+                    $this->configPool[$fileIndex] = $fileData;
                 }
             }
         }
@@ -38,23 +40,15 @@ class Config
 
     /**
      * 初始化swooleConfig类
+     * @throws Exception
      */
-    public static function instanceSwooleStart()
+    public function initSwooleConfig()
     {
-        if (file_exists(dirname(__FILE__) . '/../config/swoole.php')) {
-            $fileData = include dirname(__FILE__) . '/../config/swoole.php';
-            static::$configPool['swoole'] = $fileData;
+        if (file_exists(dirname(__FILE__) . '/../../config/swoole.php')) {
+            $fileData = include dirname(__FILE__) . '/../../config/swoole.php';
+            $this->configPool['swoole'] = $fileData;
         } else {
-            static::$configPool['swoole'] = [
-                'web' => [
-                    'port' => 9501,
-                    'worker_num' => 1
-                ],
-                'socket' => [
-                    'port' => 9502,
-                    'worker_num' => 1
-                ]
-            ];
+            throw new Exception('无配置Swoole配置文件');
         }
     }
 
@@ -64,12 +58,12 @@ class Config
      * @param mixed $default
      * @return mixed
      */
-    public static function get(string $param, $default = "")
+    public function get(string $param, $default = "")
     {
         if ($param) {
             $paramArray = explode('.', $param);
-            if (isset(static::$configPool[$paramArray[0]])) {
-                $returnData = static::$configPool[$paramArray[0]];
+            if (isset($this->configPool[$paramArray[0]])) {
+                $returnData = $this->configPool[$paramArray[0]];
             } else {
                 return $default;
             }

@@ -6,7 +6,7 @@
  * Time: 16:55
  */
 
-namespace Library;
+namespace Library\Container;
 
 use Library\Entity\Swoole\EntitySwooleServer;
 use Library\Object\RouteObject;
