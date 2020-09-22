@@ -24,7 +24,7 @@ class TimeTextService
 
     /**
      * 获取实例
-     * @return null|static
+     * @return null | static
      */
     public static function instance()
     {

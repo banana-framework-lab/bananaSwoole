@@ -1,8 +1,8 @@
 <?php
 
-namespace Library;
+namespace Library\Server;
 
-use Library\Base\Server\BaseSwooleServer;
+use Library\Container;
 use Library\Virtual\Server\AbstractSwooleServer;
 use Swoole\Coroutine;
 use Swoole\Server\Task;
@@ -23,8 +23,10 @@ class BananaSwooleServer extends BaseSwooleServer
     public function __construct(string $serverConfigIndex = 'index')
     {
         $this->serverConfigIndex = $serverConfigIndex;
+        Container::setConfig();
         Container::setSwooleSever($serverConfigIndex);
         Container::setRequest();
+        Container::setResponse();
         parent::__construct();
     }
 
@@ -70,7 +72,7 @@ class BananaSwooleServer extends BaseSwooleServer
             exit;
         }
 
-        $pidFilePath = dirname(__FILE__) . "/../Runtime/CommandStack/{$this->serverName}";
+        $pidFilePath = dirname(__FILE__) . "/../Runtime/Script/{$this->serverName}";
         $this->server->set([
             'worker_num' => $this->workerNum,
             'task_worker_num' => $this->taskNum,

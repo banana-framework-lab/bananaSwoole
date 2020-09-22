@@ -14,8 +14,8 @@ Thumbs.db
 #Runtime
 app/*/Runtime
 runtime/Runtime
-library/Runtime/CommandStack/*
-!library/Runtime/CommandStack/.runtime
+library/Runtime/Script/*
+!library/Runtime/Script/.runtime
 */*/File
 
 /vendor

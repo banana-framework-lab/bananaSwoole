@@ -1,6 +1,6 @@
 <?php
 use Library\App\Server\DefaultSwooleServer;
-use Library\BananaSwooleServer;
+use Library\Server\BananaSwooleServer;
 
 date_default_timezone_set('PRC');
 require dirname(__FILE__) . '/../vendor/autoload.php';

@@ -6,9 +6,10 @@
  * Time: 16:35
  */
 
-namespace Library\Base\Server;
+namespace Library\Server;
 
 use Closure;
+use Library\Container;
 use Library\Virtual\Server\AbstractSwooleServer;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
@@ -162,7 +163,7 @@ class BaseSwooleServer
     {
         return function () {
             // 读取需要热加载的路径
-            $pathList = Config::get('reload.path_list', []);
+            $pathList = Container::getConfig()->get('reload.path_list', []);
             $isReload = false;
             $iNodeList = [];
 

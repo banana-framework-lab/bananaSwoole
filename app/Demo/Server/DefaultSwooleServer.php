@@ -6,7 +6,7 @@
  * Time: 17:02
  */
 
-namespace Library\App\Server;
+namespace App\Demo\Server;
 
 use Library\Channel;
 use Library\Container;
@@ -24,7 +24,6 @@ use Swoole\WebSocket\Frame as SwooleSocketFrame;
 use Swoole\Http\Request as SwooleRequest;
 use Swoole\Http\Response as SwooleResponse;
 use Throwable;
-
 
 /**
  * Class DefaultWebSocketServer
