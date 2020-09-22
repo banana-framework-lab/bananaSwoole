@@ -1,48 +1,46 @@
 <?php
 
-namespace Library\Helper;
+namespace Library\Container;
 
-use Library\Config;
-use Library\Entity\Swoole\EntitySwooleServer;
-use Library\Request;
-use Library\Router;
+use Library\Container;
 use Monolog\Logger;
 use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\RotatingFileHandler;
+use Swoole\Coroutine;
 
 
 /**
- * Class LogHelper
- * @package Library\Helper
+ * Class Log
+ * @package Library\Container
  *
- * @method static bool info(string $message = '', array $context = [], string $levelName = '', string $channel = '')
- * @method static bool warning(string $message = '', array $context = [], string $levelName = '', string $channel = '')
- * @method static bool task(string $message = '', array $context = [], string $levelName = '', string $channel = '')
- * @method static bool error(string $message = '', array $context = [], string $levelName = '', string $channel = '')
- * @method static bool success(string $message = '', array $context = [], string $levelName = '', string $channel = '')
+ * @method bool info(string $message = '', array $context = [], string $levelName = '', string $channel = '')
+ * @method bool warning(string $message = '', array $context = [], string $levelName = '', string $channel = '')
+ * @method bool task(string $message = '', array $context = [], string $levelName = '', string $channel = '')
+ * @method bool error(string $message = '', array $context = [], string $levelName = '', string $channel = '')
+ * @method bool success(string $message = '', array $context = [], string $levelName = '', string $channel = '')
  */
-class LogHelper
+class Log
 {
-    private static $loggers;
+    private $loggers;
 
     /**
      * 日志留存时间
      * @var int
      */
-    private static $maxFiles = 0;
+    private $maxFiles = 0;
 
     /**
      * 日志等级
      * @var int
      */
-    private static $level = Logger::DEBUG;
+    private $level = Logger::DEBUG;
 
     /**
      * 文件读写权限分配
      * 0666 保证log日志文件可以被其他用户/进程读写
      * @var int
      */
-    private static $filePermission = 0755;
+    private $filePermission = 0755;
 
     /**
      * monolog日志
@@ -50,20 +48,24 @@ class LogHelper
      * @param $arguments
      * @return mixed
      */
-    public static function __callStatic($name, $arguments)
+    public function __call($name, $arguments)
     {
-        $logObject = ((Router::getRouteInstance())->getProject());
+        $logObject = Container::getRouter()->getRoute(
+            Container::getSwooleServer()->worker_id,
+            Coroutine::getuid()
+        )->getProject();
+        $ymd = date('Ymd');
         if (!isset($arguments[3]) || $arguments[3] != '') {
             if ($logObject) {
-                $fileName = dirname(__FILE__) . '/../../app/' . $logObject . '/Runtime/logs/' . date('Ymd') . '/';
+                $fileName =  dirname(__FILE__) . "/../../app/{$logObject}/Runtime/logs/{$ymd}/";
             } else {
-                $fileName = dirname(__FILE__) . '/../../runtime/Runtime/logs/' . date('Ymd') . '/';
+                $fileName = dirname(__FILE__) . "/../../runtime/Runtime/logs/{$ymd}/";
             }
         } else {
-            $fileName = dirname(__FILE__) . "/../../app/{$arguments[3]}/Runtime/logs/" . date('Ymd') . '/';
+            $fileName = dirname(__FILE__) . "/../../app/{$arguments[3]}/Runtime/logs/{$ymd}/";
         }
 
-        $logger = self::createLogger($name, $fileName);
+        $logger = $this->createLogger($name, $fileName);
 
         $message = empty($arguments[0]) ? '' : $arguments[0];
         $context = empty($arguments[1]) ? [] : $arguments[1];
@@ -81,39 +83,31 @@ class LogHelper
      * @param string $fileName
      * @return mixed
      */
-    private static function createLogger(string $name, string $fileName)
+    private function createLogger(string $name, string $fileName)
     {
-        if (empty(self::$loggers[$name])) {
+        if (empty($this->loggers[$name])) {
+            $workerId = Container::getSwooleServer()->worker_id;
+            $cId = Coroutine::getuid();
+            $request = Container::getRequest()->getRequest($workerId, $cId);
 
             // 根据业务域名与方法名进行日志名称的确定
-            $category = Request::server('server_name') ?: Config::get('app.server_name');
-            // 日志保存时间
-            $maxFiles = self::$maxFiles;
+            $category = $request->server['server_name'];
             // 日志等级
-            $level = self::$level;
+            $level = $this->level;
             // 权限
-            $filePermission = self::$filePermission;
+            $filePermission = $this->filePermission;
             // 创建日志
             $logger = new Logger($category);
             // 日志文件相关操作
-            $handler = new RotatingFileHandler("{$fileName}{$name}.log", $maxFiles, $level, true, $filePermission);
+            $handler = new RotatingFileHandler("{$fileName}{$name}.log", $this->maxFiles, $level, true, $filePermission);
 
             // 组装请求信息
-            if (EntitySwooleServer::getInstance()) {
-                $requestInfo = [
-                    'ip' => Request::server('remote_addr') ?: '',
-                    'method' => Request::server('request_method') ?: '',
-                    'host' => Request::server('http_host') ?: '',
-                    'uri' => Request::server('request_uri') ?: ''
-                ];
-            } else {
-                $requestInfo = [
-                    'ip' => $_SERVER['REMOTE_ADDR'] ?: '',
-                    'method' => ((Router::getRouteInstance())->getMethod()),
-                    'host' => $_SERVER["SERVER_NAME"] ?: '',
-                    'uri' => $_SERVER["REQUEST_URI"] ?: ''
-                ];
-            }
+            $requestInfo = [
+                'ip' => $request->server['remote_addr'],
+                'host' => $request->server['http_host'],
+                'uri' => $request->server['request_uri'],
+                'method' => Container::getRouter()->getRoute($workerId, $cId)->getMethod()
+            ];
             $template = "---------------------------------------------------------------";
             $template .= "\r\n[%datetime%] {$requestInfo['ip']}   {$requestInfo['method']}   {$requestInfo['host']}{$requestInfo['uri']}";
             $template .= "\r\n[%channel%][%level_name%][MESSAGE]: %message%";
@@ -146,8 +140,8 @@ class LogHelper
 
             $logger->pushHandler($handler);
 
-            self::$loggers[$name] = $logger;
+            $this->loggers[$name] = $logger;
         }
-        return self::$loggers[$name];
+        return $this->loggers[$name];
     }
 }

@@ -8,11 +8,10 @@
 
 namespace Library;
 
-
 use Library\Virtual\Command\AbstractCommand;
 use swoole_process;
 
-class Command
+class Script
 {
     /**
      * @var int $paramNumber

@@ -9,9 +9,6 @@
 namespace Library\Base\Server;
 
 use Closure;
-use Library\Config;
-use Library\App\Server\DefaultSwooleServer;
-use Library\Entity\Swoole\EntitySwooleServer;
 use Library\Virtual\Server\AbstractSwooleServer;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;

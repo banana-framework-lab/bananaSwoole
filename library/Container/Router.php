@@ -9,6 +9,7 @@
 namespace Library\Container;
 
 use Library\Common;
+use Library\Container;
 use Library\Object\RouteObject;
 
 /**
@@ -134,7 +135,7 @@ class Router
         $this->pool[$workerId][$cId] = $routerObject;
 
         //根据路由判断是否加载过Common文件
-        Common::loadCommonFile($routerObject->getProject());
+        Container::loadCommonFile($routerObject->getProject());
         return $routerObject;
     }
 

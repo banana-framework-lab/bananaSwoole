@@ -10,7 +10,7 @@ namespace App\Demo\Controller;
 
 use App\Demo\Logic\DemoLogic;
 use App\Demo\Service\DemoService;
-use Library\Helper\LogHelper;
+use Library\Helper\Log;
 use Library\Request;
 use Library\Response;
 use Library\Virtual\Controller\AbstractController;
@@ -23,7 +23,7 @@ class DemoController extends AbstractController
         $start = json_encode(Request::server('request_time_float'));
         sleep(3);
         $string = ' cid ' . Coroutine::getuid() . '  start' . $start . '  end' . json_encode(Request::server('request_time_float')) . "";
-//        LogHelper::info($string, [
+//        Log::info($string, [
 //            'msg' => 'demoLog记录日志',
 //            'string' => $string
 //        ]);

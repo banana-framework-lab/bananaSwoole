@@ -10,6 +10,7 @@ namespace Library;
 
 use Exception;
 use Library\Container\Config;
+use Library\Container\Log;
 use Library\Container\Pool\MongoPool;
 use Library\Container\Pool\MysqlPool;
 use Library\Container\Pool\RabbitPool;
@@ -238,5 +239,43 @@ class Container
     static public function getRabbitPool()
     {
         return self::$rabbitPool;
+    }
+
+    /**
+     * @var Log $log
+     */
+    static private $log;
+
+    /**
+     * 获取日志记录对象
+     */
+    static public function getLog()
+    {
+        return self::$log;
+    }
+
+    /**
+     * 设置记录对象
+     */
+    static public function setLog()
+    {
+        self::$log = new Log();
+    }
+
+    /**
+     * 加载公共文件
+     * @param string $projectName
+     */
+    public static function loadCommonFile(string $projectName = '')
+    {
+        if ($projectName == '') {
+            include_once dirname(__FILE__) . "/Common/functions.php";
+        } else {
+            include_once dirname(__FILE__) . "/Common/functions.php";
+            $filePath = dirname(__FILE__) . "/../app/{$projectName}/Common/functions.php";
+            if (file_exists($filePath)) {
+                include_once $filePath;
+            }
+        }
     }
 }

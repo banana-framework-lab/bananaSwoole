@@ -110,7 +110,7 @@ class BananaSwooleServer extends BaseSwooleServer
             // 配置文件初始化
             Container::getConfig()->initConfig();
             // 加载library的Common文件
-            Common::loadCommonFile();
+            Container::loadCommonFile();
             // 当且仅当非task进程，id为0时的进程触发热重启
             if (!$server->taskworker && $workerId <= 0) {
                 if (Container::getConfig()->get('app.is_auto_reload', false)) {
