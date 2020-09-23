@@ -36,21 +36,15 @@ class Router
      */
     public function __construct(string $lockFileName = '')
     {
-        if (!empty($lockFileName) && file_exists(dirname(__FILE__) . '/../../route/' . $lockFileName)) {
-            $fileData = require dirname(__FILE__) . '/../../route/' . $lockFileName;
-            $routerData = $this->analysisRouter($fileData);
-            $routerData && $this->routerPool = array_merge($this->routerPool, $routerData);
-        } else {
-            $handler = opendir(dirname(__FILE__) . '/../../route');
-            while (($fileName = readdir($handler)) !== false) {
-                if ($fileName != "." && $fileName != "..") {
-                    $fileData = require dirname(__FILE__) . '/../../route/' . $fileName;
-                    $routerData = $this->analysisRouter($fileData);
-                    $routerData && $this->routerPool = array_merge($this->routerPool, $routerData);
-                }
+        $handler = opendir(dirname(__FILE__) . '/../../route');
+        while (($fileName = readdir($handler)) !== false) {
+            if ($fileName != "." && $fileName != "..") {
+                $fileData = require dirname(__FILE__) . '/../../route/' . $fileName;
+                $routerData = $this->analysisRouter($fileData);
+                $routerData && $this->routerPool = array_merge($this->routerPool, $routerData);
             }
-            closedir($handler);
         }
+        closedir($handler);
     }
 
     /**

@@ -8,24 +8,13 @@
 
 namespace App\Demo\Logic;
 
-
-use App\Api\Model\DatabaseModel\DemoMysqlModel;
+use App\Demo\Model\DatabaseModel\DemoMysqlModel;
 
 class DemoLogic
 {
-    /**
-     * @return array
-     */
-    public function demoLogic()
+    public function testMysql()
     {
-        return ['msg' => '成功执行DemoLogic的demoLogic方法'];
-    }
-
-    /**
-     *
-     */
-    public function demoLogicForModel()
-    {
-       return (new DemoMysqlModel())->demo();
+        return [1];
+       return (new DemoMysqlModel())->getList();
     }
 }

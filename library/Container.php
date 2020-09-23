@@ -106,7 +106,7 @@ class Container
      */
     static public function setResponse()
     {
-        self::$request = new Response();
+        self::$response = new Response();
     }
 
     /**

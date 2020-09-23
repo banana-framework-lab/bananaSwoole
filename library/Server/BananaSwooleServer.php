@@ -24,9 +24,8 @@ class BananaSwooleServer extends BaseSwooleServer
     {
         $this->serverConfigIndex = $serverConfigIndex;
         Container::setConfig();
+        Container::getConfig()->initSwooleConfig();
         Container::setSwooleSever($serverConfigIndex);
-        Container::setRequest();
-        Container::setResponse();
         parent::__construct();
     }
 
@@ -111,6 +110,9 @@ class BananaSwooleServer extends BaseSwooleServer
         try {
             // 配置文件初始化
             Container::getConfig()->initConfig();
+            Container::setRequest();
+            Container::setResponse();
+            Container::setRouter();
             // 加载library的Common文件
             Container::loadCommonFile();
             // 当且仅当非task进程，id为0时的进程触发热重启
@@ -196,20 +198,21 @@ class BananaSwooleServer extends BaseSwooleServer
             $response->header('Access-Control-Allow-Methods', 'GET, POST, DELETE, PUT, PATCH, OPTIONS');
             $response->header('Access-Control-Allow-Headers', 'x-requested-with,User-Platform,Content-Type,X-Token');
         }
+
         $response->header('Content-type', 'application/json');
 
-        //初始化请求实体类
-        $cId = Coroutine::getuid();
-        Container::getRequest()->setRequest($request, $this->server->worker_id, $cId);
-        Container::getResponse()->setResponse($response, $this->server->worker_id, $cId);
-
         try {
+            //初始化请求实体类
+            $cId = Coroutine::getuid();
+            Container::getRequest()->setRequest($request, $this->server->worker_id, $cId);
+            Container::getResponse()->setResponse($response, $this->server->worker_id, $cId);
             $this->appServer->request($request, $response);
         } catch (Throwable $error) {
             $workerId = Container::getSwooleServer()->worker_id;
             $errorMsg = $error->getMessage();
             echo "###########" . str_pad("worker_id: {$workerId} error", $this->echoWidth - 22, ' ', STR_PAD_BOTH) . "###########\n";
             echo "$errorMsg\n";
+            $response->status(500);
         }
     }
 

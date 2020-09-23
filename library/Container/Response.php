@@ -23,7 +23,9 @@ class Response
      */
     public function setResponse($instance, int $workerId, int $cId)
     {
-        $this->pool[$workerId][$cId] = $instance;
+        if (!isset($this->pool[$workerId][$cId])) {
+            $this->pool[$workerId][$cId] = $instance;
+        }
     }
 
     /**

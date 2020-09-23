@@ -1,6 +1,7 @@
 <?php
 
 namespace Library\Container;
+
 use Exception;
 
 /**
@@ -9,6 +10,7 @@ use Exception;
  * Date: 2019/10/20
  * Time: 16:55
  */
+
 /**
  * Class Config
  * @package Library\Container
@@ -40,7 +42,6 @@ class Config
 
     /**
      * 初始化swooleConfig类
-     * @throws Exception
      */
     public function initSwooleConfig()
     {
@@ -48,7 +49,8 @@ class Config
             $fileData = include dirname(__FILE__) . '/../../config/swoole.php';
             $this->configPool['swoole'] = $fileData;
         } else {
-            throw new Exception('无配置Swoole配置文件');
+            echo "无配置Swoole配置文件\n";
+            exit;
         }
     }
 
@@ -79,6 +81,15 @@ class Config
         } else {
             return $default;
         }
+    }
+
+    /**
+     * 返回所有配置数据
+     * @return array
+     */
+    public function getAllConfig()
+    {
+        return $this->configPool;
     }
 
 }

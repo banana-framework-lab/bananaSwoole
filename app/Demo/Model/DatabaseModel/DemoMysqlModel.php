@@ -8,7 +8,6 @@
 
 namespace App\Demo\Model\DatabaseModel;
 
-use Illuminate\Database\Query\Builder;
 use Library\Virtual\Model\DatabaseModel\AbstractMySqlModel;
 
 
@@ -21,30 +20,14 @@ class DemoMysqlModel extends AbstractMySqlModel
     public function __construct(array $attributes = [])
     {
         // todo 这里需要给table指定table名称
-        $this->table = '';
+        $this->table = 'test';
         parent::__construct($attributes);
     }
 
-    /**
-     * @param array $where 查询条件
-     * @param array $orderBy 排序条件
-     * @return Builder 查询构造器对象
-     */
-    protected function getCondition($where, $orderBy = []): Builder
+    public function getList()
     {
         $builder = $this->builder;
-        // todo 如果要用getList()这里设置查询条件
-        if (isset($where['id'])) {
-            $builder->where('id', '=', $where['username']);
-        }
-        return $builder;
+        $builder->selectRaw('SLEEP(10)');
+        return $builder->get();
     }
-
-    public function demo()
-    {
-        // todo $result需要通过build来查询出接口返回
-        $result = ['id' => 1, 'msg' => 'demo'];
-        return $result;
-    }
-
 }

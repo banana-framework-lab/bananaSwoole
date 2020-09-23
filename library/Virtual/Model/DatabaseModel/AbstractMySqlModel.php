@@ -38,12 +38,6 @@ abstract class AbstractMySqlModel extends Model
     protected $dateFormat = 'U';
 
     /**
-     * @var array $listColumns getList中需要查询的列名
-     */
-    private $listColumns = ['*'];
-
-
-    /**
      * 获取数据库对象
      * @param $name
      * @return Connection|Builder|BuilderObject|string
@@ -65,104 +59,6 @@ abstract class AbstractMySqlModel extends Model
                 return null;
         }
     }
-
-    /**
-     * @param array $where 查询条件
-     * @param array $orderBy 排序条件
-     * @return Builder 查询构造器对象
-     */
-    abstract protected function getCondition($where, $orderBy = []): Builder;
-
-    /**
-     * 设置getList中需要查询的列名
-     * @param string|array $columns
-     */
-    public function setListColumns($columns)
-    {
-        if (is_array($columns)) {
-            $this->listColumns = $columns;
-        } elseif (is_string($columns)) {
-            $this->listColumns = explode(',', $columns);
-        }
-    }
-
-    /**
-     * 根据条件筛选列表
-     * @param array $where
-     * @param array $orderBy
-     * @return Collection
-     */
-    public function getList($where = [], $orderBy = []): Collection
-    {
-        $builder = $this->getCondition($where, $orderBy);
-        if ($this->listColumns != ['*']) {
-            $builder->select($this->listColumns);
-            $this->listColumns = ['*'];
-        }
-        return $builder->get();
-    }
-
-    /**
-     * 根据条件筛选一个
-     * @param array $where
-     * @param array $columns
-     * @return Model|Builder|null|object
-     */
-    public function getFirst($where, $columns = ['*'])
-    {
-        unset($where['page'], $where['limit']);
-        $builder = $this->getCondition($where);
-        if ($columns == ['*'] && $this->listColumns != ['*']) {
-            $columns = $this->listColumns;
-            $this->listColumns = ['*'];
-        }
-        return $builder->first($columns);
-    }
-
-    /**
-     * 根据条件筛选数量
-     * @param $where
-     * @return int
-     */
-    public function getCount($where): int
-    {
-        unset($where['page'], $where['limit']);
-        return $this->getCondition($where)->count();
-    }
-
-    /**
-     * 新增一个数据
-     * @param AbstractProperty $addObject
-     * @return bool
-     */
-    public function addOne($addObject): bool
-    {
-        foreach ($addObject->toArray() as $key => $value) {
-            if ($key != 'id') {
-                $this->$key = $value;
-            }
-        }
-        return $this->save();
-    }
-
-    /**
-     * 更新一个数据
-     * @param array $updateInfo
-     * @param $condition
-     * @return int
-     */
-    public function updateOne($updateInfo, $condition): int
-    {
-        /** @var Model $model */
-        $model = $this->builder->where($condition)->first();
-        foreach ($updateInfo as $key => $value) {
-            if ($key != 'id' && $key != 'create_time' && $key != 'update_time') {
-                $model->$key = $value;
-            }
-        }
-        return $model->save();
-    }
-
 
     /**
      * 批量更新

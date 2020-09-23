@@ -53,7 +53,7 @@ class DefaultSwooleServer extends AbstractSwooleServer
 
             return true;
         } catch (Throwable $e) {
-            echo "XXXXXXXXXXX      worker_id:{$workerId}  启动时报错  \n" . $e->getMessage() . "\n";
+            echo "XXXXXXXXXXX      worker_id:{$workerId}  启动时报错  \n" . $e->getTraceAsString() . "\n";
 
             return false;
         }
@@ -233,7 +233,7 @@ class DefaultSwooleServer extends AbstractSwooleServer
         $this->bindTable->set($request->fd, ['http' => 1]);
 
         /* @var RouteObject $routeObject */
-        $routeObject = Router::router($request->server['request_uri']);
+        $routeObject = Container::getRouter()->controllerRouter($request->server['request_uri']);
 
         // 初始化方法
         $methodName = $routeObject->getMethod();

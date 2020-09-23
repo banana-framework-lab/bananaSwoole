@@ -9,6 +9,7 @@
 namespace Library\Container;
 
 use Library\Container;
+use Library\Exception\WebException;
 use Swoole\WebSocket\Server;
 
 class SwooleServer
@@ -26,7 +27,7 @@ class SwooleServer
     {
         $this->instance = new Server(
             "0.0.0.0",
-            Container::getConfig()->get("swoole.{$serverConfigIndex}.port"),
+            Container::getConfig()->get("swoole.{$serverConfigIndex}.port", 9501),
             SWOOLE_PROCESS
         );
     }
