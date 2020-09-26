@@ -6,14 +6,17 @@
  * Time: 17:24
  */
 
-use Library\Response;
+use Library\Container;
+use Swoole\Coroutine;
+
+define('C_EXIT_CODE', 444);
 
 /**
  * @param bool $return
  * @param string $type
  * @return mixed
  */
-function helloBananaSwoole(bool $return = null, string $type = 'string')
+function BananaSwoole(bool $return = null, string $type = 'string')
 {
     $lineChar = ($type == 'string') ? "\n" : '';
     $helloString = [];
@@ -38,20 +41,21 @@ function helloBananaSwoole(bool $return = null, string $type = 'string')
 /**
  * 打印栈
  * @param $content
- * @throws Error
  */
-function dd($content)
+function c_var_dump($content)
 {
-    Response::dump(
-        print_r(
-            [
-                'content' => $content,
-                'trace' => debug_backtrace()
-            ],
-            true
-        )
-    );
-    Response::exit();
+    $workerId = Container::getSwooleServer()->worker_id;
+    $cId = Coroutine::getCid();
+    Container::getResponse()->dump($content, $workerId, $cId);
+    Container::getResponse()->exit();
+}
+
+/**
+ * 退出协程
+ */
+function c_exit()
+{
+    Container::getResponse()->exit();
 }
 
 /**

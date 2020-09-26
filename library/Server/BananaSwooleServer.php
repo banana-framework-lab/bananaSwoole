@@ -167,41 +167,41 @@ class BananaSwooleServer extends BaseSwooleServer
      */
     public function onRequest(Request $request, Response $response)
     {
-        defer(function () {
-            $cId = Coroutine::getuid();
-            //回收请求数据
-            Container::getRequest()->delRequest($this->server->worker_id, $cId);
-            //回收返回数据
-            Container::getResponse()->delResponse($this->server->worker_id, $cId);
-            //回收路由数据
-            Container::getRouter()->delRoute($this->server->worker_id, $cId);
-        });
-
-        // 适配谷歌浏览器显示favicon.ico
-        if ($request->server['request_uri'] == '/favicon.ico') {
-            if (file_exists(dirname(__FILE__) . "/../../public/favicon.ico")) {
-                $response->status(200);
-                $response->header('Content-Type', 'image/x-icon');
-                $response->sendfile(dirname(__FILE__) . "/../../public/favicon.ico");
-            } else {
-                $response->status(404);
-                $response->end();
-            }
-            return;
-        }
-
-        $allowOrigins = Container::getConfig()->get('app.allow_origin', []);
-
-        if (isset($request->header['origin']) && in_array(strtolower($request->header['origin']), $allowOrigins)) {
-            $response->header('Access-Control-Allow-Origin', $request->header['origin']);
-            $response->header('Access-Control-Allow-Credentials', 'true');
-            $response->header('Access-Control-Allow-Methods', 'GET, POST, DELETE, PUT, PATCH, OPTIONS');
-            $response->header('Access-Control-Allow-Headers', 'x-requested-with,User-Platform,Content-Type,X-Token');
-        }
-
-        $response->header('Content-type', 'application/json');
-
         try {
+            defer(function () {
+                $cId = Coroutine::getuid();
+                //回收请求数据
+                Container::getRequest()->delRequest($this->server->worker_id, $cId);
+                //回收返回数据
+                Container::getResponse()->delResponse($this->server->worker_id, $cId);
+                //回收路由数据
+                Container::getRouter()->delRoute($this->server->worker_id, $cId);
+            });
+
+            // 适配谷歌浏览器显示favicon.ico
+            if ($request->server['request_uri'] == '/favicon.ico') {
+                if (file_exists(dirname(__FILE__) . "/../../public/favicon.ico")) {
+                    $response->status(200);
+                    $response->header('Content-Type', 'image/x-icon');
+                    $response->sendfile(dirname(__FILE__) . "/../../public/favicon.ico");
+                } else {
+                    $response->status(404);
+                    $response->end();
+                }
+                return;
+            }
+
+            $allowOrigins = Container::getConfig()->get('app.allow_origin', []);
+
+            if (isset($request->header['origin']) && in_array(strtolower($request->header['origin']), $allowOrigins)) {
+                $response->header('Access-Control-Allow-Origin', $request->header['origin']);
+                $response->header('Access-Control-Allow-Credentials', 'true');
+                $response->header('Access-Control-Allow-Methods', 'GET, POST, DELETE, PUT, PATCH, OPTIONS');
+                $response->header('Access-Control-Allow-Headers', 'x-requested-with,User-Platform,Content-Type,X-Token');
+            }
+
+            $response->header('Content-type', 'application/json');
+
             //初始化请求实体类
             $cId = Coroutine::getuid();
             Container::getRequest()->setRequest($request, $this->server->worker_id, $cId);

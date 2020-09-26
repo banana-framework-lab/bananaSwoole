@@ -2,6 +2,7 @@
 
 namespace Library\Container;
 
+use Library\Exception\WebException;
 use Swoole\Http\Request as SwooleHttpRequest;
 use Swoole\Http\Response as SwooleHttpResponse;
 
@@ -15,6 +16,11 @@ class Response
      * @var array $pool
      */
     private $pool = [];
+
+    /**
+     * @var array $dumpPool
+     */
+    private $dumpPool = [];
 
     /**
      * @param SwooleHttpResponse | array $instance
@@ -82,43 +88,42 @@ class Response
 //
 //
 //
-//    /*******************************************************************************************************************/
-//    /*                                                 var_dump模块
-//    /*******************************************************************************************************************/
-//
-//    /**
-//     * var_dump出去的数据
-//     * @param mixed $content
-//     */
-//    public static function dump($content)
-//    {
-//        $cid = Coroutine::getuid();
-//        $workId = EntitySwooleServer::getInstance()->worker_id;
-//        static::$dumpPool[$workId][$cid][] = print_r($content, true);
-//    }
-//
-//    /**
-//     * 获取dump的返回值
-//     * @return string
-//     */
-//    public static function dumpResponse()
-//    {
-//        $cid = Coroutine::getuid();
-//        $workerId = EntitySwooleServer::getInstance()->worker_id;
-//        $dumpData = static::$dumpPool[$workerId][$cid] ?? [];
-//        $dumpString = '';
-//        foreach ($dumpData as $key => $value) {
-//            $dumpString .= $value;
-//        }
-//        return $dumpString;
-//    }
-//
-//    /**
-//     * var_dump推出协程
-//     * @throws Error
-//     */
-//    public static function exit()
-//    {
-//        throw new Error('exit to get dump data', 888);
-//    }
+    /*******************************************************************************************************************/
+    /*                                                 var_dump模块
+    /*******************************************************************************************************************/
+
+    /**
+     * var_dump出去的数据
+     * @param mixed $content
+     * @param int $workerId
+     * @param int $cId
+     */
+    public function dump($content, int $workerId, int $cId)
+    {
+        $this->dumpPool[$workerId][$cId][] = print_r($content, true);
+    }
+
+    /**
+     * 获取dump的返回值
+     * @param int $workerId
+     * @param int $cId
+     * @return string
+     */
+    public function dumFlush(int $workerId, int $cId)
+    {
+        $dumpData = $this->dumpPool[$workerId][$cId] ?? [];
+        $dumpString = '';
+        foreach ($dumpData as $key => $value) {
+            $dumpString .= $value;
+        }
+        return $dumpString;
+    }
+
+    /**
+     * var_dump推出协程
+     */
+    public static function exit()
+    {
+        throw new WebException('exit to get dump data', 888);
+    }
 }

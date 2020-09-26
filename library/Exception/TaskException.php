@@ -1,10 +1,10 @@
 <?php
 namespace Library\Exception;
 
-use Exception;
+use RuntimeException;
 use Throwable;
 
-class TaskException extends Exception
+class TaskException extends RuntimeException
 {
     private $status;
 

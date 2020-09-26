@@ -2,10 +2,10 @@
 
 namespace Library\Exception;
 
-use Exception;
+use RuntimeException;
 use Throwable;
 
-class WebException extends Exception
+class WebException extends RuntimeException
 {
     /**
      * @var int $status http返回状态

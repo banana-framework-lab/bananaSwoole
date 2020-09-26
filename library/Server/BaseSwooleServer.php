@@ -132,7 +132,7 @@ class BaseSwooleServer
     {
         $this->echoWidth = $echoWidth;
 
-        $logo = helloBananaSwoole(true, 'array');
+        $logo = BananaSwoole(true, 'array');
         $this->startDateTime = date('Y-m-d H:i:s');
 
         echo "\n";

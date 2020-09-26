@@ -8,20 +8,16 @@
 
 namespace Library\Virtual\Model\DatabaseModel;
 
-use Illuminate\Support\Collection;
-use Library\Entity\Model\Database\EntityMysql;
-use Library\Entity\Swoole\EntitySwooleServer;
+use Library\Entity\EntityMysqlBuilder;
 use Library\Object\BuilderObject;
-use Library\Virtual\Property\AbstractProperty;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Database\Connection;
 
 /**
  * Class AbstractMySqlModel
- * @property Builder builder
+ * @property EntityMysqlBuilder builder
  * @property String tableName
- * @property Connection connection
  * @package Library\Virtual\Model\DataBaseModel
  */
 abstract class AbstractMySqlModel extends Model
@@ -45,19 +41,23 @@ abstract class AbstractMySqlModel extends Model
     public function __get($name)
     {
         switch ($name) {
-            case 'connection':
-                if (EntitySwooleServer::getInstance()) {
-                    return new BuilderObject($this->table);
-                } else {
-                    return EntityMysql::table($this->table);
-                }
             case 'builder':
-                return EntityMysql::table($this->table);
+                return new EntityMysqlBuilder();
             case 'tableName':
                 return $this->table;
             default:
                 return null;
         }
+    }
+
+    /**
+     * 返回查询构造器生成的SQL语句
+     * @param EntityMysqlBuilder $builder
+     * @return string|string[]|null
+     */
+    public function getSql(EntityMysqlBuilder $builder)
+    {
+        return $builder->getSql();
     }
 
     /**

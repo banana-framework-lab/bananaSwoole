@@ -11,6 +11,7 @@ namespace Library\Container\Pool;
 use Exception;
 use Illuminate\Database\Capsule\Manager;
 use Library\Container;
+use Library\Exception\WebException;
 use Swoole\Coroutine\Channel;
 
 class MysqlPool
@@ -46,7 +47,6 @@ class MysqlPool
      * 获取
      * @param string $configName
      * @return Manager
-     * @throws Exception
      */
     private function getClient($configName = 'server')
     {
@@ -64,7 +64,7 @@ class MysqlPool
             $mysqlClient->connection()->getPdo();
             return $mysqlClient;
         } else {
-            throw new Exception('请配置mysql信息');
+            throw new WebException('请配置mysql信息');
         }
     }
 

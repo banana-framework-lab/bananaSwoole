@@ -17,6 +17,7 @@ use Library\Virtual\Controller\AbstractController;
 use Library\Virtual\Handler\AbstractHandler;
 use Library\Virtual\MiddleWare\AbstractMiddleWare;
 use Library\Virtual\Server\AbstractSwooleServer;
+use Swoole\Coroutine;
 use Swoole\Http\Request as SwooleHttpRequest;
 use Swoole\Server\Task;
 use Swoole\WebSocket\Server as SwooleSocketServer;
@@ -239,11 +240,6 @@ class DefaultSwooleServer extends AbstractSwooleServer
         $methodName = $routeObject->getMethod();
         $controllerClass = $routeObject->getController();
 
-        // 初始化PHPSESSID
-        if (in_array($routeObject->getProject(), Config::get('app.session_project', []))) {
-            $this->openSession($request, $response);
-        }
-
         // 初始化请求数据
         $getData = $request->get ?: [];
         $postData = $request->post ?: [];
@@ -262,85 +258,65 @@ class DefaultSwooleServer extends AbstractSwooleServer
             }
 
         } catch (WebException $webE) {
-            Response::json([
+            $response->end(json_encode([
                 'status' => $webE->getStatus(),
                 'code' => $webE->getCode(),
                 'message' => $webE->getMessage()
-            ]);
+            ]));
+            return;
         } catch (Throwable $e) {
-            Response::json([
-                'status' => Config::get('response.status.http_fail', 10001),
-                'code' => Config::get('response.code.middleware_error', 10006),
+            $response->end(json_encode([
+                'status' => -1,
+                'code' => $e->getCode(),
                 'message' => $e->getMessage()
-            ]);
-            $response->status(200);
-            $response->end(Response::response());
+            ]));
             return;
         }
 
         // 初始化控制器
         try {
             if (class_exists($controllerClass)) {
-
                 /* @var AbstractController $controller */
                 $controller = new $controllerClass($requestData);
                 if (method_exists($controller, $methodName)) {
                     $returnData = $controller->$methodName();
                     if (!empty($returnData)) {
-                        Response::json($returnData);
+                        $response->end(json_encode($returnData));
                     }
                 } else {
-                    if (Config::get('app.debug', true)) {
-                        Response::json([
-                            'status' => Config::get('response.status.http_fail', 10001),
-                            'code' => Config::get('response.code.no_controller_function', 10009),
-                            'message' => "找不到{$methodName}"
-                        ]);
-                    } else {
-                        $response->status(404);
-                        $response->end();
-                        return;
-                    }
-                }
-            } else {
-                if (Config::get('app.debug', true)) {
-                    Response::json([
-                        'status' => Config::get('response.status.http_fail', 10001),
-                        'code' => Config::get('response.code.no_controller', 10007),
-                        'message' => "找不到{$controllerClass}"
-                    ]);
-                } else {
-                    $response->status(404);
+                    $response->status(403);
                     $response->end();
                     return;
                 }
+            } else {
+                $response->status(404);
+                $response->end();
+                return;
             }
         } catch (WebException $webE) {
-            Response::json([
+            $response->end(json_encode([
                 'status' => $webE->getStatus(),
                 'code' => $webE->getCode(),
                 'message' => $webE->getMessage()
-            ]);
+            ]));
+            return;
         } catch (Throwable $e) {
-            if (Config::get('app.debug', true)) {
-                if ($e->getCode() != 888) {
+            if (Container::getConfig()->get('app.debug', true)) {
+                if ($e->getCode() != C_EXIT_CODE) {
                     $response->status(200);
                     $response->end($e->getMessage() . "\n" . $e->getTraceAsString());
                 } else {
                     $response->status(200);
-                    $response->end(Response::dumpResponse());
+                    $workerId = Container::getSwooleServer()->worker_id;
+                    $cId = Coroutine::getCid();
+                    $response->end(Container::getResponse()->dumFlush($workerId, $cId));
                 }
             } else {
-                echo $e->getMessage() . "\n" . $e->getTraceAsString();
                 $response->status(500);
                 $response->end();
             }
             return;
         }
-
-        // 支持跨域访问
-        $response->status(200);
-        $response->end(Response::response());
     }
 
     /**

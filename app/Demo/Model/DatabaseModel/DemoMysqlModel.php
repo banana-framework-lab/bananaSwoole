@@ -27,7 +27,8 @@ class DemoMysqlModel extends AbstractMySqlModel
     public function getList()
     {
         $builder = $this->builder;
-        $builder->selectRaw('SLEEP(10)');
-        return $builder->get();
+        $builder->select('id');
+        $builder->where(['where' => 1]);
+        return $builder->getSql();
     }
 }

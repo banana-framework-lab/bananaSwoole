@@ -8,7 +8,6 @@
 
 namespace Library\Container;
 
-use Library\Common;
 use Library\Container;
 use Library\Object\RouteObject;
 
@@ -88,6 +87,7 @@ class Router
     /**
      * 删除当前路由对象
      * @param int $workerId
+     * @param int $cId
      */
     public function delRoute(int $workerId = 0, int $cId = 0)
     {
@@ -113,7 +113,7 @@ class Router
 
             $routerObject = new RouteObject();
             $routerObject->setProject($requestUrlArray[0]);
-            $routerObject->setController("\\App\\{$requestUrlArray[0]}\\Controller}\\{$requestUrlArray[1]}Controller}");
+            $routerObject->setController("\\App\\{$requestUrlArray[0]}\\Controller\\{$requestUrlArray[1]}Controller");
             $routerObject->setMethod($requestUrlArray[2]);
             $routerObject->setRoute($requestUrl);
         } else {

@@ -14,7 +14,6 @@ class DemoLogic
 {
     public function testMysql()
     {
-        return [1];
        return (new DemoMysqlModel())->getList();
     }
 }
