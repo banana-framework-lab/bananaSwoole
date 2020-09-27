@@ -10,6 +10,7 @@ namespace Library\Container\Pool;
 
 use Exception;
 use Library\Container;
+use Library\Entity\EntityRedisClient;
 use Redis;
 use Swoole\Coroutine\Channel;
 
@@ -53,7 +54,7 @@ class RedisPool
         $redisConf = Container::getConfig()->get("redis.{$configName}");
 
         if ($redisConf) {
-            $redisServer = new Redis();
+            $redisServer = new EntityRedisClient();
             $redisServer->connect($redisConf['host'], $redisConf['port'], 0.0);
             $redisServer->auth($redisConf['auth']);
             $redisServer->select($redisConf['database']);
@@ -66,18 +67,18 @@ class RedisPool
 
     /**
      * 获取连接
-     * @return Redis
+     * @return EntityRedisClient
      */
-    public function get(): Redis
+    public function get(): EntityRedisClient
     {
         return $this->pool->pop();
     }
 
     /**
      * 归还连接
-     * @param Redis $client
+     * @param EntityRedisClient $client
      */
-    public function back(Redis $client)
+    public function back(EntityRedisClient $client)
     {
         $this->pool->push($client);
     }

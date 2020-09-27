@@ -8,12 +8,19 @@
 
 namespace App\Demo\Logic;
 
+use App\Demo\Model\CacheModel\DemoRedisModel;
 use App\Demo\Model\DatabaseModel\DemoMysqlModel;
 
 class DemoLogic
 {
     public function testMysql()
     {
-       return (new DemoMysqlModel())->getList();
+        return (new DemoMysqlModel())->getList();
+
+    }
+
+    public function testRedis()
+    {
+        return (new DemoRedisModel())->getList();
     }
 }

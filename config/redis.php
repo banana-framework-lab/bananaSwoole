@@ -13,7 +13,7 @@ return [
         'database' => '0'
     ],
     'server' => [
-        'host' => 'redis',
+        'host' => '192.168.5.118',
         'port' => '6379',
         'auth' => '',
         'database' => '0'

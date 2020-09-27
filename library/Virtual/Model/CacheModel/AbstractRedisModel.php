@@ -8,26 +8,19 @@
 
 namespace Library\Virtual\Model\CacheModel;
 
-use Library\Entity\Model\Cache\EntityRedis;
-use Redis;
+use Library\Container;
 
 /**
  * Class AbstractRedisModel
- * @property Redis redis
  * @package Library\Virtual\Model\CacheModel
  */
 abstract class AbstractRedisModel
 {
-    /**
-     * @param $name
-     * @return null|Redis
-     */
-    public function __get($name)
+    public $redis;
+
+    public function __construct()
     {
-        if ($name === 'redis') {
-            return EntityRedis::getInstance();
-        }
-        return null;
+        $this->redis = Container::getRedisPool()->get();
     }
 
     /**
@@ -37,5 +30,10 @@ abstract class AbstractRedisModel
     private function __clone()
     {
         throw new \Exception('不允许克隆');
+    }
+
+    public function __destruct()
+    {
+        Container::getRedisPool()->back($this->redis);
     }
 }
