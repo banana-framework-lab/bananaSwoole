@@ -8,7 +8,7 @@
 
 namespace Library\Virtual\Controller;
 
-use Library\Exception\WebException;
+use Library\Exception\LogicException;
 use Library\Validate;
 
 /**
@@ -33,7 +33,7 @@ Abstract class AbstractController
     }
 
     /**
-     * @throws WebException
+     * @throws LogicException
      */
     public function validateRequest()
     {

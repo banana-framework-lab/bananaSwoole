@@ -13,7 +13,7 @@ use Library\Container\Config;
 use Library\Container\Log;
 use Library\Container\Pool\MongoPool;
 use Library\Container\Pool\MysqlPool;
-use Library\Container\Pool\RabbitPool;
+use Library\Container\Pool\RabbitMQPool;
 use Library\Container\Pool\RedisPool;
 use Library\Container\Request;
 use Library\Container\Response;
@@ -27,6 +27,30 @@ use Swoole\WebSocket\Server;
  */
 class Container
 {
+    /**
+     * 服务器默认配置下标
+     * @var string $serverConfigIndex
+     */
+    static private $serverConfigIndex = '';
+
+    /**
+     * 设置配置对象
+     * @param string $serverConfigIndex
+     */
+    static public function setServerConfigIndex(string $serverConfigIndex)
+    {
+        self::$serverConfigIndex = $serverConfigIndex;
+    }
+
+    /**
+     * 获取配置对象
+     * @return string
+     */
+    static public function getServerConfigIndex()
+    {
+        return self::$serverConfigIndex;
+    }
+
     /**
      * 配置对象
      * @var Config $config
@@ -152,7 +176,7 @@ class Container
      * @param string $configName
      * @throws Exception
      */
-    static public function setMysqlPool($configName = 'server')
+    static public function setMysqlPool($configName = '')
     {
         self::$mysqlPool = new MysqlPool($configName);
     }
@@ -177,7 +201,7 @@ class Container
      * @param string $configName
      * @throws Exception
      */
-    static public function setMongoPool($configName = 'server')
+    static public function setMongoPool($configName = '')
     {
         self::$mongoPool = new MongoPool($configName);
     }
@@ -202,7 +226,7 @@ class Container
      * @param string $configName
      * @throws Exception
      */
-    static public function setRedisPool($configName = 'server')
+    static public function setRedisPool($configName = '')
     {
         self::$redisPool = new RedisPool($configName);
     }
@@ -218,25 +242,25 @@ class Container
 
     /**
      * RabbitMq的连接池
-     * @var RabbitPool $rabbitPool
+     * @var RabbitMQPool $rabbitPool
      */
     static private $rabbitPool;
 
     /**
-     * 设置RabbitMq的连接池
+     * 设置RabbitMQ的连接池
      * @param string $configName
      * @throws Exception
      */
-    static public function setRabbitPool($configName = 'server')
+    static public function setRabbitMQPool($configName = '')
     {
-        self::$rabbitPool = new RabbitPool($configName);
+        self::$rabbitPool = new RabbitMQPool($configName);
     }
 
     /**
-     * 返回RabbitMq的连接池
-     * @return RabbitPool
+     * 返回RabbitMQ的连接池
+     * @return RabbitMQPool
      */
-    static public function getRabbitPool()
+    static public function getRabbitMQPool()
     {
         return self::$rabbitPool;
     }

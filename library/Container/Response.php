@@ -2,7 +2,7 @@
 
 namespace Library\Container;
 
-use Library\Exception\WebException;
+use Library\Exception\LogicException;
 use Swoole\Http\Request as SwooleHttpRequest;
 use Swoole\Http\Response as SwooleHttpResponse;
 
@@ -124,6 +124,6 @@ class Response
      */
     public static function exit()
     {
-        throw new WebException('exit to get dump data', 888);
+        throw new LogicException('exit to get dump data', 888);
     }
 }

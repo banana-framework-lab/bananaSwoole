@@ -11,7 +11,7 @@ namespace Library\Container\Pool;
 use Exception;
 use Illuminate\Database\Capsule\Manager;
 use Library\Container;
-use Library\Exception\WebException;
+use Library\Exception\LogicException;
 use Swoole\Coroutine\Channel;
 
 class MysqlPool
@@ -33,7 +33,7 @@ class MysqlPool
      * @param string $configName
      * @throws Exception
      */
-    public function __construct($configName = 'server')
+    public function __construct($configName)
     {
         $this->pool = new Channel(
             Container::getConfig()->get('pool.mysql.size', 5)
@@ -48,8 +48,12 @@ class MysqlPool
      * @param string $configName
      * @return Manager
      */
-    private function getClient($configName = 'server')
+    private function getClient($configName = '')
     {
+        if (!$configName) {
+            $configName = Container::getServerConfigIndex();
+        }
+
         $configData = Container::getConfig()->get("mysql.{$configName}", []);
 
         if ($configData) {
@@ -64,7 +68,7 @@ class MysqlPool
             $mysqlClient->connection()->getPdo();
             return $mysqlClient;
         } else {
-            throw new WebException('请配置mysql信息');
+            throw new LogicException('请配置MySQL信息');
         }
     }
 

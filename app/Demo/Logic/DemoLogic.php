@@ -23,4 +23,9 @@ class DemoLogic
     {
         return (new DemoRedisModel())->getList();
     }
+
+    public function testRabbitMQ()
+    {
+        return (new DemoRedisModel())->getList();
+    }
 }

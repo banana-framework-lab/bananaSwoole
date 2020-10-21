@@ -3,7 +3,7 @@
 namespace Library\Virtual\MiddleWare;
 
 use Library\Config;
-use Library\Exception\WebException;
+use Library\Exception\LogicException;
 
 /**
  * Class AbstractMiddleWare
@@ -109,7 +109,7 @@ abstract class AbstractMiddleWare
     /**
      * 获取http传入的数据
      * @return array
-     * @throws WebException
+     * @throws LogicException
      */
     public function takeMiddleData(): array
     {
@@ -126,7 +126,7 @@ abstract class AbstractMiddleWare
                         if($defaultData !== ''){
                             $httpData[$fieldName] = $defaultData;
                         }else{
-                            throw new WebException(
+                            throw new LogicException(
                                 isset($this->requestErrMsg[$fieldName]) ? "{$this->requestErrMsg[$fieldName]}不能为空" : "{$fieldName}不能为空.",
                                 Config::get('response.code.middleware_error', 10006),
                                 null,
@@ -137,7 +137,7 @@ abstract class AbstractMiddleWare
                         $httpData[$fieldName] = ($this->requestDefault[$fieldName]);
                     }
                 } else {
-                    throw new WebException(
+                    throw new LogicException(
                         isset($this->requestErrMsg[$fieldName]) ? "{$this->requestErrMsg[$fieldName]}不能为空" : "{$fieldName}不能为空!!",
                         Config::get('response.code.middleware_error', 10006),
                         null,

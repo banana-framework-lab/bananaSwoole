@@ -10,7 +10,7 @@ namespace App\Demo\Server;
 
 use Library\Channel;
 use Library\Container;
-use Library\Exception\WebException;
+use Library\Exception\LogicException;
 use Library\Object\ChannelObject;
 use Library\Object\RouteObject;
 use Library\Virtual\Controller\AbstractController;
@@ -46,6 +46,9 @@ class DefaultSwooleServer extends AbstractSwooleServer
 
             // 初始化redis连接池
             Container::setRedisPool();
+
+            // 初始化rabbitMq连接池
+            Container::setRabbitMQPool();
 
             // 开启php调试模式
             if (Container::getConfig()->get('app.debug', true)) {
@@ -257,7 +260,7 @@ class DefaultSwooleServer extends AbstractSwooleServer
                 $requestData = $middleWare->takeMiddleData();
             }
 
-        } catch (WebException $webE) {
+        } catch (LogicException $webE) {
             $response->end(json_encode([
                 'status' => $webE->getStatus(),
                 'code' => $webE->getCode(),
@@ -293,7 +296,7 @@ class DefaultSwooleServer extends AbstractSwooleServer
                 $response->end();
                 return;
             }
-        } catch (WebException $webE) {
+        } catch (LogicException $webE) {
             $response->end(json_encode([
                 'status' => $webE->getStatus(),
                 'code' => $webE->getCode(),

@@ -23,6 +23,7 @@ class BananaSwooleServer extends BaseSwooleServer
     public function __construct(string $serverConfigIndex = 'index')
     {
         $this->serverConfigIndex = $serverConfigIndex;
+        Container::setServerConfigIndex($this->serverConfigIndex);
         Container::setConfig();
         Container::getConfig()->initSwooleConfig();
         Container::setSwooleSever($serverConfigIndex);

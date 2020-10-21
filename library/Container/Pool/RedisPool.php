@@ -33,7 +33,7 @@ class RedisPool
      * @param string $configName
      * @throws Exception
      */
-    public function __construct($configName = 'server')
+    public function __construct($configName)
     {
         $this->pool = new Channel(
             Container::getConfig()->get('pool.redis.size', 5)
@@ -49,8 +49,12 @@ class RedisPool
      * @return Redis
      * @throws Exception
      */
-    private function getClient($configName = 'server')
+    private function getClient($configName = '')
     {
+        if (!$configName) {
+            $configName = Container::getServerConfigIndex();
+        }
+
         $redisConf = Container::getConfig()->get("redis.{$configName}");
 
         if ($redisConf) {
@@ -61,7 +65,7 @@ class RedisPool
 
             return $redisServer;
         } else {
-            throw new Exception('请配置mysql信息');
+            throw new Exception('请配置Redis信息');
         }
     }
 

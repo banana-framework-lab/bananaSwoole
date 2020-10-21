@@ -11,13 +11,12 @@ namespace Library\Container\Pool;
 use Exception;
 use Library\Container;
 use PhpAmqpLib\Connection\AMQPStreamConnection;
-use Redis;
 use Swoole\Coroutine\Channel;
 
-class RabbitPool
+class RabbitMQPool
 {
     /**
-     * Rabbit连接池
+     * RabbitMQ连接池
      * @var Channel $pool
      */
     private $pool;
@@ -33,10 +32,10 @@ class RabbitPool
      * @param string $configName
      * @throws Exception
      */
-    public function __construct($configName = 'server')
+    public function __construct($configName)
     {
         $this->pool = new Channel(
-            Container::getConfig()->get('pool.redis.size', 5)
+            Container::getConfig()->get('pool.rabbitmq.size', 5)
         );
         for ($i = 1; $i <= $this->poolSize; $i++) {
             $this->pool->push($this->getClient($configName));
@@ -49,8 +48,12 @@ class RabbitPool
      * @return AMQPStreamConnection
      * @throws Exception
      */
-    private function getClient($configName = 'server')
+    private function getClient($configName = '')
     {
+        if (!$configName) {
+            $configName = Container::getServerConfigIndex();
+        }
+
         $rabbitConfig = Container::getConfig()->get("rabbit.{$configName}");
 
         if ($rabbitConfig) {
@@ -64,7 +67,7 @@ class RabbitPool
 
             return $rabbitClient;
         } else {
-            throw new Exception('请配置rabbit信息');
+            throw new Exception('请配置RabbitMQ信息');
         }
     }
 
@@ -81,7 +84,7 @@ class RabbitPool
      * 归还连接
      * @param AMQPStreamConnection $client
      */
-    public function back(Redis $client)
+    public function back(AMQPStreamConnection $client)
     {
         $this->pool->push($client);
     }

@@ -21,7 +21,7 @@ use Swoole\WebSocket\Server as SwooleWebSocketServer;
  * Class SwooleServer
  * @package Library\Server
  */
-class BaseSwooleServer
+abstract class BaseSwooleServer
 {
     /**
      * @var SwooleWebSocketServer $server

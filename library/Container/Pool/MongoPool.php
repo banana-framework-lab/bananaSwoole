@@ -32,7 +32,7 @@ class MongoPool
      * @param string $configName
      * @throws Exception
      */
-    public function __construct($configName = 'server')
+    public function __construct($configName)
     {
         $this->pool = new Channel(
             Container::getConfig()->get('pool.mongo.size', 5)
@@ -48,8 +48,12 @@ class MongoPool
      * @return Client
      * @throws Exception
      */
-    private function getClient($configName = 'server')
+    private function getClient($configName = '')
     {
+        if (!$configName) {
+            $configName = Container::getServerConfigIndex();
+        }
+
         $mongoUri = Container::getConfig()->get("mongo.{$configName}.url", '');
 
         if ($mongoUri) {
@@ -59,7 +63,7 @@ class MongoPool
 
             return $mongodbServer;
         } else {
-            throw new Exception('请配置mongo信息');
+            throw new Exception('请配置Mongo信息');
         }
     }
 

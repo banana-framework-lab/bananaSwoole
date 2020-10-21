@@ -9,7 +9,7 @@
 namespace Library\Container;
 
 use Library\Container;
-use Library\Exception\WebException;
+use Library\Exception\LogicException;
 use Swoole\WebSocket\Server;
 
 class SwooleServer
