@@ -8,11 +8,9 @@
 
 namespace Library\Virtual\Model\DatabaseModel;
 
+use Library\Container;
 use Library\Entity\EntityMysqlBuilder;
-use Library\Object\BuilderObject;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Query\Builder;
-use Illuminate\Database\Connection;
 
 /**
  * Class AbstractMySqlModel
@@ -33,18 +31,37 @@ abstract class AbstractMySqlModel extends Model
      */
     protected $dateFormat = 'U';
 
+    protected $connection;
+
+    /**
+     * 构造函数-初始化connection
+     * AbstractMySqlModel constructor.
+     * @param array $attributes
+     */
+    public function __construct(array $attributes = [])
+    {
+        $this->connection = Container::getMysqlPool()->get();
+        parent::__construct($attributes);
+    }
+
+    /**
+     * 析构函数
+     */
+    public function __destruct()
+    {
+        Container::getMysqlPool()->back($this->connection);
+    }
+
     /**
      * 获取数据库对象
      * @param $name
-     * @return Connection|Builder|BuilderObject|string
+     * @return EntityMysqlBuilder|null
      */
     public function __get($name)
     {
         switch ($name) {
             case 'builder':
-                return new EntityMysqlBuilder();
-            case 'tableName':
-                return $this->table;
+                return new EntityMysqlBuilder($this->connection);
             default:
                 return null;
         }

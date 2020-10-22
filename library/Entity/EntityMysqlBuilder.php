@@ -10,24 +10,12 @@ namespace Library\Entity;
 
 use Illuminate\Database\Capsule\Manager;
 use Illuminate\Database\Query\Builder;
-use Library\Container;
 
 class EntityMysqlBuilder extends Builder
 {
-    /**
-     * @var Manager $builderManager
-     */
-    public $builderManager;
-
-    public function __construct()
+    public function __construct(Manager $builderManager)
     {
-        $this->builderManager = Container::getMysqlPool()->get();
-        parent::__construct($this->builderManager->getConnection());
-    }
-
-    public function __destruct()
-    {
-        Container::getMysqlPool()->back($this->builderManager);
+        parent::__construct($builderManager->getConnection());
     }
 
     /**
