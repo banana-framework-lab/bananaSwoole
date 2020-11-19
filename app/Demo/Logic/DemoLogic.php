@@ -10,6 +10,7 @@ namespace App\Demo\Logic;
 
 use App\Demo\Model\CacheModel\DemoRedisModel;
 use App\Demo\Model\DatabaseModel\DemoMysqlModel;
+use App\Demo\Model\MessageQueueModel\DemoRabbitMQModel;
 
 class DemoLogic
 {
@@ -26,6 +27,6 @@ class DemoLogic
 
     public function testRabbitMQ()
     {
-        return (new DemoRedisModel())->getList();
+        return (new DemoRabbitMQModel())->pushMessage();
     }
 }

@@ -73,14 +73,14 @@ abstract class AbstractRabbitMQModel
         $callback = function ($message) use ($digest_function) {
 
             /* @var AMQPChannel $channel */
-            $channel = $message->delivery_info['channel'];
+            $channel = $message->get('channel');
 
             $message_data = unserialize($message->body);
 
             $digest_result = $digest_function($message_data);
 
             if ($digest_result) {
-                $channel->basic_ack($message->delivery_info['delivery_tag']);
+                $channel->basic_ack($message->get('delivery_tag'));
             }
         };
 
@@ -187,14 +187,14 @@ abstract class AbstractRabbitMQModel
         $callback = function ($message) use ($digest_function) {
 
             /* @var AMQPChannel $channel */
-            $channel = $message->delivery_info['channel'];
+            $channel = $message->get('channel');
 
             $message_data = unserialize($message->body);
 
             $digest_result = $digest_function($message_data);
 
             if ($digest_result) {
-                $channel->basic_ack($message->delivery_info['delivery_tag']);
+                $channel->basic_ack($message->get('delivery_tag'));
             }
         };
 
