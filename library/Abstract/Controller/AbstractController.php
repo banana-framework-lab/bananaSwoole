@@ -13,7 +13,7 @@ use Library\Validate;
 
 /**
  * Class AbstractController
- * @package Library\Virtual\Controller
+ * @package Library\Abstract\Controller
  */
 Abstract class AbstractController
 {

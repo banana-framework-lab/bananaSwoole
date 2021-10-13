@@ -1,6 +1,6 @@
 <?php
 
-namespace Library\Container;
+namespace Library\Container\Instance;
 
 use Library\Exception\LogicException;
 use Swoole\Http\Request as SwooleHttpRequest;

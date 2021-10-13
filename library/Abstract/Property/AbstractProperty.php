@@ -7,7 +7,7 @@ use stdClass;
 
 /**
  * Class AbstractProperty
- * @package Library\Virtual\Property
+ * @package Library\Abstract\Property
  */
 abstract class AbstractProperty
 {

@@ -10,7 +10,7 @@ namespace Library\Virtual\Command;
 
 /**
  * Class AbstractCommand
- * @package Library\Virtual\Command
+ * @package Library\Abstract\Command
  */
 abstract class AbstractCommand
 {

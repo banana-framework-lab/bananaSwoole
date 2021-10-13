@@ -6,13 +6,12 @@
  * Time: 13:56
  */
 
-namespace Library\Container;
+namespace Library\Container\Instance;
 
 use Library\Container;
-use Library\Exception\LogicException;
-use Swoole\WebSocket\Server;
+use Swoole\WebSocket\Server as SwooleServer;
 
-class SwooleServer
+class Server
 {
     /**
      * @var Server $instance
@@ -25,7 +24,7 @@ class SwooleServer
      */
     public function __construct(string $serverConfigIndex)
     {
-        $this->instance = new Server(
+        $this->instance = new SwooleServer(
             "0.0.0.0",
             Container::getConfig()->get("swoole.{$serverConfigIndex}.port", 9501),
             SWOOLE_PROCESS
@@ -33,7 +32,7 @@ class SwooleServer
     }
 
     /**
-     * @return Server
+     * @return SwooleServer
      */
     public function getSwooleServer()
     {

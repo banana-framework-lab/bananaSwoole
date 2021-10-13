@@ -10,7 +10,7 @@ namespace Library\Virtual\Model\HttpModel;
 
 /**
  * Class AbstractRedisModel
- * @package Library\Virtual\Model\HttpModel
+ * @package Library\Abstract\Model\HttpModel
  */
 abstract class AbstractHttpModel
 {

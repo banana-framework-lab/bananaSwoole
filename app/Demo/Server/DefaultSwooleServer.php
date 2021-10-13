@@ -15,7 +15,7 @@ use Library\Object\ChannelObject;
 use Library\Object\RouteObject;
 use Library\Virtual\Controller\AbstractController;
 use Library\Virtual\Handler\AbstractHandler;
-use Library\Virtual\MiddleWare\AbstractMiddleWare;
+use Library\Virtual\MiddleWare\AbstractForm;
 use Library\Virtual\Server\AbstractSwooleServer;
 use Swoole\Coroutine;
 use Swoole\Http\Request as SwooleHttpRequest;
@@ -253,7 +253,7 @@ class DefaultSwooleServer extends AbstractSwooleServer
         try {
             $middleClass = str_replace("Controller", "Middle", $controllerClass);;
 
-            /* @var AbstractMiddleWare $middleWare */
+            /* @var AbstractForm $middleWare */
             if (method_exists($middleClass, $methodName)) {
                 $middleWare = new $middleClass($requestData);
                 $middleWare->$methodName();

@@ -16,7 +16,7 @@ use MongoDB\Operation\FindOneAndUpdate;
 /**
  * Class AbstractMongoModel
  * @property Manager mongo
- * @package Library\Virtual\Model\DataBaseModel
+ * @package Library\Abstract\Model\DataBaseModel
  */
 abstract class AbstractMongoModel
 {

@@ -56,7 +56,7 @@ class Script
         $this->serverName = $this->paramData[2];
         $this->commandName = $this->paramData[3] ?? '';
 
-        Config::instanceStart();
+        Container::getConfig()->initConfig();
     }
 
     /**

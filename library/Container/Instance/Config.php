@@ -1,8 +1,6 @@
 <?php
 
-namespace Library\Container;
-
-use Exception;
+namespace Library\Container\Instance;
 
 /**
  * Created by PhpStorm.

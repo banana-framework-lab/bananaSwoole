@@ -12,7 +12,7 @@ use Library\Container;
 
 /**
  * Class AbstractRedisModel
- * @package Library\Virtual\Model\CacheModel
+ * @package Library\Abstract\Model\CacheModel
  */
 abstract class AbstractRedisModel
 {

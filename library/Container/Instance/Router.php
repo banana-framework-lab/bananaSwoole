@@ -6,7 +6,7 @@
  * Time: 16:55
  */
 
-namespace Library\Container;
+namespace Library\Container\Instance;
 
 use Library\Container;
 use Library\Object\RouteObject;

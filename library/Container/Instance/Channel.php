@@ -6,7 +6,7 @@
  * Time: 20:22
  */
 
-namespace Library;
+namespace Library\Container\Instance;
 
 use Library\Object\ChannelObject;
 
@@ -29,8 +29,10 @@ class Channel
         $handler = opendir(dirname(__FILE__) . '/../channel');
         while (($fileName = readdir($handler)) !== false) {
             if ($fileName != "." && $fileName != "..") {
-                $fileData = require dirname(__FILE__) . '/../channel/' . $fileName;
-                self::$channelPool = array_merge(self::$channelPool, $fileData);
+                if(file_exists(dirname(__FILE__) . '/../channel/' . $fileName)){
+                    $fileData = require dirname(__FILE__) . '/../channel/' . $fileName;
+                    self::$channelPool = array_merge(self::$channelPool, $fileData);
+                }
             }
         }
         closedir($handler);

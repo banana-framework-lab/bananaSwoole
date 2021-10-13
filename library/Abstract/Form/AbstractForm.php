@@ -2,14 +2,14 @@
 
 namespace Library\Virtual\MiddleWare;
 
-use Library\Config;
+use Library\Container;
 use Library\Exception\LogicException;
 
 /**
  * Class AbstractMiddleWare
- * @package Library\Virtual\Middle
+ * @package Library\Abstract\Middle
  */
-abstract class AbstractMiddleWare
+abstract class AbstractForm
 {
     /**
      * @var array 请求数据
@@ -53,9 +53,9 @@ abstract class AbstractMiddleWare
     /**
      * 设置输入参数的中间键加工函数
      * @param array $requestAfter
-     * @return AbstractMiddleWare
+     * @return AbstractForm
      */
-    public function setRequestAfter(array $requestAfter): AbstractMiddleWare
+    public function setRequestAfter(array $requestAfter): AbstractForm
     {
         $this->requestAfter = $requestAfter;
         return $this;
@@ -64,9 +64,9 @@ abstract class AbstractMiddleWare
     /**
      * 设置输入参数的默认值
      * @param array $requestDefault
-     * @return AbstractMiddleWare
+     * @return AbstractForm
      */
-    public function setRequestDefault(array $requestDefault): AbstractMiddleWare
+    public function setRequestDefault(array $requestDefault): AbstractForm
     {
         $this->requestDefault = $requestDefault;
         return $this;
@@ -75,9 +75,9 @@ abstract class AbstractMiddleWare
     /**
      * 设置输入参数的key
      * @param array $requestField
-     * @return AbstractMiddleWare
+     * @return AbstractForm
      */
-    public function setRequestField(array $requestField): AbstractMiddleWare
+    public function setRequestField(array $requestField): AbstractForm
     {
         $this->requestField = $requestField;
         return $this;
@@ -86,9 +86,9 @@ abstract class AbstractMiddleWare
     /**
      * 设置非严格输入参数的key
      * @param array $requestField
-     * @return AbstractMiddleWare
+     * @return AbstractForm
      */
-    public function setNoStrictField(array $requestField): AbstractMiddleWare
+    public function setNoStrictField(array $requestField): AbstractForm
     {
         $this->requestNoStrictField = $requestField;
         return $this;
@@ -97,9 +97,9 @@ abstract class AbstractMiddleWare
     /**
      * 设置输入参数的报错信息
      * @param array $requestErrMsg
-     * @return AbstractMiddleWare
+     * @return AbstractForm
      */
-    public function setRequestErrMsg(array $requestErrMsg): AbstractMiddleWare
+    public function setRequestErrMsg(array $requestErrMsg): AbstractForm
     {
         $this->requestErrMsg = $requestErrMsg;
         return $this;
@@ -128,9 +128,9 @@ abstract class AbstractMiddleWare
                         }else{
                             throw new LogicException(
                                 isset($this->requestErrMsg[$fieldName]) ? "{$this->requestErrMsg[$fieldName]}不能为空" : "{$fieldName}不能为空.",
-                                Config::get('response.code.middleware_error', 10006),
+                                 Container::getConfig()->get('response.code.middleware_error', 10006),
                                 null,
-                                Config::get('response.status.http_fail', 10001)
+                                Container::getConfig()->get('response.status.http_fail', 10001)
                             );
                         }
                     }else{
@@ -139,9 +139,9 @@ abstract class AbstractMiddleWare
                 } else {
                     throw new LogicException(
                         isset($this->requestErrMsg[$fieldName]) ? "{$this->requestErrMsg[$fieldName]}不能为空" : "{$fieldName}不能为空!!",
-                        Config::get('response.code.middleware_error', 10006),
+                        Container::getConfig()->get('response.code.middleware_error', 10006),
                         null,
-                        Config::get('response.status.http_fail', 10001)
+                        Container::getConfig()->get('response.status.http_fail', 10001)
                     );
                 }
             }

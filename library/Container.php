@@ -9,17 +9,17 @@
 namespace Library;
 
 use Exception;
-use Library\Container\Config;
-use Library\Container\Log;
+use Library\Container\Instance\Config;
+use Library\Container\Instance\Log;
 use Library\Container\Pool\MongoPool;
 use Library\Container\Pool\MysqlPool;
 use Library\Container\Pool\RabbitMQPool;
 use Library\Container\Pool\RedisPool;
-use Library\Container\Request;
-use Library\Container\Response;
-use Library\Container\Router;
-use Library\Container\SwooleServer;
-use Swoole\WebSocket\Server;
+use Library\Container\Instance\Request;
+use Library\Container\Instance\Response;
+use Library\Container\Instance\Router;
+use Library\Container\Instance\Server;
+use Swoole\WebSocket\Server as SwooleServer;
 
 /**
  * Class Validate
@@ -76,7 +76,7 @@ class Container
 
     /**
      * Swoole的Server对象
-     * @var Server $swooleServer
+     * @var SwooleServer $swooleServer
      */
     static private $swooleServer;
 
@@ -86,12 +86,12 @@ class Container
      */
     static public function setSwooleSever(string $serverConfigIndex)
     {
-        self::$swooleServer = (new SwooleServer($serverConfigIndex))->getSwooleServer();
+        self::$swooleServer = (new Server($serverConfigIndex))->getSwooleServer();
     }
 
     /**
      * 获取swooleServer对象
-     * @return Server
+     * @return SwooleServer
      */
     static public function getSwooleServer()
     {

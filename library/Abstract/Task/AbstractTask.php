@@ -11,7 +11,7 @@ use Swoole\Server\Task;
 
 /**
  * Class AbstractTask
- * @package Library\Virtual\Task
+ * @package Library\Abstract\Task
  */
 abstract class AbstractTask
 {

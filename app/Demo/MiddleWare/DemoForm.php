@@ -9,9 +9,9 @@
 namespace App\Demo\MiddleWare;
 
 use Exception;
-use Library\Virtual\MiddleWare\AbstractMiddleWare;
+use Library\Virtual\MiddleWare\AbstractForm;
 
-class DemoMiddleWare extends AbstractMiddleWare
+class DemoForm extends AbstractForm
 {
     /**
      * @throws Exception

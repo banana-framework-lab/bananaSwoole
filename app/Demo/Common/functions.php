@@ -11,5 +11,5 @@
  */
 function commonFunctionForDemo()
 {
-    echo '你调用了Demo的公共函数';
+    echo '你调用了Demo的公共函数' . PHP_EOL;
 }

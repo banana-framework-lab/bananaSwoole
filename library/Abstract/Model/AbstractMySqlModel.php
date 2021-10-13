@@ -16,7 +16,7 @@ use Illuminate\Database\Eloquent\Model;
  * Class AbstractMySqlModel
  * @property EntityMysqlBuilder builder
  * @property String tableName
- * @package Library\Virtual\Model\DataBaseModel
+ * @package Library\Abstract\Model\DataBaseModel
  */
 abstract class AbstractMySqlModel extends Model
 {

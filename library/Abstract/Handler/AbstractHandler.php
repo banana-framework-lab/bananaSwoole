@@ -15,7 +15,7 @@ use Swoole\WebSocket\Frame as SwooleSocketFrame;
 
 /**
  * Class Handler
- * @package Library\Virtual\Handler
+ * @package Library\Abstract\Handler
  */
 abstract class AbstractHandler
 {
