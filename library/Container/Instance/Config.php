@@ -25,12 +25,12 @@ class Config
      */
     public function initConfig()
     {
-        $handler = opendir(dirname(__FILE__) . '/../../config');
+        $handler = opendir(dirname(__FILE__) . '/../../../config');
         while (($fileName = readdir($handler)) !== false) {
             if ($fileName != "." && $fileName != "..") {
                 $fileIndex = (explode('.', $fileName))[0];
                 if ($fileIndex != 'swoole') {
-                    $fileData = include dirname(__FILE__) . '/../../config/' . $fileName;
+                    $fileData = include dirname(__FILE__) . '/../../../config/' . $fileName;
                     $this->configPool[$fileIndex] = $fileData;
                 }
             }
@@ -43,11 +43,11 @@ class Config
      */
     public function initSwooleConfig()
     {
-        if (file_exists(dirname(__FILE__) . '/../../config/swoole.php')) {
-            $fileData = include dirname(__FILE__) . '/../../config/swoole.php';
+        if (file_exists(dirname(__FILE__) . '/../../../config/swoole.php')) {
+            $fileData = include dirname(__FILE__) . '/../../../config/swoole.php';
             $this->configPool['swoole'] = $fileData;
         } else {
-            echo "无配置Swoole配置文件\n";
+            echo "无配置Swoole配置文件" . PHP_EOL;
             exit;
         }
     }

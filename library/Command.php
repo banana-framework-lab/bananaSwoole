@@ -56,6 +56,7 @@ class Command
         $this->serverName = $this->paramData[2];
         $this->commandName = $this->paramData[3] ?? '';
 
+        Container::setConfig();
         Container::getConfig()->initConfig();
     }
 

@@ -84,7 +84,7 @@ class BananaSwooleServer
     /**
      * @var string $serverConfigIndex
      */
-    protected $serverConfigIndex = 'index';
+    protected $serverConfigIndex;
 
     /**
      * @var int $echoWidth
@@ -203,7 +203,7 @@ class BananaSwooleServer
      * BananaSwooleServer constructor.
      * @param string $serverConfigIndex
      */
-    public function __construct(string $serverConfigIndex = 'index')
+    public function __construct(string $serverConfigIndex)
     {
         $this->serverConfigIndex = $serverConfigIndex;
         Container::setServerConfigIndex($this->serverConfigIndex);
