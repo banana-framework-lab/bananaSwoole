@@ -9,7 +9,6 @@
 namespace Library\Virtual\Controller;
 
 use Library\Exception\LogicException;
-use Library\Validate;
 
 /**
  * Class AbstractController
@@ -30,13 +29,5 @@ Abstract class AbstractController
     public function __construct($request)
     {
         $this->request = $request;
-    }
-
-    /**
-     * @throws LogicException
-     */
-    public function validateRequest()
-    {
-        $this->request = Validate::checkRequest($this->request);
     }
 }

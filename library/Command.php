@@ -11,7 +11,7 @@ namespace Library;
 use Library\Virtual\Command\AbstractCommand;
 use swoole_process;
 
-class Script
+class Command
 {
     /**
      * @var int $paramNumber
@@ -114,7 +114,7 @@ class Script
      */
     private function stop()
     {
-        $filePath = dirname(__FILE__) . "/./../library/Runtime/Script/$this->serverName";
+        $filePath = dirname(__FILE__) . "/./../library/Runtime/Command/$this->serverName";
         if (!file_exists($filePath)) {
             echo "{$this->serverName}服务不存在\n";
             return;
@@ -150,7 +150,7 @@ class Script
      */
     private function reload()
     {
-        $filePath = dirname(__FILE__) . "/./../library/Runtime/Script/$this->serverName";
+        $filePath = dirname(__FILE__) . "/./../library/Runtime/Command/$this->serverName";
         $pid = intval(file_get_contents($filePath));
         if (!swoole_process::kill($pid, 0)) {
             echo "{$pid}进程不存在\n";

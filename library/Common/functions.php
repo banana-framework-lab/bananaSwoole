@@ -74,3 +74,8 @@ function build_query_no_encode($param)
 
     return $pre_str;
 }
+
+function camelize($uncamelized_words, $separator = '_')
+{
+    return str_replace($separator, '', lcfirst(ucwords(strtolower($uncamelized_words), $separator)));
+}

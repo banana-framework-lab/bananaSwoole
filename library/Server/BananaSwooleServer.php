@@ -72,7 +72,7 @@ class BananaSwooleServer extends BaseSwooleServer
             exit;
         }
 
-        $pidFilePath = dirname(__FILE__) . "/../Runtime/Script/{$this->serverName}";
+        $pidFilePath = dirname(__FILE__) . "/../Runtime/Command/{$this->serverName}";
         $this->server->set([
             'worker_num' => $this->workerNum,
             'task_worker_num' => $this->taskNum,
