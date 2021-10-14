@@ -57,15 +57,13 @@ class RabbitMQPool
         $rabbitConfig = Container::getConfig()->get("rabbit.{$configName}");
 
         if ($rabbitConfig) {
-            $rabbitClient = new AMQPStreamConnection(
+            return new AMQPStreamConnection(
                 $rabbitConfig['host'],
                 $rabbitConfig['port'],
                 $rabbitConfig['user'],
                 $rabbitConfig['password'],
                 $rabbitConfig['vhost']
             );
-
-            return $rabbitClient;
         } else {
             throw new Exception('请配置RabbitMQ信息');
         }

@@ -8,18 +8,39 @@
 
 namespace Library\Virtual\Model\DatabaseModel;
 
+use Illuminate\Database\Capsule\Manager;
+use Illuminate\Database\Query\Builder;
 use Library\Container;
-use Library\Entity\EntityMysqlBuilder;
 use Illuminate\Database\Eloquent\Model;
 
 /**
  * Class AbstractMySqlModel
- * @property EntityMysqlBuilder builder
+ * @property Builder builder
  * @property String tableName
  * @package Library\Abstract\Model\DataBaseModel
  */
 abstract class AbstractMySqlModel extends Model
 {
+    /**
+     * 返回查询构造器生成的SQL语句
+     * @param Builder $builder
+     * @return string|string[]|null
+     */
+    public function getSql($builder)
+    {
+        $bindings = $builder->getBindings();
+        return preg_replace_callback('/\?/', function ($match) use (&$bindings) {
+            $binding = array_shift($bindings);
+            if (is_numeric($binding)) {
+                return $binding;
+            } else if (is_string($binding)) {
+                return empty($binding) ? "''" : "'{$binding}'";
+            } else {
+                return $binding;
+            }
+        }, $builder->toSql());
+    }
+
     /**
      * 自定义存储时间戳的字段名
      */
@@ -31,6 +52,9 @@ abstract class AbstractMySqlModel extends Model
      */
     protected $dateFormat = 'U';
 
+    /**
+     * @var Manager $connection
+     */
     protected $connection;
 
     /**
@@ -55,26 +79,16 @@ abstract class AbstractMySqlModel extends Model
     /**
      * 获取数据库对象
      * @param $name
-     * @return EntityMysqlBuilder|null
+     * @return Builder|null
      */
     public function __get($name)
     {
         switch ($name) {
             case 'builder':
-                return new EntityMysqlBuilder($this->connection);
+                return new Builder($this->connection->getConnection());
             default:
                 return null;
         }
-    }
-
-    /**
-     * 返回查询构造器生成的SQL语句
-     * @param EntityMysqlBuilder $builder
-     * @return string|string[]|null
-     */
-    public function getSql(EntityMysqlBuilder $builder)
-    {
-        return $builder->getSql();
     }
 
     /**
