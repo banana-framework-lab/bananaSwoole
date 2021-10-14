@@ -48,7 +48,7 @@ class RedisPool
      * @return Redis
      * @throws Exception
      */
-    private function getClient($configName = '')
+    private function getClient($configName)
     {
         if (!$configName) {
             $configName = Container::getServerConfigIndex();

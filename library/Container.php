@@ -176,7 +176,7 @@ class Container
      * @param string $configName
      * @throws Exception
      */
-    static public function setMysqlPool($configName = '')
+    static public function setMysqlPool($configName)
     {
         self::$mysqlPool = new MysqlPool($configName);
     }
@@ -226,7 +226,7 @@ class Container
      * @param string $configName
      * @throws Exception
      */
-    static public function setRedisPool($configName = '')
+    static public function setRedisPool($configName)
     {
         self::$redisPool = new RedisPool($configName);
     }

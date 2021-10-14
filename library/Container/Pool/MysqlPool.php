@@ -48,7 +48,7 @@ class MysqlPool
      * @param string $configName
      * @return Manager
      */
-    private function getClient($configName = '')
+    private function getClient($configName)
     {
         if (!$configName) {
             $configName = Container::getServerConfigIndex();
