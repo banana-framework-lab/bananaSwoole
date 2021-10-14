@@ -6,13 +6,13 @@
  * Time: 22:36
  */
 
-namespace Library\Object;
+namespace Library\Container;
 
 /**
  * Class ChannelObject
  * @package Library\Object
  */
-class ChannelObject
+class Channel
 {
     /**
      * @var string $channel

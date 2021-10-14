@@ -17,7 +17,7 @@ use Library\Container\Pool\RabbitMQPool;
 use Library\Container\Pool\RedisPool;
 use Library\Container\Instance\Request;
 use Library\Container\Instance\Response;
-use Library\Container\Instance\Router;
+use Library\Container\Instance\RouterMap;
 use Library\Container\Instance\Server;
 use Swoole\WebSocket\Server as SwooleServer;
 
@@ -144,7 +144,7 @@ class Container
 
     /**
      * 路由对象
-     * @var Router $router
+     * @var RouterMap $router
      */
     static private $router;
 
@@ -153,12 +153,12 @@ class Container
      */
     static public function setRouter()
     {
-        self::$router = new Router();
+        self::$router = new RouterMap();
     }
 
     /**
      * 返回路由对象
-     * @return Router
+     * @return RouterMap
      */
     static public function getRouter()
     {

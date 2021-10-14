@@ -6,13 +6,13 @@
  * Time: 16:43
  */
 
-namespace Library\Object;
+namespace Library\Container;
 
 /**
  * Class RouteObject
  * @package Library\Object\Web
  */
-class RouteObject
+class Route
 {
     /**
      * @var string $project 路由的项目

@@ -9,13 +9,13 @@
 namespace Library\Container\Instance;
 
 use Library\Container;
-use Library\Object\RouteObject;
+use Library\Container\Route;
 
 /**
  * Class Router
  * @package Library
  */
-class Router
+class RouterMap
 {
     /**
      * 路由对象
@@ -31,9 +31,8 @@ class Router
 
     /**
      * 初始化Router类
-     * @param string $lockFileName
      */
-    public function __construct(string $lockFileName = '')
+    public function __construct()
     {
         $handler = opendir(dirname(__FILE__) . '/../../route');
         while (($fileName = readdir($handler)) !== false) {
@@ -77,11 +76,11 @@ class Router
      * 获取当前处理的匹配出的路由
      * @param int $workerId
      * @param int $cId
-     * @return RouteObject
+     * @return Route
      */
-    public function getRoute(int $workerId = 0, int $cId = 0): RouteObject
+    public function getRoute(int $workerId = 0, int $cId = 0): Route
     {
-        return $this->pool[$workerId][$cId] ?? (new RouteObject());
+        return $this->pool[$workerId][$cId] ?? (new Route());
     }
 
     /**
@@ -99,9 +98,9 @@ class Router
      * @param string $requestUrl
      * @param int $workerId
      * @param int $cId
-     * @return RouteObject
+     * @return Route
      */
-    public function controllerRouter(string $requestUrl, int $workerId = 0, int $cId = 0): RouteObject
+    public function controllerRouter(string $requestUrl, int $workerId = 0, int $cId = 0): Route
     {
         $route = $this->routerPool[$requestUrl] ?? null;
         if (is_null($route)) {
@@ -111,7 +110,7 @@ class Router
             $requestUrlArray[1] = (isset($requestUrlArray[1]) && $requestUrlArray[1]) ? ucfirst($requestUrlArray[1]) : 'Index';
             $requestUrlArray[2] = (isset($requestUrlArray[2]) && $requestUrlArray[2]) ? $requestUrlArray[2] : 'index';
 
-            $routerObject = new RouteObject();
+            $routerObject = new Route();
             $routerObject->setProject($requestUrlArray[0]);
             $routerObject->setController("\\App\\{$requestUrlArray[0]}\\Controller\\{$requestUrlArray[1]}Controller");
             $routerObject->setMethod($requestUrlArray[2]);
@@ -119,7 +118,7 @@ class Router
         } else {
             $requestUrlArray = explode('@', $route);
 
-            $routerObject = new RouteObject();
+            $routerObject = new Route();
             $routerObject->setProject((explode('\\', $requestUrlArray[0]))[2]);
             $routerObject->setController($requestUrlArray[0]);
             $routerObject->setMethod($requestUrlArray[1]);
