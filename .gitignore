@@ -12,10 +12,10 @@ Thumbs.db
 /config
 
 #Runtime
-app/Runtime
+app/*/Runtime
 runtime/Runtime
-library/Runtime/CommandStack/*
-!library/Runtime/CommandStack/.runtime
+library/Runtime/Command/*
+!library/Runtime/Command/.runtime
 */*/File
 
 /vendor

@@ -7,13 +7,13 @@
  */
 return [
     'local' => [
-        'host' => '127.0.0.1',
+        'host' => 'redis',
         'port' => '6379',
         'auth' => '',
         'database' => '0'
     ],
     'server' => [
-        'host' => '127.0.0.1',
+        'host' => '192.168.5.118',
         'port' => '6379',
         'auth' => '',
         'database' => '0'

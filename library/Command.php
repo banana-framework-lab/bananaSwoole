@@ -8,7 +8,6 @@
 
 namespace Library;
 
-
 use Library\Virtual\Command\AbstractCommand;
 use swoole_process;
 
@@ -57,7 +56,8 @@ class Command
         $this->serverName = $this->paramData[2];
         $this->commandName = $this->paramData[3] ?? '';
 
-        Config::instanceStart();
+        Container::setConfig();
+        Container::getConfig()->initConfig();
     }
 
     /**
@@ -115,7 +115,7 @@ class Command
      */
     private function stop()
     {
-        $filePath = dirname(__FILE__) . "/./../library/Runtime/CommandStack/$this->serverName";
+        $filePath = dirname(__FILE__) . "/./../library/Runtime/Command/$this->serverName";
         if (!file_exists($filePath)) {
             echo "{$this->serverName}服务不存在\n";
             return;
@@ -151,7 +151,7 @@ class Command
      */
     private function reload()
     {
-        $filePath = dirname(__FILE__) . "/./../library/Runtime/CommandStack/$this->serverName";
+        $filePath = dirname(__FILE__) . "/./../library/Runtime/Command/$this->serverName";
         $pid = intval(file_get_contents($filePath));
         if (!swoole_process::kill($pid, 0)) {
             echo "{$pid}进程不存在\n";

@@ -6,6 +6,7 @@
  * Time: 17:27
  */
 return [
+    'is_auto_reload' => true,
     'server_id' => 1,
     'debug' => true,
     'is_server' => false,

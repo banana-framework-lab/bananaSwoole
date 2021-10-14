@@ -8,7 +8,7 @@
 return [
     'server' => [
         'driver' => 'mysql',
-        'host' => '127.0.0.1',
+        'host' => '192.168.5.118',
         'database' => 'swoole_vue_admin',
         'username' => 'root',
         'password' => '123456',
@@ -18,7 +18,7 @@ return [
     ],
     'local' => [
         'driver' => 'mysql',
-        'host' => '127.0.0.1',
+        'host' => '192.168.5.118',
         'database' => 'swoole_vue_admin',
         'username' => 'root',
         'password' => '123456',

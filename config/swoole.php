@@ -11,8 +11,8 @@ return [
         'worker_num' => 5
     ],
     'server' => [
-        'port' => 9502,
+        'port' => 9501,
         'worker_num' => 1,
-        'task_num'=>1
+        'task_num'=>0
     ]
 ];
