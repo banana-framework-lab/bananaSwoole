@@ -6,7 +6,7 @@
  * Time: 20:25
  */
 
-namespace Library\Virtual\Server;
+namespace Library\Abstracts\Server;
 
 use Swoole\Server\Task;
 use Swoole\Table;

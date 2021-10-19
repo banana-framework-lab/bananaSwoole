@@ -2,10 +2,14 @@
 
 namespace Library\Server;
 
+use Library\Abstracts\Controller\AbstractController;
+use Library\Abstracts\Form\AbstractForm;
+use Library\Abstracts\Server\AbstractSwooleServer;
 use Library\Container;
+use Library\Container\Route;
+use Library\Exception\LogicException;
 use Library\Server\Functions\AutoReload;
 use Library\Server\Functions\WorkStartEcho;
-use Library\Virtual\Server\AbstractSwooleServer;
 use Swoole\Coroutine;
 use Swoole\Server\Task;
 use Swoole\Table;
@@ -19,7 +23,7 @@ use Throwable;
 
 /**
  * Class SwooleWebSocketServer
- * @package Library\Server
+ * @package Library\Index
  */
 class BananaSwooleServer
 {
@@ -211,22 +215,25 @@ class BananaSwooleServer
             // 当且仅当非task进程，id为0时的进程触发热重启
             if (!$server->taskworker && $workerId <= 0) {
                 if (Container::getConfig()->get('app.is_auto_reload', false)) {
-                    $this->autoReload->setReloadTickId(Timer::tick(1000, function () {
+                    $this->autoReload->reloadTickId = Timer::tick(1000, function () {
                         $this->autoReload->main($this->server);
-                    }));
+                    });
                 }
                 $this->workStartEcho = new WorkStartEcho();
                 $this->workStartEcho->serverType = 'SwooleServer';
                 $this->workStartEcho->port = Container::getConfig()->get("swoole.{$this->serverConfigIndex}.port", 9501);
-                $this->workStartEcho->taskNum = Container::getConfig()->get("swoole.{$this->serverConfigIndex}.task_num", ($this->workerNum) * 4);
-                $this->workStartEcho->workerNum = Container::getConfig()->get("swoole.{$this->serverConfigIndex}.task_num", ($this->workerNum) * 4);
+                $this->workStartEcho->taskNum = $this->taskNum;
+                $this->workStartEcho->workerNum = $this->workerNum;
                 $this->workStartEcho->echoWidth = $this->echoWidth;
                 $this->workStartEcho->xChar = '#';
                 $this->workStartEcho->yChar = '|';
                 $this->workStartEcho->main($this->server, $this->autoReload);
             }
         } catch (Throwable $error) {
+            echo $error->getMessage() . PHP_EOL;
+            echo $error->getTraceAsString() . PHP_EOL;
             $server->stop($workerId);
+            $server->shutdown();
         }
 
         $courseName = $server->taskworker ? 'task' : 'worker';
@@ -303,19 +310,120 @@ class BananaSwooleServer
                 $response->header('Access-Control-Allow-Headers', 'x-requested-with,User-Platform,Content-Type,X-Token');
             }
 
-            $response->header('Content-type', 'application/json');
+//            $response->header('Content-type', 'application/json');
 
             //初始化请求实体类
             $cId = Coroutine::getuid();
             Container::getRequest()->setRequest($request, $this->server->worker_id, $cId);
             Container::getResponse()->setResponse($response, $this->server->worker_id, $cId);
-            $this->appServer->request($request, $response);
+
+            // 标识此次fd为http请求;
+            $this->bindTable->set($request->fd, ['http' => 1]);
+
+            /* @var Route $routeObject */
+            $routeObject = Container::getRouter()->controllerRouter($request->server['request_uri']);
+
+            // 初始化方法
+            $methodName = $routeObject->getMethod();
+            $controllerClass = $routeObject->getController();
+
+            // 初始化请求数据
+            $getData = $request->get ?: [];
+            $postData = $request->post ?: [];
+            $rawContentData = json_decode($request->rawContent(), true) ?: [];
+            $requestData = array_merge($getData, $postData, $rawContentData);
+
+            // 初始化请求中间件
+            try {
+                $formClass = str_replace("Controller", "Form", $controllerClass);
+                /* @var AbstractForm $form */
+                if (method_exists($formClass, $methodName)) {
+                    $form = new $formClass($requestData);
+                    $form->$methodName();
+                    $requestData = $form->takeMiddleData();
+                }
+            } catch (LogicException $webE) {
+                if (Container::getConfig()->get('app.debug', false)) {
+                    $response->status(200);
+                    $response->end("{$webE->getMessage()}<br>{$webE->getTraceAsString()}");
+                    return;
+                } else {
+                    $response->status(500);
+                    $response->end();
+                    return;
+                }
+            } catch (Throwable $e) {
+                if (Container::getConfig()->get('app.debug', false)) {
+                    $response->status(200);
+                    $response->end("{$e->getMessage()}<br>{$e->getTraceAsString()}");
+                    return;
+                } else {
+                    $response->status(500);
+                    $response->end();
+                    return;
+                }
+            }
+
+            // 初始化控制器
+            try {
+                if (class_exists($controllerClass)) {
+                    /* @var AbstractController $controller */
+                    $controller = new $controllerClass($requestData);
+                    if (method_exists($controller, $methodName)) {
+                        $returnData = $controller->$methodName();
+                        if (!empty($returnData)) {
+                            $response->status(200);
+                            $response->end(is_array($returnData) ? json_encode($returnData, JSON_UNESCAPED_UNICODE) : $returnData);
+                        }
+                    } else {
+                        if (Container::getConfig()->get('app.debug', false)) {
+                            $response->status(200);
+                            $response->end("403找不到{$request->server['request_uri']}");
+                            return;
+                        } else {
+                            $response->status(403);
+                            $response->end();
+                            return;
+                        }
+                    }
+                } else {
+                    if (Container::getConfig()->get('app.debug', false)) {
+                        $response->status(200);
+                        $response->end("404找不到{$request->server['request_uri']}");
+                        return;
+                    } else {
+                        $response->status(404);
+                        $response->end();
+                        return;
+                    }
+                }
+            } catch (Throwable $e) {
+                if (Container::getConfig()->get('app.debug', false)) {
+                    if ($e->getCode() != C_EXIT_CODE) {
+                        $response->status(200);
+                        $response->end($e->getMessage() . "\n" . $e->getTraceAsString());
+                    } else {
+                        $response->status(200);
+                        $workerId = Container::getSwooleServer()->worker_id;
+                        $cId = Coroutine::getCid();
+                        $response->end(Container::getResponse()->dumpFlush($workerId, $cId));
+                    }
+                } else {
+                    $response->status(500);
+                    $response->end();
+                }
+                return;
+            }
+
+//            $this->appServer->request($request, $response);
         } catch (Throwable $error) {
             $workerId = Container::getSwooleServer()->worker_id;
             $errorMsg = $error->getMessage();
             echo "###########" . str_pad("worker_id: {$workerId} error", $this->echoWidth - 22, ' ', STR_PAD_BOTH) . "###########" . PHP_EOL;
             echo "$errorMsg" . PHP_EOL;
             $response->status(500);
+            $response->end();
+            return;
         }
     }
 
@@ -387,7 +495,7 @@ class BananaSwooleServer
      */
     public function onWorkerExit(Server $server, int $workerId)
     {
-        $this->autoReload->getReloadTickId() && Timer::clear($this->autoReload->getReloadTickId());
+        $this->autoReload->reloadTickId && Timer::clear($this->autoReload->reloadTickId);
         $this->appServer->exit($server, $workerId);
         $courseName = $server->taskworker ? 'task' : 'worker';
         echo "###########" . str_pad("{$courseName}_pid: {$server->worker_pid}    {$courseName}_id: {$workerId}    Exit", $this->echoWidth - 22, ' ', STR_PAD_BOTH) . "###########" . PHP_EOL;

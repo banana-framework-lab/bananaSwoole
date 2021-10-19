@@ -1,6 +1,6 @@
 <?php
 
-namespace Library\Virtual\Model\MessageQueueModel;
+namespace Library\Abstracts\Model;
 
 use Closure;
 use ErrorException;

@@ -5,7 +5,7 @@
  * Time: 17:27
  */
 
-namespace Library\Virtual\Model\DatabaseModel;
+namespace Library\Abstracts\Model;
 
 use Library\Entity\Model\Database\EntityMongo;
 use MongoDB\Client;
@@ -16,7 +16,7 @@ use MongoDB\Operation\FindOneAndUpdate;
 /**
  * Class AbstractMongoModel
  * @property Manager mongo
- * @package Library\Abstract\Model\DataBaseModel
+ * @package Library\Abstracts\Model\DataBaseModel
  */
 abstract class AbstractMongoModel
 {

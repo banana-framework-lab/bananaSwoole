@@ -21,7 +21,7 @@ class AutoReload
     /**
      * @var int $reloadTickId
      */
-    private $reloadTickId;
+    public $reloadTickId;
 
     /**
      * @var bool $isFirstStart
@@ -42,22 +42,6 @@ class AutoReload
     public function setReloadTable(Table $reloadTable): void
     {
         $this->reloadTable = $reloadTable;
-    }
-
-    /**
-     * @return int
-     */
-    public function getReloadTickId(): int
-    {
-        return $this->reloadTickId;
-    }
-
-    /**
-     * @param int $reloadTickId
-     */
-    public function setReloadTickId(int $reloadTickId): void
-    {
-        $this->reloadTickId = $reloadTickId;
     }
 
     /**

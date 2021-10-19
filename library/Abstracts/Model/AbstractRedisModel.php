@@ -6,13 +6,13 @@
  * Time: 17:28
  */
 
-namespace Library\Virtual\Model\CacheModel;
+namespace Library\Abstracts\Model;
 
 use Library\Container;
 
 /**
  * Class AbstractRedisModel
- * @package Library\Abstract\Model\CacheModel
+ * @package Library\Abstracts\Model\CacheModel
  */
 abstract class AbstractRedisModel
 {

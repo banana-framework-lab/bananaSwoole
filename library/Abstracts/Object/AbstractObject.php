@@ -6,7 +6,7 @@
  * Time: 14:11
  */
 
-namespace App\Param;
+namespace Library\Abstracts\Object;
 use ArrayAccess;
 
 class AbstractObject

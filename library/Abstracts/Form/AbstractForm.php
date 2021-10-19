@@ -1,13 +1,13 @@
 <?php
 
-namespace Library\Virtual\MiddleWare;
+namespace Library\Abstracts\Form;
 
 use Library\Container;
 use Library\Exception\LogicException;
 
 /**
  * Class AbstractMiddleWare
- * @package Library\Abstract\Middle
+ * @package Library\Abstracts\Middle
  */
 abstract class AbstractForm
 {

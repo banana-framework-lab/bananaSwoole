@@ -6,12 +6,12 @@
  * Time: 17:35
  */
 return [
-    'server' => [
+    'default' => [
         'driver' => 'mysql',
-        'host' => '192.168.5.118',
+        'host' => 'mysql',
         'database' => 'swoole_vue_admin',
         'username' => 'root',
-        'password' => '123456',
+        'password' => 'zhangzhonghao',
         'charset' => 'utf8mb4',
         'collation' => 'utf8mb4_general_ci',
         'prefix' => '',

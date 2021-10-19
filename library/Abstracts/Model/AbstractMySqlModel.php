@@ -6,7 +6,7 @@
  * Time: 17:28
  */
 
-namespace Library\Virtual\Model\DatabaseModel;
+namespace Library\Abstracts\Model;
 
 use Illuminate\Database\Capsule\Manager;
 use Illuminate\Database\Query\Builder;
@@ -17,7 +17,7 @@ use Illuminate\Database\Eloquent\Model;
  * Class AbstractMySqlModel
  * @property Builder builder
  * @property String tableName
- * @package Library\Abstract\Model\DataBaseModel
+ * @package Library\Abstracts\Model\DataBaseModel
  */
 abstract class AbstractMySqlModel extends Model
 {

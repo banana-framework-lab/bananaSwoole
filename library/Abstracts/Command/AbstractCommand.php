@@ -6,11 +6,11 @@
  * Time: 16:26
  */
 
-namespace Library\Virtual\Command;
+namespace Library\Abstracts\Command;
 
 /**
  * Class AbstractCommand
- * @package Library\Abstract\Command
+ * @package Library\Abstracts\Command
  */
 abstract class AbstractCommand
 {

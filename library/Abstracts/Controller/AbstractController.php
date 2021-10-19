@@ -6,13 +6,11 @@
  * Time: 16:26
  */
 
-namespace Library\Virtual\Controller;
-
-use Library\Exception\LogicException;
+namespace Library\Abstracts\Controller;
 
 /**
  * Class AbstractController
- * @package Library\Abstract\Controller
+ * @package Library\Abstracts\Controller
  */
 Abstract class AbstractController
 {

@@ -9,7 +9,6 @@ return [
     'is_auto_reload' => true,
     'server_id' => 1,
     'debug' => true,
-    'is_server' => false,
     'server_name' => 'www.banana.com',
     'allow_origin' => [
         'http://www.bananaswoole.com',

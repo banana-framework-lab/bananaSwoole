@@ -6,7 +6,7 @@
  * Time: 16:29
  */
 
-namespace Library\Virtual\Handler;
+namespace Library\Abstracts\Handler;
 
 use Library\Virtual\Object\AbstractMessageObject;
 use Swoole\Http\Request as SwooleHttpRequest;
@@ -15,7 +15,7 @@ use Swoole\WebSocket\Frame as SwooleSocketFrame;
 
 /**
  * Class Handler
- * @package Library\Abstract\Handler
+ * @package Library\Abstracts\Handler
  */
 abstract class AbstractHandler
 {

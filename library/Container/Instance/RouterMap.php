@@ -34,10 +34,10 @@ class RouterMap
      */
     public function __construct()
     {
-        $handler = opendir(dirname(__FILE__) . '/../../route');
+        $handler = opendir(dirname(__FILE__) . '/../../../route');
         while (($fileName = readdir($handler)) !== false) {
             if ($fileName != "." && $fileName != "..") {
-                $fileData = require dirname(__FILE__) . '/../../route/' . $fileName;
+                $fileData = require dirname(__FILE__) . '/../../../route/' . $fileName;
                 $routerData = $this->analysisRouter($fileData);
                 $routerData && $this->routerPool = array_merge($this->routerPool, $routerData);
             }

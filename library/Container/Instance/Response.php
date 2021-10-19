@@ -109,7 +109,7 @@ class Response
      * @param int $cId
      * @return string
      */
-    public function dumFlush(int $workerId, int $cId)
+    public function dumpFlush(int $workerId, int $cId)
     {
         $dumpData = $this->dumpPool[$workerId][$cId] ?? [];
         $dumpString = '';

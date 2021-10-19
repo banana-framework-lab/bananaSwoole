@@ -29,7 +29,7 @@ class WorkStartEcho
      */
     public function main($server, $autoReload)
     {
-        $logo = BananaSwoole(true, 'array');
+        $logo = bananaSwoole(true, 'array');
         $this->startDateTime = date('Y-m-d H:i:s');
 
         echo PHP_EOL;

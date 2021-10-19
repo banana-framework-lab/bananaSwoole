@@ -6,11 +6,11 @@
  * Time: 17:28
  */
 
-namespace Library\Virtual\Model\HttpModel;
+namespace Library\Abstracts\Model;
 
 /**
  * Class AbstractRedisModel
- * @package Library\Abstract\Model\HttpModel
+ * @package Library\Abstracts\Model\HttpModel
  */
 abstract class AbstractHttpModel
 {

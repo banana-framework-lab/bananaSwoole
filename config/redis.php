@@ -6,7 +6,7 @@
  * Time: 17:37
  */
 return [
-    'local' => [
+    'default' => [
         'host' => 'redis',
         'port' => '6379',
         'auth' => '',

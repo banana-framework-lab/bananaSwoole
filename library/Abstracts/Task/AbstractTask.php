@@ -6,12 +6,12 @@
  * Time: 16:26
  */
 
-namespace Library\Virtual\Task;
+namespace Library\Abstracts\Task;
 use Swoole\Server\Task;
 
 /**
  * Class AbstractTask
- * @package Library\Abstract\Task
+ * @package Library\Abstracts\Task
  */
 abstract class AbstractTask
 {
