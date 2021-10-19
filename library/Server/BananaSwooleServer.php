@@ -197,6 +197,29 @@ class BananaSwooleServer
     public function onWorkerStart(Server $server, int $workerId)
     {
         try {
+            // 加载library的Common文件
+            Container::loadCommonFile();
+
+            if (!$server->taskworker && $workerId <= 0) {
+
+                $this->workStartEcho = new WorkStartEcho();
+                $this->workStartEcho->serverType = 'SwooleServer';
+                $this->workStartEcho->port = Container::getConfig()->get("swoole.{$this->serverConfigIndex}.port", 9501);
+                $this->workStartEcho->taskNum = $this->taskNum;
+                $this->workStartEcho->workerNum = $this->workerNum;
+                $this->workStartEcho->echoWidth = $this->echoWidth;
+                $this->workStartEcho->xChar = '#';
+                $this->workStartEcho->yChar = '|';
+                $this->workStartEcho->main($this->server, $this->autoReload);
+
+                // 当且仅当非task进程，id为0时的进程触发热重启
+                if (Container::getConfig()->get('app.is_auto_reload', false)) {
+                    $this->autoReload->reloadTickId = Timer::tick(1000, function () {
+                        $this->autoReload->main($this->server);
+                    });
+                }
+            }
+
             // 配置文件初始化
             Container::getConfig()->initConfig();
 
@@ -208,26 +231,6 @@ class BananaSwooleServer
                     $methodName = "set{$poolName}Pool";
                     Container::$methodName(Container::getConfig()->get('pool.default_config_name', 'default'));
                 }
-            }
-
-            // 加载library的Common文件
-            Container::loadCommonFile();
-            // 当且仅当非task进程，id为0时的进程触发热重启
-            if (!$server->taskworker && $workerId <= 0) {
-                if (Container::getConfig()->get('app.is_auto_reload', false)) {
-                    $this->autoReload->reloadTickId = Timer::tick(1000, function () {
-                        $this->autoReload->main($this->server);
-                    });
-                }
-                $this->workStartEcho = new WorkStartEcho();
-                $this->workStartEcho->serverType = 'SwooleServer';
-                $this->workStartEcho->port = Container::getConfig()->get("swoole.{$this->serverConfigIndex}.port", 9501);
-                $this->workStartEcho->taskNum = $this->taskNum;
-                $this->workStartEcho->workerNum = $this->workerNum;
-                $this->workStartEcho->echoWidth = $this->echoWidth;
-                $this->workStartEcho->xChar = '#';
-                $this->workStartEcho->yChar = '|';
-                $this->workStartEcho->main($this->server, $this->autoReload);
             }
         } catch (Throwable $error) {
             echo $error->getMessage() . PHP_EOL;
