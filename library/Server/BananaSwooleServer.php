@@ -6,7 +6,6 @@ use Library\Abstracts\Controller\AbstractController;
 use Library\Abstracts\Form\AbstractForm;
 use Library\Abstracts\Server\AbstractSwooleServer;
 use Library\Container;
-use Library\Container\Route;
 use Library\Exception\LogicException;
 use Library\Server\Functions\AutoReload;
 use Library\Server\Functions\WorkStartEcho;
@@ -129,8 +128,8 @@ class BananaSwooleServer
     {
         $this->appServer = $appServer;
         $this->server = Container::getSwooleServer();
-        $this->workerNum = Container::getConfig()->get("swoole.{$this->serverConfigIndex}.worker_num", 4);
-        $this->taskNum = Container::getConfig()->get("swoole.{$this->serverConfigIndex}.task_num", ($this->workerNum) * 4);
+        $this->workerNum = Container::getConfig()->get("swoole.$this->serverConfigIndex.worker_num", 4);
+        $this->taskNum = Container::getConfig()->get("swoole.$this->serverConfigIndex.task_num", ($this->workerNum) * 4);
 
         // bindTable初始化
         $this->bindTable = new Table($this->workerNum * 2000);
@@ -162,7 +161,7 @@ class BananaSwooleServer
             exit;
         }
 
-        $pidFilePath = dirname(__FILE__) . "/../Runtime/Command/{$this->serverName}";
+        $pidFilePath = dirname(__FILE__) . "/../Runtime/Command/$this->serverName";
         $this->server->set([
             'worker_num' => $this->workerNum,
             'task_worker_num' => $this->taskNum,
@@ -171,7 +170,7 @@ class BananaSwooleServer
             'reload_async' => true,
             'max_wait_time' => 5,
             'log_level' => LOG_NOTICE,
-            'pid_file' => Container::getConfig()->get("swoole.{$this->serverConfigIndex}.pid_file", $pidFilePath),
+            'pid_file' => Container::getConfig()->get("swoole.$this->serverConfigIndex.pid_file", $pidFilePath),
             'hook_flags' => SWOOLE_HOOK_ALL,
             'enable_coroutine' => true
         ]);
@@ -200,6 +199,28 @@ class BananaSwooleServer
             // 配置文件初始化
             Container::getConfig()->initConfig();
 
+            // 加载library的Common文件
+            Container::loadCommonFile();
+
+            if (!$server->taskworker && $workerId <= 0) {
+                $this->workStartEcho = new WorkStartEcho();
+                $this->workStartEcho->serverType = 'SwooleServer';
+                $this->workStartEcho->port = Container::getConfig()->get("swoole.$this->serverConfigIndex.port", 9501);
+                $this->workStartEcho->taskNum = $this->taskNum;
+                $this->workStartEcho->workerNum = $this->workerNum;
+                $this->workStartEcho->echoWidth = $this->echoWidth;
+                $this->workStartEcho->xChar = '#';
+                $this->workStartEcho->yChar = '|';
+                $this->workStartEcho->main($this->server, $this->autoReload);
+
+                // 当且仅当非task进程，id为0时的进程触发热重启
+                if (Container::getConfig()->get('app.is_auto_reload', false)) {
+                    $this->autoReload->reloadTickId = Timer::tick(1000, function () {
+                        $this->autoReload->main($this->server);
+                    });
+                }
+            }
+
             // Pool默认启动
             $defaultInitList = Container::getConfig()->get('pool.default_init_list', []);
             foreach ($defaultInitList as $initPool) {
@@ -209,26 +230,6 @@ class BananaSwooleServer
                     Container::$methodName(Container::getConfig()->get('pool.default_config_name', 'default'));
                 }
             }
-
-            // 加载library的Common文件
-            Container::loadCommonFile();
-            // 当且仅当非task进程，id为0时的进程触发热重启
-            if (!$server->taskworker && $workerId <= 0) {
-                if (Container::getConfig()->get('app.is_auto_reload', false)) {
-                    $this->autoReload->reloadTickId = Timer::tick(1000, function () {
-                        $this->autoReload->main($this->server);
-                    });
-                }
-                $this->workStartEcho = new WorkStartEcho();
-                $this->workStartEcho->serverType = 'SwooleServer';
-                $this->workStartEcho->port = Container::getConfig()->get("swoole.{$this->serverConfigIndex}.port", 9501);
-                $this->workStartEcho->taskNum = $this->taskNum;
-                $this->workStartEcho->workerNum = $this->workerNum;
-                $this->workStartEcho->echoWidth = $this->echoWidth;
-                $this->workStartEcho->xChar = '#';
-                $this->workStartEcho->yChar = '|';
-                $this->workStartEcho->main($this->server, $this->autoReload);
-            }
         } catch (Throwable $error) {
             echo $error->getMessage() . PHP_EOL;
             echo $error->getTraceAsString() . PHP_EOL;
@@ -237,19 +238,19 @@ class BananaSwooleServer
         }
 
         $courseName = $server->taskworker ? 'task' : 'worker';
-        $msgHead = "{$courseName}_pid: {$server->worker_pid}    {$courseName}_id: {$workerId}";
+        $msgHead = "{$courseName}_pid: $server->worker_pid    {$courseName}_id: $workerId";
 
         go(function () use ($server, $workerId, $msgHead) {
             if ($this->appServer->start($server, $workerId)) {
                 echo "###########" . str_pad(
-                        "{$msgHead}  start success",
+                        "$msgHead  start success",
                         $this->echoWidth - 22,
                         ' ',
                         STR_PAD_BOTH
                     ) . "###########" . PHP_EOL;
             } else {
                 echo "###########" . str_pad(
-                        "{$msgHead}  start fail",
+                        "$msgHead  start fail",
                         $this->echoWidth - 22,
                         ' ',
                         STR_PAD_BOTH
@@ -320,7 +321,6 @@ class BananaSwooleServer
             // 标识此次fd为http请求;
             $this->bindTable->set($request->fd, ['http' => 1]);
 
-            /* @var Route $routeObject */
             $routeObject = Container::getRouter()->controllerRouter($request->server['request_uri']);
 
             // 初始化方法
@@ -346,22 +346,20 @@ class BananaSwooleServer
                 if (Container::getConfig()->get('app.debug', false)) {
                     $response->status(200);
                     $response->end("{$webE->getMessage()}<br>{$webE->getTraceAsString()}");
-                    return;
                 } else {
                     $response->status(500);
                     $response->end();
-                    return;
                 }
+                return;
             } catch (Throwable $e) {
                 if (Container::getConfig()->get('app.debug', false)) {
                     $response->status(200);
                     $response->end("{$e->getMessage()}<br>{$e->getTraceAsString()}");
-                    return;
                 } else {
                     $response->status(500);
                     $response->end();
-                    return;
                 }
+                return;
             }
 
             // 初始化控制器
@@ -379,31 +377,28 @@ class BananaSwooleServer
                         if (Container::getConfig()->get('app.debug', false)) {
                             $response->status(200);
                             $response->end("403找不到{$request->server['request_uri']}");
-                            return;
                         } else {
                             $response->status(403);
                             $response->end();
-                            return;
                         }
+                        return;
                     }
                 } else {
                     if (Container::getConfig()->get('app.debug', false)) {
                         $response->status(200);
                         $response->end("404找不到{$request->server['request_uri']}");
-                        return;
                     } else {
                         $response->status(404);
                         $response->end();
-                        return;
                     }
+                    return;
                 }
             } catch (Throwable $e) {
                 if (Container::getConfig()->get('app.debug', false)) {
+                    $response->status(200);
                     if ($e->getCode() != C_EXIT_CODE) {
-                        $response->status(200);
                         $response->end($e->getMessage() . "\n" . $e->getTraceAsString());
                     } else {
-                        $response->status(200);
                         $workerId = Container::getSwooleServer()->worker_id;
                         $cId = Coroutine::getCid();
                         $response->end(Container::getResponse()->dumpFlush($workerId, $cId));
@@ -419,7 +414,7 @@ class BananaSwooleServer
         } catch (Throwable $error) {
             $workerId = Container::getSwooleServer()->worker_id;
             $errorMsg = $error->getMessage();
-            echo "###########" . str_pad("worker_id: {$workerId} error", $this->echoWidth - 22, ' ', STR_PAD_BOTH) . "###########" . PHP_EOL;
+            echo "###########" . str_pad("worker_id: $workerId error", $this->echoWidth - 22, ' ', STR_PAD_BOTH) . "###########" . PHP_EOL;
             echo "$errorMsg" . PHP_EOL;
             $response->status(500);
             $response->end();
@@ -469,10 +464,8 @@ class BananaSwooleServer
      */
     public function onWorkerError(Server $server, int $workerId, int $workerPid, int $exitCode, int $signal)
     {
-        if ($server) {
-            $courseName = $server->taskworker ? 'task' : 'worker';
-            echo "###########" . str_pad("{$courseName}_pid: {$workerPid} {$courseName}_id: {$workerId} exitCode: {$exitCode} sign:{$signal}  error", $this->echoWidth - 22, ' ', STR_PAD_BOTH) . "###########" . PHP_EOL;
-        }
+        $courseName = $server->taskworker ? 'task' : 'worker';
+        echo "###########" . str_pad("{$courseName}_pid: $workerPid {$courseName}_id: $workerId exitCode: $exitCode sign:$signal  error", $this->echoWidth - 22, ' ', STR_PAD_BOTH) . "###########" . PHP_EOL;
     }
 
     /**
@@ -484,7 +477,7 @@ class BananaSwooleServer
     public function onWorkerStop(Server $server, int $workerId)
     {
         $courseName = $server->taskworker ? 'task' : 'worker';
-        echo "###########" . str_pad("{$courseName}_pid: {$server->worker_pid}    {$courseName}_id: {$workerId}    stop", $this->echoWidth - 22, ' ', STR_PAD_BOTH) . "###########" . PHP_EOL;
+        echo "###########" . str_pad($courseName . "_pid: " . $server->worker_pid . "    " . $courseName . "_id: " . $workerId . "    stop", $this->echoWidth - 22, ' ', STR_PAD_BOTH) . "###########" . PHP_EOL;
     }
 
     /**
@@ -498,6 +491,6 @@ class BananaSwooleServer
         $this->autoReload->reloadTickId && Timer::clear($this->autoReload->reloadTickId);
         $this->appServer->exit($server, $workerId);
         $courseName = $server->taskworker ? 'task' : 'worker';
-        echo "###########" . str_pad("{$courseName}_pid: {$server->worker_pid}    {$courseName}_id: {$workerId}    Exit", $this->echoWidth - 22, ' ', STR_PAD_BOTH) . "###########" . PHP_EOL;
+        echo "###########" . str_pad($courseName . "_pid: " . $server->worker_pid . "    " . $courseName . "_id: " . $workerId . "    Exit", $this->echoWidth - 22, ' ', STR_PAD_BOTH) . "###########" . PHP_EOL;
     }
 }

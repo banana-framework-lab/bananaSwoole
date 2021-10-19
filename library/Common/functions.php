@@ -9,12 +9,12 @@
 use Library\Container;
 use Swoole\Coroutine;
 
-define('C_EXIT_CODE', 444);
+const C_EXIT_CODE = 444;
 
 /**
  * @param bool $return
  * @param string $type
- * @return mixed
+ * @return array|string
  */
 function bananaSwoole(bool $return = true, string $type = 'string')
 {
@@ -30,23 +30,12 @@ function bananaSwoole(bool $return = true, string $type = 'string')
             break;
     }
 
-
     $helloString = [];
-    $helloString [] = " _                                         _____                          _{$lineChar}";
-    $helloString [] = "| |                                       /  ___|                        | |{$lineChar}";
-    $helloString [] = "| |__    __ _  _ __    __ _  _ __    __ _ \ `--. __      __  ___    ___  | |  ___{$lineChar}";
-    $helloString [] = "| '_ \  / _` || '_ \  / _` || '_ \  / _` | `--. \\ \\ /\ / / / _ \  / _ \ | | / _ \{$lineChar}";
-    $helloString [] = "| |_) || (_| || | | || (_| || | | || (_| |/\__/ / \ V  V / | (_) || (_) || ||  __/{$lineChar}";
-    $helloString [] = "|_.__/  \__,_||_| |_| \__,_||_| |_| \__,_|\____/   \_/\_/   \___/  \___/ |_| \___|{$lineChar}";
-
-
-
-//
-//    $helloString [] = " _                                   ____                     _     {$lineChar}";
-//    $helloString [] = "| |__   __ _ _ __   __ _ _ __   __ _/ ___|_      _____   ___ | | ___{$lineChar}";
-//    $helloString [] = "| '_ \ / _` | '_ \ / _` | '_ \ / _` \___ \ \ /\ / / _ \ / _ \| |/ _ \\$lineChar";
-//    $helloString [] = "| |_) | (_| | | | | (_| | | | | (_| |___) \ V  V / (_) | (_) | |  __/{$lineChar}";
-//    $helloString [] = "|_.__/ \__,_|_| |_|\__,_|_| |_|\__,_|____/ \_/\_/ \___/ \___/|_|\___|{$lineChar}";
+    $helloString [] = " _                                   ____                     _     {$lineChar}";
+    $helloString [] = "| |__   __ _ _ __   __ _ _ __   __ _/ ___|_      _____   ___ | | ___{$lineChar}";
+    $helloString [] = "| '_ \ / _` | '_ \ / _` | '_ \ / _` \___ \ \ /\ / / _ \ / _ \| |/ _ \\$lineChar";
+    $helloString [] = "| |_) | (_| | | | | (_| | | | | (_| |___) \ V  V / (_) | (_) | |  __/{$lineChar}";
+    $helloString [] = "|_.__/ \__,_|_| |_|\__,_|_| |_|\__,_|____/ \_/\_/ \___/ \___/|_|\___|{$lineChar}";
 
     if ($return) {
         if ($type === 'string') {
@@ -54,7 +43,7 @@ function bananaSwoole(bool $return = true, string $type = 'string')
         } elseif ($type === 'web') {
             $content = implode('', $helloString);
             $content = str_replace(' ', '&nbsp;', $content);
-            return "<!DOCTYPE html><html><body>{$content}</body></html>";
+            return "<!DOCTYPE html><html><body style='font-family:cursive;'><div style='width:555px;text-align:center;font-size: 30px;'>welcome to use</div></div><div style='wdith:555px;'>{$content}</div></body></html>";
         } else {
             return $helloString;
         }
