@@ -49,33 +49,11 @@ abstract class AbstractSwooleServer
     abstract public function open(SwooleSocketServer $server, SwooleHttpRequest $request);
 
     /**
-     * onMessage
-     * @param SwooleSocketServer $server
-     * @param SwooleSocketFrame $frame
-     */
-    abstract public function message(SwooleSocketServer $server, SwooleSocketFrame $frame);
-
-    /**
      * onClose
      * @param SwooleSocketServer $server
      * @param int $fd
      */
     abstract public function close(SwooleSocketServer $server, int $fd);
-
-    /**
-     * onRequest
-     * @param SwooleRequest $request
-     * @param SwooleResponse $response
-     */
-    abstract public function request(SwooleRequest $request, SwooleResponse $response);
-
-    /**
-     * onRequest
-     * @param SwooleSocketServer $server
-     * @param Task $task
-     * @return mixed
-     */
-    abstract public function task(SwooleSocketServer $server, Task $task);
 
     /**
      * onWorkerExit

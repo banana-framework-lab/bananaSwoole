@@ -53,13 +53,12 @@ class ChannelMap
             $channelObject = new Channel();
             $channelObject->setChannel($channel);
             $channelObject->setHandler("\\App\\{$channel}\\Handler\\{$handler}Handler");
-            return $channelObject;
         } else {
             $channelObject = new Channel();
             $channelObject->setChannel($requestChannel);
             $channelObject->setHandler($channel);
-            return $channelObject;
         }
+        return $channelObject;
     }
 
     /**

@@ -4,8 +4,11 @@ namespace Library\Server;
 
 use Library\Abstracts\Controller\AbstractController;
 use Library\Abstracts\Form\AbstractForm;
+use Library\Abstracts\Handler\AbstractHandler;
 use Library\Abstracts\Server\AbstractSwooleServer;
 use Library\Container;
+use Library\Container\Channel;
+use Library\Container\Instance\ChannelMap;
 use Library\Exception\LogicException;
 use Library\Server\Functions\AutoReload;
 use Library\Server\Functions\WorkStartEcho;
@@ -222,14 +225,19 @@ class BananaSwooleServer
             }
 
             // Pool默认启动
-            $defaultInitList = Container::getConfig()->get('pool.default_init_list', []);
+            $defaultInitList = ['mysql', 'redis', 'rabbit', 'mongo'];
             foreach ($defaultInitList as $initPool) {
-                $poolName = ucfirst(strtolower($initPool));
-                if (method_exists(Container::class, "set{$poolName}Pool")) {
-                    $methodName = "set{$poolName}Pool";
-                    Container::$methodName(Container::getConfig()->get('pool.default_config_name', 'default'));
+                $default_name = Container::getConfig()->get('pool.default_config_name', 'default');
+                if (Container::getConfig()->get("$initPool.$default_name")) {
+                    $poolName = ucfirst(strtolower($initPool));
+                    if (method_exists(Container::class, "set{$poolName}Pool")) {
+                        $methodName = "set{$poolName}Pool";
+                        Container::$methodName($default_name);
+                    }
                 }
             }
+
+            $this->appServer->start($server, $workerId);
         } catch (Throwable $error) {
             echo $error->getMessage() . PHP_EOL;
             echo $error->getTraceAsString() . PHP_EOL;
@@ -311,8 +319,6 @@ class BananaSwooleServer
                 $response->header('Access-Control-Allow-Headers', 'x-requested-with,User-Platform,Content-Type,X-Token');
             }
 
-//            $response->header('Content-type', 'application/json');
-
             //初始化请求实体类
             $cId = Coroutine::getuid();
             Container::getRequest()->setRequest($request, $this->server->worker_id, $cId);
@@ -371,11 +377,17 @@ class BananaSwooleServer
                         $returnData = $controller->$methodName();
                         if (!empty($returnData)) {
                             $response->status(200);
-                            $response->end(is_array($returnData) ? json_encode($returnData, JSON_UNESCAPED_UNICODE) : $returnData);
+                            if (is_array($returnData)) {
+                                $response->header('Content-type', 'application/json;charset=UTF-8');
+                                $response->end(json_encode($returnData, JSON_UNESCAPED_UNICODE));
+                            } else {
+                                $response->end($returnData);
+                            }
                         }
                     } else {
                         if (Container::getConfig()->get('app.debug', false)) {
                             $response->status(200);
+                            $response->header('Content-type', 'text/plain;charset=UTF-8');
                             $response->end("403找不到{$request->server['request_uri']}");
                         } else {
                             $response->status(403);
@@ -386,6 +398,7 @@ class BananaSwooleServer
                 } else {
                     if (Container::getConfig()->get('app.debug', false)) {
                         $response->status(200);
+                        $response->header('Content-type', 'text/plain;charset=UTF-8');
                         $response->end("404找不到{$request->server['request_uri']}");
                     } else {
                         $response->status(404);
@@ -397,10 +410,12 @@ class BananaSwooleServer
                 if (Container::getConfig()->get('app.debug', false)) {
                     $response->status(200);
                     if ($e->getCode() != C_EXIT_CODE) {
-                        $response->end($e->getMessage() . "\n" . $e->getTraceAsString());
+                        $response->header('Content-type', 'text/plain;charset=UTF-8');
+                        $response->end($e->getMessage() . "<br>" . $e->getTraceAsString());
                     } else {
                         $workerId = Container::getSwooleServer()->worker_id;
                         $cId = Coroutine::getCid();
+                        $response->header('Content-type', 'text/plain;charset=UTF-8');
                         $response->end(Container::getResponse()->dumpFlush($workerId, $cId));
                     }
                 } else {
@@ -429,7 +444,59 @@ class BananaSwooleServer
      */
     public function onOpen(Server $server, Request $request)
     {
-        $this->appServer->open($server, $request);
+        // 初始化请求数据
+        $getData = $request->get ?: [];
+        $postData = $request->post ?: [];
+        $rawContentData = json_decode($request->rawContent(), true) ?: [];
+        $openData = array_merge($getData, $postData, $rawContentData);
+
+        // 选出所需通道
+        $channelObject = ChannelMap::route($openData);
+
+        // 过滤错误的连接
+        if (!$channelObject->getChannel()) {
+            $server->disconnect(
+                $request->fd,
+                Container::getConfig()->get('response.code.no_channel', 404),
+                "找不到fd对应的Channel"
+            );
+            return;
+        }
+
+        // open实体方法
+        try {
+            $handlerClass = $channelObject->getHandler();
+            // 初始化Handler
+            if (class_exists($handlerClass)) {
+                /* @var AbstractHandler $handler */
+                $handler = new $handlerClass();
+                if (method_exists($handlerClass, 'open')) {
+                    // fd绑定通道
+                    $this->bindTable->set($request->fd, $channelObject->toArray());
+                    // fd打开事件
+                    $handler->open($server, $request);
+                } else {
+                    $server->disconnect(
+                        $request->fd,
+                        Container::getConfig()->get('response.code.no_channel', 403),
+                        Container::getConfig()->get('app.debug', false) ? "找不到open方法" : '已断开连接！'
+                    );
+                }
+            } else {
+                $server->disconnect(
+                    $request->fd,
+                    Container::getConfig()->get('response.code.no_channel', 404),
+                    Container::getConfig()->get('app.debug', false) ? "找不到$handlerClass" : '已断开连接.'
+                );
+            }
+        } catch (Throwable $e) {
+            echo $e->getMessage() . PHP_EOL . $e->getTraceAsString();
+            $server->disconnect(
+                $request->fd,
+                Container::getConfig()->get('response.code.fatal_error', 500),
+                "已断开连接."
+            );
+        }
     }
 
 
@@ -440,7 +507,53 @@ class BananaSwooleServer
      */
     public function onMessage(Server $server, Frame $frame)
     {
-        $this->appServer->message($server, $frame);
+        $tableData = $this->bindTable->get($frame->fd);
+        try {
+            // 获取所需通道
+            $channelObject = new Channel();
+            $channelObject->setChannel($tableData['channel'] ?? '');
+            $channelObject->setHandler($tableData['handler'] ?? '');
+
+            if (!$channelObject->getChannel()) {
+                $server->disconnect(
+                    $frame->fd,
+                    Container::getConfig()->get('response.code.no_channel', 404),
+                    Container::getConfig()->get('app.debug', false) ? "找不到fd对应的Channel" : '已断开连接'
+                );
+                return;
+            }
+
+            // 初始化Handler
+            $handlerClass = $channelObject->getHandler();
+
+            // 初始化事件器
+            if (class_exists($handlerClass)) {
+                /* @var AbstractHandler $handler */
+                $handler = new $handlerClass();
+                if (method_exists($handlerClass, 'open')) {
+                    $handler->message($server, $frame);
+                } else {
+                    $server->disconnect(
+                        $frame->fd,
+                        Container::getConfig()->get('response.code.no_message_function', 403),
+                        Container::getConfig()->get('app.debug', true) ? "找不到message方法" : "已断开连接"
+                    );
+                }
+            } else {
+                $server->disconnect(
+                    $frame->fd,
+                    Container::getConfig()->get('response.code.no_handler_class', 404),
+                    Container::getConfig()->get('app.debug', true) ? "找不到$handlerClass" : "已断开连接!"
+                );
+            }
+        } catch (Throwable $e) {
+            echo $e->getMessage() . PHP_EOL . $e->getTraceAsString();
+            $server->disconnect(
+                $frame->fd,
+                Container::getConfig()->get('response.code.fatal_error', 500),
+                "已断开连接."
+            );
+        }
     }
 
     /**

@@ -7,7 +7,6 @@
  */
 return [
     'default_config_name' => 'default',
-    'default_init_list' => ['mysql', 'redis'],
     'mysql' => [
         'size' => 5
     ],

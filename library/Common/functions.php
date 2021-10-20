@@ -31,11 +31,11 @@ function bananaSwoole(bool $return = true, string $type = 'string')
     }
 
     $helloString = [];
-    $helloString [] = " _                                   ____                     _     {$lineChar}";
-    $helloString [] = "| |__   __ _ _ __   __ _ _ __   __ _/ ___|_      _____   ___ | | ___{$lineChar}";
+    $helloString [] = " _                                   ____                     _     $lineChar";
+    $helloString [] = "| |__   __ _ _ __   __ _ _ __   __ _/ ___|_      _____   ___ | | ___$lineChar";
     $helloString [] = "| '_ \ / _` | '_ \ / _` | '_ \ / _` \___ \ \ /\ / / _ \ / _ \| |/ _ \\$lineChar";
-    $helloString [] = "| |_) | (_| | | | | (_| | | | | (_| |___) \ V  V / (_) | (_) | |  __/{$lineChar}";
-    $helloString [] = "|_.__/ \__,_|_| |_|\__,_|_| |_|\__,_|____/ \_/\_/ \___/ \___/|_|\___|{$lineChar}";
+    $helloString [] = "| |_) | (_| | | | | (_| | | | | (_| |___) \ V  V / (_) | (_) | |  __/$lineChar";
+    $helloString [] = "|_.__/ \__,_|_| |_|\__,_|_| |_|\__,_|____/ \_/\_/ \___/ \___/|_|\___|$lineChar";
 
     if ($return) {
         if ($type === 'string') {
@@ -43,7 +43,7 @@ function bananaSwoole(bool $return = true, string $type = 'string')
         } elseif ($type === 'web') {
             $content = implode('', $helloString);
             $content = str_replace(' ', '&nbsp;', $content);
-            return "<!DOCTYPE html><html><body style='font-family:cursive;'><div style='width:555px;text-align:center;font-size: 30px;'>welcome to use</div></div><div style='wdith:555px;'>{$content}</div></body></html>";
+            return "<!DOCTYPE html><html lang='zh'><body style='font-family:cursive;'><div style='width:555px;text-align:center;font-size: 30px;'>welcome to use</div></div><div style='width:555px;'>$content</div></body></html>";
         } else {
             return $helloString;
         }
@@ -85,9 +85,7 @@ function build_query_no_encode($param)
         $pre_str .= $key . '=' . $val . '&';
     }
     //去掉最后一个&字符
-    $pre_str = substr($pre_str, 0, -1);
-
-    return $pre_str;
+    return substr($pre_str, 0, -1);
 }
 
 function camelize($uncamelized_words, $separator = '_')

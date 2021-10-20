@@ -10,8 +10,6 @@ class WorkStartEcho
 
     public $echoWidth = 75;
 
-    private $startDateTime = '';
-
     public $port;
 
     public $taskNum;
@@ -30,7 +28,8 @@ class WorkStartEcho
     public function main($server, $autoReload)
     {
         $logo = bananaSwoole(true, 'array');
-        $this->startDateTime = date('Y-m-d H:i:s');
+        $startDateTime = '';
+        $startDateTime = date('Y-m-d H:i:s');
 
         echo PHP_EOL;
         foreach ($logo as $key => $value) {
@@ -45,7 +44,7 @@ class WorkStartEcho
         echo $this->yChar . str_pad("", $this->echoWidth - 2, ' ', STR_PAD_BOTH) . "$this->yChar" . PHP_EOL;
         echo $this->yChar . str_pad("manage_pid: {$server->manager_pid}      master_pid: {$server->master_pid}      worker_number: {$this->workerNum}", $this->echoWidth - 2, ' ', STR_PAD_BOTH) . "$this->yChar" . PHP_EOL;
         echo $this->yChar . str_pad("", $this->echoWidth - 2, ' ', STR_PAD_BOTH) . "$this->yChar" . PHP_EOL;
-        echo $this->yChar . str_pad("autoHotReloadId: {$autoReload->reloadTickId}   task_number: {$this->taskNum}   time: {$this->startDateTime}", $this->echoWidth - 2, ' ', STR_PAD_BOTH) . "$this->yChar" . PHP_EOL;
+        echo $this->yChar . str_pad("autoHotReloadId: {$autoReload->reloadTickId}   task_number: {$this->taskNum}   time: {$startDateTime}", $this->echoWidth - 2, ' ', STR_PAD_BOTH) . "$this->yChar" . PHP_EOL;
         echo $this->yChar . str_pad("", $this->echoWidth - 2, ' ', STR_PAD_BOTH) . "$this->yChar" . PHP_EOL;
         echo str_pad("", $this->echoWidth, $this->xChar, STR_PAD_BOTH) . PHP_EOL;
         echo PHP_EOL;

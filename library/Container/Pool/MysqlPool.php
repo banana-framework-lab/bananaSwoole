@@ -33,11 +33,13 @@ class MysqlPool
      * @param string $configName
      * @throws Exception
      */
-    public function __construct($configName)
+    public function __construct(string $configName)
     {
-        $this->pool = new Channel(
-            Container::getConfig()->get('pool.mysql.size', 5)
-        );
+        $poolSize = Container::getConfig()->get('pool.mysql.size');
+        if (!$poolSize) {
+            throw new LogicException('请配置具体mysql连接池大小');
+        }
+        $this->pool = new Channel($poolSize);
         for ($i = 1; $i <= $this->poolSize; $i++) {
             $this->pool->push($this->getClient($configName));
         }
@@ -48,13 +50,13 @@ class MysqlPool
      * @param string $configName
      * @return Manager
      */
-    private function getClient($configName)
+    private function getClient(string $configName): Manager
     {
         if (!$configName) {
             $configName = Container::getServerConfigIndex();
         }
 
-        $configData = Container::getConfig()->get("mysql.{$configName}", []);
+        $configData = Container::getConfig()->get("mysql.$configName", []);
 
         if ($configData) {
             $mysqlClient = new Manager();
