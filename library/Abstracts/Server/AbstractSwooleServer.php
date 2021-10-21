@@ -8,11 +8,8 @@
 
 namespace Library\Abstracts\Server;
 
-use Swoole\Server\Task;
 use Swoole\Table;
-use Swoole\Http\Request as SwooleHttpRequest;
 use Swoole\WebSocket\Server as SwooleSocketServer;
-use Swoole\WebSocket\Frame as SwooleSocketFrame;
 use Swoole\Http\Request as SwooleRequest;
 use Swoole\Http\Response as SwooleResponse;
 
@@ -39,21 +36,7 @@ abstract class AbstractSwooleServer
      * @param int $workerId
      * @return bool
      */
-    abstract public function start(SwooleSocketServer $server, int $workerId): bool;
-
-    /**
-     * onOpen
-     * @param SwooleSocketServer $server
-     * @param SwooleRequest $request
-     */
-    abstract public function open(SwooleSocketServer $server, SwooleHttpRequest $request);
-
-    /**
-     * onClose
-     * @param SwooleSocketServer $server
-     * @param int $fd
-     */
-    abstract public function close(SwooleSocketServer $server, int $fd);
+    abstract public function onStart(SwooleSocketServer $server, int $workerId): bool;
 
     /**
      * onWorkerExit

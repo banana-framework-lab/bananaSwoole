@@ -6,7 +6,7 @@
  * Time: 19:50
  */
 return [
-    'default_config_name' => 'default',
+    'config_index' => 'default',
     'mysql' => [
         'size' => 5
     ],

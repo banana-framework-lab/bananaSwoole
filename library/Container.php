@@ -11,6 +11,7 @@ namespace Library;
 use Exception;
 use Library\Container\Instance\Config;
 use Library\Container\Instance\Log;
+use Library\Container\Instance\TaskRouterMap;
 use Library\Container\Pool\MongoPool;
 use Library\Container\Pool\MysqlPool;
 use Library\Container\Pool\RabbitMQPool;
@@ -149,6 +150,12 @@ class Container
     static private $router;
 
     /**
+     * 任务路由对象
+     * @var TaskRouterMap $taskRouter
+     */
+    static private $taskRouter;
+
+    /**
      * 设置路由对象
      */
     static public function setRouter()
@@ -163,6 +170,23 @@ class Container
     static public function getRouter(): RouterMap
     {
         return self::$router;
+    }
+
+    /**
+     * 设置task路由对象
+     */
+    static public function setTaskRouter()
+    {
+        self::$taskRouter = new TaskRouterMap();
+    }
+
+    /**
+     * 返回task路由对象
+     * @return TaskRouterMap
+     */
+    static public function getTaskRouter(): TaskRouterMap
+    {
+        return self::$taskRouter;
     }
 
     /**

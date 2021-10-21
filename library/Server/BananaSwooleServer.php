@@ -227,7 +227,7 @@ class BananaSwooleServer
             // Pool默认启动
             $defaultInitList = ['mysql', 'redis', 'rabbit', 'mongo'];
             foreach ($defaultInitList as $initPool) {
-                $default_name = Container::getConfig()->get('pool.default_config_name', 'default');
+                $default_name = Container::getConfig()->get('pool.config_index', 'default');
                 if (Container::getConfig()->get("$initPool.$default_name")) {
                     $poolName = ucfirst(strtolower($initPool));
                     if (method_exists(Container::class, "set{$poolName}Pool")) {
@@ -237,7 +237,7 @@ class BananaSwooleServer
                 }
             }
 
-            $this->appServer->start($server, $workerId);
+            $this->appServer->onStart($server, $workerId);
         } catch (Throwable $error) {
             echo $error->getMessage() . PHP_EOL;
             echo $error->getTraceAsString() . PHP_EOL;
@@ -249,7 +249,7 @@ class BananaSwooleServer
         $msgHead = "{$courseName}_pid: $server->worker_pid    {$courseName}_id: $workerId";
 
         go(function () use ($server, $workerId, $msgHead) {
-            if ($this->appServer->start($server, $workerId)) {
+            if ($this->appServer->onStart($server, $workerId)) {
                 echo "###########" . str_pad(
                         "$msgHead  start success",
                         $this->echoWidth - 22,
@@ -275,7 +275,64 @@ class BananaSwooleServer
      */
     public function onTask(Server $server, Task $task)
     {
-        $this->appServer->task($server, $task);
+        try {
+            $msgHead = "task_pid: $server->worker_pid    task_id: $server->worker_id";
+
+            // 初始化请求数据
+            $taskData = $task->data;
+
+            $routeObject = Container::getTaskRouter()->taskRouter($taskData['task_uri']);
+
+            // 初始化方法
+            $methodName = $routeObject->getMethod();
+            $taskClass = $routeObject->getTask();
+
+            // 初始化控制器
+            try {
+                if (class_exists($taskClass)) {
+                    /* @var AbstractController $controller */
+                    $task = new $taskClass($taskData);
+                    if (method_exists($task, $methodName)) {
+                        $returnData = $task->$methodName();
+                        if (!empty($returnData)) {
+                            $server->finish($returnData);
+                        }
+                    } else {
+                        echo "###########" . str_pad(
+                                "$msgHead  找不到task类的方法 uri:{$taskData['task_uri']}",
+                                $this->echoWidth - 22,
+                                ' ',
+                                STR_PAD_BOTH
+                            ) . "###########" . PHP_EOL;
+                        return;
+                    }
+                } else {
+                    echo "###########" . str_pad(
+                            "$msgHead  找不到task类 uri:{$taskData['task_uri']}",
+                            $this->echoWidth - 22,
+                            ' ',
+                            STR_PAD_BOTH
+                        ) . "###########" . PHP_EOL;
+                    return;
+                }
+            } catch (Throwable $e) {
+                echo "###########" . str_pad(
+                        "$msgHead  task任务出错 uri:{$taskData['task_uri']}",
+                        $this->echoWidth - 22,
+                        ' ',
+                        STR_PAD_BOTH
+                    ) . "###########" . PHP_EOL;
+                return;
+            }
+        } catch (Throwable $error) {
+            echo "###########" . str_pad(
+                    "$msgHead  task任务出错 uri:{$taskData['task_uri']}",
+                    $this->echoWidth - 22,
+                    ' ',
+                    STR_PAD_BOTH
+                ) . "###########" . PHP_EOL;
+            return;
+        }
     }
 
     /**
@@ -424,8 +481,6 @@ class BananaSwooleServer
                 }
                 return;
             }
-
-//            $this->appServer->request($request, $response);
         } catch (Throwable $error) {
             $workerId = Container::getSwooleServer()->worker_id;
             $errorMsg = $error->getMessage();
@@ -530,7 +585,7 @@ class BananaSwooleServer
             if (class_exists($handlerClass)) {
                 /* @var AbstractHandler $handler */
                 $handler = new $handlerClass();
-                if (method_exists($handlerClass, 'open')) {
+                if (method_exists($handlerClass, 'message')) {
                     $handler->message($server, $frame);
                 } else {
                     $server->disconnect(
@@ -563,7 +618,65 @@ class BananaSwooleServer
      */
     public function onClose(Server $server, int $fd)
     {
-        $this->appServer->close($server, $fd);
+        $tableData = $this->bindTable->get($fd) ?: [];
+        if (!isset($tableData['http'])) {
+            $this->bindTable->del($fd);
+            return;
+        }
+        if ($tableData['http'] == 1) {
+            $this->bindTable->del($fd);
+        } else {
+            try {
+                // 获取所需通道
+                $channelObject = new Channel();
+                $channelObject->setChannel($tableData['channel']);
+                $channelObject->setHandler($tableData['handler']);
+                if (!$channelObject->getChannel()) {
+                    echo "###########" . str_pad(
+                            "{$fd}找不到fd对应的Channel!",
+                            $this->echoWidth - 22,
+                            ' ',
+                            STR_PAD_BOTH
+                        ) . "###########" . PHP_EOL;
+                    return;
+                }
+                // 初始化Handler
+                $handlerClass = $channelObject->getHandler();
+
+                // fd解绑Channel
+                $this->bindTable->del($fd);
+
+                // 初始化事件器
+                if (class_exists($handlerClass)) {
+                    /* @var AbstractHandler $handler */
+                    $handler = new $handlerClass();
+                    if (method_exists($handlerClass, 'open')) {
+                        $handler->close($server, $fd);
+                    } else {
+                        echo "###########" . str_pad(
+                                "{$fd}找不到fd对应的close方法!",
+                                $this->echoWidth - 22,
+                                ' ',
+                                STR_PAD_BOTH
+                            ) . "###########" . PHP_EOL;
+                    }
+                } else {
+                    echo "###########" . str_pad(
+                            "{$fd}找不到fd对应的$handlerClass!",
+                            $this->echoWidth - 22,
+                            ' ',
+                            STR_PAD_BOTH
+                        ) . "###########" . PHP_EOL;
+                }
+            } catch (Throwable $e) {
+                echo "###########" . str_pad(
+                        "{$fd}找不到fd对应的{$e->getMessage()}!",
+                        $this->echoWidth - 22,
+                        ' ',
+                        STR_PAD_BOTH
+                    ) . "###########" . PHP_EOL;
+            }
+        }
     }
 
     /**
