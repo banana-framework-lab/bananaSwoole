@@ -76,25 +76,25 @@ class Container
     }
 
     /**
-     * Swoole的Server对象
-     * @var SwooleServer $swooleServer
+     * Server对象
+     * @var Server $swooleServer
      */
     static private $swooleServer;
 
     /**
-     * 设置SwooleServer对象
+     * 设置Server对象
      * @param string $serverConfigIndex
      */
-    static public function setSwooleSever(string $serverConfigIndex)
+    static public function setSever(string $serverConfigIndex)
     {
-        self::$swooleServer = (new Server($serverConfigIndex))->getSwooleServer();
+        self::$swooleServer = (new Server($serverConfigIndex));
     }
 
     /**
-     * 获取swooleServer对象
-     * @return SwooleServer
+     * 获取Server对象
+     * @return Server
      */
-    static public function getSwooleServer(): SwooleServer
+    static public function getServer(): Server
     {
         return self::$swooleServer;
     }

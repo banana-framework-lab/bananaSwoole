@@ -105,7 +105,7 @@ class BananaSwooleServer
         Container::setRouter();
 
         Container::getConfig()->initSwooleConfig();
-        Container::setSwooleSever($this->serverConfigIndex);
+        Container::setSever($this->serverConfigIndex);
 
         $this->autoReload = new AutoReload();
 
@@ -130,7 +130,7 @@ class BananaSwooleServer
     public function setServer(AbstractSwooleServer $appServer): BananaSwooleServer
     {
         $this->appServer = $appServer;
-        $this->server = Container::getSwooleServer();
+        $this->server = Container::getServer()->getSwooleServer();
         $this->workerNum = Container::getConfig()->get("swoole.$this->serverConfigIndex.worker_num", 4);
         $this->taskNum = Container::getConfig()->get("swoole.$this->serverConfigIndex.task_num", ($this->workerNum) * 4);
 
@@ -281,7 +281,7 @@ class BananaSwooleServer
             // 初始化请求数据
             $taskData = $task->data;
 
-            $routeObject = Container::getTaskRouter()->taskRouter($taskData['task_uri']);
+            $routeObject = Container::getTaskRouter()->taskRouter($taskData['task_uri'] ?? '');
 
             // 初始化方法
             $methodName = $routeObject->getMethod();
@@ -322,6 +322,11 @@ class BananaSwooleServer
                         ' ',
                         STR_PAD_BOTH
                     ) . "###########" . PHP_EOL;
+                Container::getLog()->error(
+                    "task任务出错 uri:{$taskData['task_uri']}", [
+                    'message' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString()
+                ]);
                 return;
             }
         } catch (Throwable $error) {
@@ -331,6 +336,11 @@ class BananaSwooleServer
                     ' ',
                     STR_PAD_BOTH
                 ) . "###########" . PHP_EOL;
+            Container::getLog()->error(
+                "task任务出错 uri:{$taskData['task_uri']}", [
+                'message' => $error->getMessage(),
+                'trace' => $error->getTraceAsString()
+            ]);
             return;
         }
     }
@@ -470,7 +480,7 @@ class BananaSwooleServer
                         $response->header('Content-type', 'text/plain;charset=UTF-8');
                         $response->end($e->getMessage() . "<br>" . $e->getTraceAsString());
                     } else {
-                        $workerId = Container::getSwooleServer()->worker_id;
+                        $workerId = Container::getServer()->getSwooleServer()->worker_id;
                         $cId = Coroutine::getCid();
                         $response->header('Content-type', 'text/plain;charset=UTF-8');
                         $response->end(Container::getResponse()->dumpFlush($workerId, $cId));
@@ -482,7 +492,7 @@ class BananaSwooleServer
                 return;
             }
         } catch (Throwable $error) {
-            $workerId = Container::getSwooleServer()->worker_id;
+            $workerId = Container::getServer()->getSwooleServer()->worker_id;
             $errorMsg = $error->getMessage();
             echo "###########" . str_pad("worker_id: $workerId error", $this->echoWidth - 22, ' ', STR_PAD_BOTH) . "###########" . PHP_EOL;
             echo "$errorMsg" . PHP_EOL;

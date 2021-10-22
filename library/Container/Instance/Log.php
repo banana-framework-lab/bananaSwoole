@@ -51,7 +51,7 @@ class Log
     public function __call($name, $arguments)
     {
         $logObject = Container::getRouter()->getRoute(
-            Container::getSwooleServer()->worker_id,
+            Container::getServer()->getSwooleServer()->worker_id,
             Coroutine::getuid()
         )->getProject();
         $ymd = date('Ymd');
@@ -86,7 +86,7 @@ class Log
     private function createLogger(string $name, string $fileName)
     {
         if (empty($this->loggers[$name])) {
-            $workerId = Container::getSwooleServer()->worker_id;
+            $workerId = Container::getServer()->getSwooleServer()->worker_id;
             $cId = Coroutine::getuid();
             $request = Container::getRequest()->getRequest($workerId, $cId);
 

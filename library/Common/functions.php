@@ -59,7 +59,7 @@ function bananaSwoole(bool $return = true, string $type = 'string')
  */
 function c_var_dump($content)
 {
-    $workerId = Container::getSwooleServer()->worker_id;
+    $workerId = Container::getServer()->getSwooleServer()->worker_id;
     $cId = Coroutine::getCid();
     Container::getResponse()->dump($content, $workerId, $cId);
     Container::getResponse()->exit();

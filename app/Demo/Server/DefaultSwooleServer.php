@@ -310,7 +310,7 @@ class DefaultSwooleServer extends AbstractSwooleServer
                     $response->end($e->getMessage() . "\n" . $e->getTraceAsString());
                 } else {
                     $response->status(200);
-                    $workerId = Container::getSwooleServer()->worker_id;
+                    $workerId = Container::getServer()->getSwooleServer()->worker_id;
                     $cId = Coroutine::getCid();
                     $response->end(Container::getResponse()->dumpFlush($workerId, $cId));
                 }
