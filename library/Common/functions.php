@@ -43,12 +43,12 @@ function bananaSwoole(bool $return = true, string $type = 'string')
         } elseif ($type === 'web') {
             $content = implode('', $helloString);
             $content = str_replace(' ', '&nbsp;', $content);
-            return "<!DOCTYPE html><html lang='zh'><body style='font-family:cursive;'><div style='width:555px;text-align:center;font-size: 30px;'>welcome to use</div></div><div style='width:555px;'>$content</div></body></html>";
+            return "<!DOCTYPE html><html lang='zh'><body style='font-family:cursive;'><div style='width:555px;text-align:center;font-size: 35px;'>welcome to use</div></div><div style='width:555px;'>$content</div></body></html>";
         } else {
             return $helloString;
         }
     } else {
-        echo $helloString;
+        echo implode('', $helloString);;
         return '';
     }
 }

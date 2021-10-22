@@ -8,7 +8,7 @@
 
 namespace Library;
 
-use Library\Virtual\Command\AbstractCommand;
+use Library\Abstracts\Command\AbstractCommand;
 use swoole_process;
 
 class Command
@@ -52,10 +52,11 @@ class Command
     {
         $this->paramNumber = $paramNumber;
         $this->paramData = $paramData;
-        $this->actionName = $this->paramData[1];
-        $this->serverName = $this->paramData[2];
-        $this->commandName = $this->paramData[3] ?? '';
+        $this->actionName = $this->paramData[1] ?? '';
+        $this->serverName = ucfirst($this->paramData[2] ?? '');
+        $this->commandName = ucfirst($this->paramData[3] ?? '');
 
+        Container::loadCommonFile();
         Container::setConfig();
         Container::getConfig()->initConfig();
     }
@@ -70,15 +71,13 @@ class Command
             return;
         }
         if ($this->paramData[1] == 'command') {
-            $commandClass = "\\App\\{$this->serverName}\\Command\\{$this->commandName}Command";
+            $commandClass = "\\App\\$this->serverName\\Command\\{$this->commandName}Command";
             /* @var AbstractCommand $command */
             if (method_exists($commandClass, 'execute')) {
-                $command = new $commandClass;
+                $command = new $commandClass();
                 $command->execute();
-                return;
             } else {
-                echo "找不到{$this->commandName}Command\n";
-                return;
+                echo "找不到{$this->commandName}Command" . PHP_EOL;
             }
         } else {
             switch ($this->actionName) {
@@ -92,7 +91,6 @@ class Command
                     $this->reload();
                     break;
             }
-            return;
         }
     }
 
@@ -101,12 +99,11 @@ class Command
      */
     private function start()
     {
-        $filePath = dirname(__FILE__) . "/./../public/{$this->serverName}.php";
+        $filePath = dirname(__FILE__) . "/./../public/$this->serverName.php";
         if (file_exists($filePath)) {
             require $filePath;
         } else {
-            echo "{$this->paramData[2]}服务不存在\n";
-            return;
+            echo "{$this->paramData[2]}服务不存在" . PHP_EOL;
         }
     }
 
@@ -117,12 +114,12 @@ class Command
     {
         $filePath = dirname(__FILE__) . "/./../library/Runtime/Command/$this->serverName";
         if (!file_exists($filePath)) {
-            echo "{$this->serverName}服务不存在\n";
+            echo "{$this->serverName}服务不存在" . PHP_EOL;
             return;
         }
         $pid = intval(file_get_contents($filePath));
         if (!swoole_process::kill($pid, 0)) {
-            echo "{$pid}进程不存在\n";
+            echo "{$pid}进程不存在" . PHP_EOL;
             return;
         }
         swoole_process::kill($pid, 15);
@@ -133,17 +130,13 @@ class Command
                 if (is_file($filePath)) {
                     unlink($filePath);
                 }
-                echo "{$this->serverName}-{$pid}已经正常退出\n";
+                echo "{$this->serverName}-{$pid}已经正常退出" . PHP_EOL;
                 return;
-            } else {
-                if (time() - $time > 5) {
-                    echo "{$this->serverName}-{$pid}退出失败，请再试一遍\n";
-                    return;
-                }
+            } else if (time() - $time > 5) {
+                echo "{$this->serverName}-{$pid}退出失败，请再试一遍" . PHP_EOL;
+                return;
             }
         }
-        echo "{$this->serverName}-{$pid}退出失败";
-        return;
     }
 
     /**
@@ -154,11 +147,10 @@ class Command
         $filePath = dirname(__FILE__) . "/./../library/Runtime/Command/$this->serverName";
         $pid = intval(file_get_contents($filePath));
         if (!swoole_process::kill($pid, 0)) {
-            echo "{$pid}进程不存在\n";
+            echo "{$pid}进程不存在" . PHP_EOL;
         }
         $shell = "kill -USR1 $pid";
         exec($shell);
-        echo "{$this->serverName}-{$pid}已经正常热重启\n";
-        return;
+        echo "{$this->serverName}-{$pid}已经正常热重启" . PHP_EOL;
     }
 }

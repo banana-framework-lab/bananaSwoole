@@ -1,6 +1,4 @@
 <?php
-
-
 namespace App\Index\Controller;
 
 use Library\Abstracts\Controller\AbstractController;
