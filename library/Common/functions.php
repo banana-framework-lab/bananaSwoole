@@ -31,19 +31,11 @@ function bananaSwoole(bool $return = true, string $type = 'string')
     }
 
     $helloString = [];
-<<<<<<< HEAD
-    $helloString [] = " _                                   ____                     _     {$lineChar}";
-    $helloString [] = "| |__   __ _ _ __   __ _ _ __   __ _/ ___|_      _____   ___ | | ___{$lineChar}";
-    $helloString [] = "| '_ \ / _` | '_ \ / _` | '_ \ / _` \___ \ \ /\ / / _ \ / _ \| |/ _ \\$lineChar";
-    $helloString [] = "| |_) | (_| | | | | (_| | | | | (_| |___) \ V  V / (_) | (_) | |  __/{$lineChar}";
-    $helloString [] = "|_.__/ \__,_|_| |_|\__,_|_| |_|\__,_|____/ \_/\_/ \___/ \___/|_|\___|{$lineChar}";
-=======
     $helloString [] = " _                                   ____                     _     $lineChar";
     $helloString [] = "| |__   __ _ _ __   __ _ _ __   __ _/ ___|_      _____   ___ | | ___$lineChar";
     $helloString [] = "| '_ \ / _` | '_ \ / _` | '_ \ / _` \___ \ \ /\ / / _ \ / _ \| |/ _ \\$lineChar";
     $helloString [] = "| |_) | (_| | | | | (_| | | | | (_| |___) \ V  V / (_) | (_) | |  __/$lineChar";
     $helloString [] = "|_.__/ \__,_|_| |_|\__,_|_| |_|\__,_|____/ \_/\_/ \___/ \___/|_|\___|$lineChar";
->>>>>>> ba2789ac09aa2f854440bfb33fe55dadbac783b2
 
     if ($return) {
         if ($type === 'string') {
