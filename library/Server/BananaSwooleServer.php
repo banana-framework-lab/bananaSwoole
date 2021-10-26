@@ -199,20 +199,13 @@ class BananaSwooleServer
     public function onWorkerStart(Server $server, int $workerId)
     {
         try {
-<<<<<<< HEAD
-=======
             // 配置文件初始化
             Container::getConfig()->initConfig();
 
->>>>>>> ba2789ac09aa2f854440bfb33fe55dadbac783b2
             // 加载library的Common文件
             Container::loadCommonFile();
 
             if (!$server->taskworker && $workerId <= 0) {
-<<<<<<< HEAD
-
-=======
->>>>>>> ba2789ac09aa2f854440bfb33fe55dadbac783b2
                 $this->workStartEcho = new WorkStartEcho();
                 $this->workStartEcho->serverType = 'SwooleServer';
                 $this->workStartEcho->port = Container::getConfig()->get("swoole.$this->serverConfigIndex.port", 9501);
@@ -229,7 +222,6 @@ class BananaSwooleServer
                         $this->autoReload->main($this->server);
                     });
                 }
-<<<<<<< HEAD
             }
 
             // 配置文件初始化
@@ -243,8 +235,6 @@ class BananaSwooleServer
                     $methodName = "set{$poolName}Pool";
                     Container::$methodName(Container::getConfig()->get('pool.default_config_name', 'default'));
                 }
-=======
->>>>>>> ba2789ac09aa2f854440bfb33fe55dadbac783b2
             }
 
             // Pool默认启动
