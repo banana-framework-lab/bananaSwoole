@@ -11,6 +11,7 @@ namespace Library;
 use Exception;
 use Library\Container\Instance\Config;
 use Library\Container\Instance\Log;
+use Library\Container\Instance\TaskRouterMap;
 use Library\Container\Pool\MongoPool;
 use Library\Container\Pool\MysqlPool;
 use Library\Container\Pool\RabbitMQPool;
@@ -46,7 +47,7 @@ class Container
      * 获取配置对象
      * @return string
      */
-    static public function getServerConfigIndex()
+    static public function getServerConfigIndex(): string
     {
         return self::$serverConfigIndex;
     }
@@ -69,31 +70,31 @@ class Container
      * 获取配置对象
      * @return Config
      */
-    static public function getConfig()
+    static public function getConfig(): Config
     {
         return self::$config;
     }
 
     /**
-     * Swoole的Server对象
-     * @var SwooleServer $swooleServer
+     * Server对象
+     * @var Server $swooleServer
      */
     static private $swooleServer;
 
     /**
-     * 设置SwooleServer对象
+     * 设置Server对象
      * @param string $serverConfigIndex
      */
-    static public function setSwooleSever(string $serverConfigIndex)
+    static public function setSever(string $serverConfigIndex)
     {
-        self::$swooleServer = (new Server($serverConfigIndex))->getSwooleServer();
+        self::$swooleServer = (new Server($serverConfigIndex));
     }
 
     /**
-     * 获取swooleServer对象
-     * @return SwooleServer
+     * 获取Server对象
+     * @return Server
      */
-    static public function getSwooleServer()
+    static public function getServer(): Server
     {
         return self::$swooleServer;
     }
@@ -115,7 +116,7 @@ class Container
      * 获取请求对象
      * @return Request
      */
-    static public function getRequest()
+    static public function getRequest(): Request
     {
         return self::$request;
     }
@@ -137,7 +138,7 @@ class Container
      * 获取请求对象
      * @return Response
      */
-    static public function getResponse()
+    static public function getResponse(): Response
     {
         return self::$response;
     }
@@ -147,6 +148,12 @@ class Container
      * @var RouterMap $router
      */
     static private $router;
+
+    /**
+     * 任务路由对象
+     * @var TaskRouterMap $taskRouter
+     */
+    static private $taskRouter;
 
     /**
      * 设置路由对象
@@ -160,9 +167,26 @@ class Container
      * 返回路由对象
      * @return RouterMap
      */
-    static public function getRouter()
+    static public function getRouter(): RouterMap
     {
         return self::$router;
+    }
+
+    /**
+     * 设置task路由对象
+     */
+    static public function setTaskRouter()
+    {
+        self::$taskRouter = new TaskRouterMap();
+    }
+
+    /**
+     * 返回task路由对象
+     * @return TaskRouterMap
+     */
+    static public function getTaskRouter(): TaskRouterMap
+    {
+        return self::$taskRouter;
     }
 
     /**
@@ -176,7 +200,7 @@ class Container
      * @param string $configName
      * @throws Exception
      */
-    static public function setMysqlPool($configName)
+    static public function setMysqlPool(string $configName)
     {
         self::$mysqlPool = new MysqlPool($configName);
     }
@@ -185,7 +209,7 @@ class Container
      * 返回mysql连接池
      * @return MysqlPool
      */
-    static public function getMysqlPool()
+    static public function getMysqlPool(): MysqlPool
     {
         return self::$mysqlPool;
     }
@@ -201,7 +225,7 @@ class Container
      * @param string $configName
      * @throws Exception
      */
-    static public function setMongoPool($configName = '')
+    static public function setMongoPool(string $configName)
     {
         self::$mongoPool = new MongoPool($configName);
     }
@@ -210,7 +234,7 @@ class Container
      * 返回mongo连接池
      * @return MongoPool
      */
-    static public function getMongoPool()
+    static public function getMongoPool(): MongoPool
     {
         return self::$mongoPool;
     }
@@ -226,7 +250,7 @@ class Container
      * @param string $configName
      * @throws Exception
      */
-    static public function setRedisPool($configName)
+    static public function setRedisPool(string $configName)
     {
         self::$redisPool = new RedisPool($configName);
     }
@@ -235,7 +259,7 @@ class Container
      * 返回redis连接池
      * @return RedisPool
      */
-    static public function getRedisPool()
+    static public function getRedisPool(): RedisPool
     {
         return self::$redisPool;
     }
@@ -251,7 +275,7 @@ class Container
      * @param string $configName
      * @throws Exception
      */
-    static public function setRabbitMQPool($configName = '')
+    static public function setRabbitMQPool(string $configName = '')
     {
         self::$rabbitPool = new RabbitMQPool($configName);
     }
@@ -260,7 +284,7 @@ class Container
      * 返回RabbitMQ的连接池
      * @return RabbitMQPool
      */
-    static public function getRabbitMQPool()
+    static public function getRabbitMQPool(): RabbitMQPool
     {
         return self::$rabbitPool;
     }
@@ -273,7 +297,7 @@ class Container
     /**
      * 获取日志记录对象
      */
-    static public function getLog()
+    static public function getLog(): Log
     {
         return self::$log;
     }
@@ -292,11 +316,9 @@ class Container
      */
     public static function loadCommonFile(string $projectName = '')
     {
-        if ($projectName == '') {
-            include_once dirname(__FILE__) . "/Common/functions.php";
-        } else {
-            include_once dirname(__FILE__) . "/Common/functions.php";
-            $filePath = dirname(__FILE__) . "/../app/{$projectName}/Common/functions.php";
+        include_once dirname(__FILE__) . "/Common/functions.php";
+        if ($projectName != '') {
+            $filePath = dirname(__FILE__) . "/../app/$projectName/Common/functions.php";
             if (file_exists($filePath)) {
                 include_once $filePath;
             }

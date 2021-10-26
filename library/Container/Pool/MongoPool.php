@@ -10,6 +10,7 @@ namespace Library\Container\Pool;
 
 use Exception;
 use Library\Container;
+use Library\Exception\LogicException;
 use MongoDB\Client;
 use Swoole\Coroutine\Channel;
 
@@ -32,11 +33,13 @@ class MongoPool
      * @param string $configName
      * @throws Exception
      */
-    public function __construct($configName)
+    public function __construct(string $configName)
     {
-        $this->pool = new Channel(
-            Container::getConfig()->get('pool.mongo.size', 5)
-        );
+        $poolSize = Container::getConfig()->get('pool.mongo.size');
+        if (!$poolSize) {
+            throw new LogicException('请配置具体mongo连接池大小');
+        }
+        $this->pool = new Channel($poolSize);
         for ($i = 1; $i <= $this->poolSize; $i++) {
             $this->pool->push($this->getClient($configName));
         }
@@ -48,13 +51,13 @@ class MongoPool
      * @return Client
      * @throws Exception
      */
-    private function getClient($configName = '')
+    private function getClient(string $configName): Client
     {
         if (!$configName) {
             $configName = Container::getServerConfigIndex();
         }
 
-        $mongoUri = Container::getConfig()->get("mongo.{$configName}.url", '');
+        $mongoUri = Container::getConfig()->get("mongo.$configName.url");
 
         if ($mongoUri) {
             $mongodbServer = new Client($mongoUri);

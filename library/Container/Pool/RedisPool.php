@@ -10,6 +10,7 @@ namespace Library\Container\Pool;
 
 use Exception;
 use Library\Container;
+use Library\Exception\LogicException;
 use Redis;
 use Swoole\Coroutine\Channel;
 
@@ -32,10 +33,14 @@ class RedisPool
      * @param string $configName
      * @throws Exception
      */
-    public function __construct($configName)
+    public function __construct(string $configName)
     {
+        $poolSize = Container::getConfig()->get('pool.redis.size');
+        if (!$poolSize) {
+            throw new LogicException('请配置具体redis连接池大小');
+        }
         $this->pool = new Channel(
-            Container::getConfig()->get('pool.redis.size', 5)
+            $poolSize
         );
         for ($i = 1; $i <= $this->poolSize; $i++) {
             $this->pool->push($this->getClient($configName));
@@ -48,7 +53,7 @@ class RedisPool
      * @return Redis
      * @throws Exception
      */
-    private function getClient($configName)
+    private function getClient(string $configName): Redis
     {
         if (!$configName) {
             $configName = Container::getServerConfigIndex();

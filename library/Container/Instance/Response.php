@@ -13,7 +13,7 @@ use Swoole\Http\Response as SwooleHttpResponse;
 class Response
 {
     /**
-     * @var array $pool
+     * @var SwooleHttpResponse[] $pool
      */
     private $pool = [];
 
@@ -23,11 +23,11 @@ class Response
     private $dumpPool = [];
 
     /**
-     * @param SwooleHttpResponse | array $instance
+     * @param SwooleHttpResponse $instance
      * @param int $workerId
      * @param int $cId
      */
-    public function setResponse($instance, int $workerId, int $cId)
+    public function setResponse(SwooleHttpResponse $instance, int $workerId, int $cId)
     {
         if (!isset($this->pool[$workerId][$cId])) {
             $this->pool[$workerId][$cId] = $instance;
@@ -38,9 +38,9 @@ class Response
      * 获取指定协程下的对象
      * @param int $workerId
      * @param int $cId
-     * @return SwooleHttpRequest ｜ array
+     * @return SwooleHttpRequest
      */
-    public function getResponse(int $workerId = 0, int $cId = 0)
+    public function getResponse(int $workerId = 0, int $cId = 0): ?SwooleHttpRequest
     {
         return $this->pool[$workerId][$cId] ?? null;
     }
@@ -109,14 +109,10 @@ class Response
      * @param int $cId
      * @return string
      */
-    public function dumpFlush(int $workerId, int $cId)
+    public function dumpFlush(int $workerId, int $cId): string
     {
         $dumpData = $this->dumpPool[$workerId][$cId] ?? [];
-        $dumpString = '';
-        foreach ($dumpData as $key => $value) {
-            $dumpString .= $value;
-        }
-        return $dumpString;
+        return implode('', $dumpData);
     }
 
     /**
@@ -124,6 +120,6 @@ class Response
      */
     public static function exit()
     {
-        throw new LogicException('exit to get dump data', 888);
+        throw new LogicException('exit to get dump data', C_EXIT_CODE);
     }
 }

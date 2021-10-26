@@ -38,4 +38,18 @@ class Server
     {
         return $this->instance;
     }
+
+    /**
+     * @param string $task_uri
+     * @param array $data
+     * @param int $taskId
+     * @param null $callBack
+     * @return mixed
+     */
+    public function pushTask(string $task_uri, array $data, int $taskId = -1, $callBack = null)
+    {
+        $task_data = $data;
+        $task_data['task_uri'] = $task_uri;
+        return $this->instance->task($task_data, $taskId, $callBack);
+    }
 }

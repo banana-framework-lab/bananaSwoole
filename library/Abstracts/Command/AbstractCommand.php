@@ -15,7 +15,7 @@ namespace Library\Abstracts\Command;
 abstract class AbstractCommand
 {
     /**
-     * 执行脚本的方法,在构造函数时会被调用
+     * 执行脚本的方法,在构造函数后被调用
      */
     abstract public function execute();
 }

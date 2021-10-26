@@ -4,9 +4,11 @@ namespace Library\Server;
 
 use Library\Abstracts\Controller\AbstractController;
 use Library\Abstracts\Form\AbstractForm;
+use Library\Abstracts\Handler\AbstractHandler;
 use Library\Abstracts\Server\AbstractSwooleServer;
 use Library\Container;
-use Library\Container\Route;
+use Library\Container\Channel;
+use Library\Container\Instance\ChannelMap;
 use Library\Exception\LogicException;
 use Library\Server\Functions\AutoReload;
 use Library\Server\Functions\WorkStartEcho;
@@ -103,7 +105,7 @@ class BananaSwooleServer
         Container::setRouter();
 
         Container::getConfig()->initSwooleConfig();
-        Container::setSwooleSever($this->serverConfigIndex);
+        Container::setSever($this->serverConfigIndex);
 
         $this->autoReload = new AutoReload();
 
@@ -128,9 +130,9 @@ class BananaSwooleServer
     public function setServer(AbstractSwooleServer $appServer): BananaSwooleServer
     {
         $this->appServer = $appServer;
-        $this->server = Container::getSwooleServer();
-        $this->workerNum = Container::getConfig()->get("swoole.{$this->serverConfigIndex}.worker_num", 4);
-        $this->taskNum = Container::getConfig()->get("swoole.{$this->serverConfigIndex}.task_num", ($this->workerNum) * 4);
+        $this->server = Container::getServer()->getSwooleServer();
+        $this->workerNum = Container::getConfig()->get("swoole.$this->serverConfigIndex.worker_num", 4);
+        $this->taskNum = Container::getConfig()->get("swoole.$this->serverConfigIndex.task_num", ($this->workerNum) * 4);
 
         // bindTable初始化
         $this->bindTable = new Table($this->workerNum * 2000);
@@ -162,7 +164,7 @@ class BananaSwooleServer
             exit;
         }
 
-        $pidFilePath = dirname(__FILE__) . "/../Runtime/Command/{$this->serverName}";
+        $pidFilePath = dirname(__FILE__) . "/../Runtime/Command/$this->serverName";
         $this->server->set([
             'worker_num' => $this->workerNum,
             'task_worker_num' => $this->taskNum,
@@ -171,7 +173,7 @@ class BananaSwooleServer
             'reload_async' => true,
             'max_wait_time' => 5,
             'log_level' => LOG_NOTICE,
-            'pid_file' => Container::getConfig()->get("swoole.{$this->serverConfigIndex}.pid_file", $pidFilePath),
+            'pid_file' => Container::getConfig()->get("swoole.$this->serverConfigIndex.pid_file", $pidFilePath),
             'hook_flags' => SWOOLE_HOOK_ALL,
             'enable_coroutine' => true
         ]);
@@ -197,14 +199,23 @@ class BananaSwooleServer
     public function onWorkerStart(Server $server, int $workerId)
     {
         try {
+<<<<<<< HEAD
+=======
+            // 配置文件初始化
+            Container::getConfig()->initConfig();
+
+>>>>>>> ba2789ac09aa2f854440bfb33fe55dadbac783b2
             // 加载library的Common文件
             Container::loadCommonFile();
 
             if (!$server->taskworker && $workerId <= 0) {
+<<<<<<< HEAD
 
+=======
+>>>>>>> ba2789ac09aa2f854440bfb33fe55dadbac783b2
                 $this->workStartEcho = new WorkStartEcho();
                 $this->workStartEcho->serverType = 'SwooleServer';
-                $this->workStartEcho->port = Container::getConfig()->get("swoole.{$this->serverConfigIndex}.port", 9501);
+                $this->workStartEcho->port = Container::getConfig()->get("swoole.$this->serverConfigIndex.port", 9501);
                 $this->workStartEcho->taskNum = $this->taskNum;
                 $this->workStartEcho->workerNum = $this->workerNum;
                 $this->workStartEcho->echoWidth = $this->echoWidth;
@@ -218,6 +229,7 @@ class BananaSwooleServer
                         $this->autoReload->main($this->server);
                     });
                 }
+<<<<<<< HEAD
             }
 
             // 配置文件初始化
@@ -231,7 +243,24 @@ class BananaSwooleServer
                     $methodName = "set{$poolName}Pool";
                     Container::$methodName(Container::getConfig()->get('pool.default_config_name', 'default'));
                 }
+=======
+>>>>>>> ba2789ac09aa2f854440bfb33fe55dadbac783b2
             }
+
+            // Pool默认启动
+            $defaultInitList = ['mysql', 'redis', 'rabbit', 'mongo'];
+            foreach ($defaultInitList as $initPool) {
+                $default_name = Container::getConfig()->get('pool.config_index', 'default');
+                if (Container::getConfig()->get("$initPool.$default_name")) {
+                    $poolName = ucfirst(strtolower($initPool));
+                    if (method_exists(Container::class, "set{$poolName}Pool")) {
+                        $methodName = "set{$poolName}Pool";
+                        Container::$methodName($default_name);
+                    }
+                }
+            }
+
+            $this->appServer->onStart($server, $workerId);
         } catch (Throwable $error) {
             echo $error->getMessage() . PHP_EOL;
             echo $error->getTraceAsString() . PHP_EOL;
@@ -240,19 +269,19 @@ class BananaSwooleServer
         }
 
         $courseName = $server->taskworker ? 'task' : 'worker';
-        $msgHead = "{$courseName}_pid: {$server->worker_pid}    {$courseName}_id: {$workerId}";
+        $msgHead = "{$courseName}_pid: $server->worker_pid    {$courseName}_id: $workerId";
 
         go(function () use ($server, $workerId, $msgHead) {
-            if ($this->appServer->start($server, $workerId)) {
+            if ($this->appServer->onStart($server, $workerId)) {
                 echo "###########" . str_pad(
-                        "{$msgHead}  start success",
+                        "$msgHead  start success",
                         $this->echoWidth - 22,
                         ' ',
                         STR_PAD_BOTH
                     ) . "###########" . PHP_EOL;
             } else {
                 echo "###########" . str_pad(
-                        "{$msgHead}  start fail",
+                        "$msgHead  start fail",
                         $this->echoWidth - 22,
                         ' ',
                         STR_PAD_BOTH
@@ -269,7 +298,74 @@ class BananaSwooleServer
      */
     public function onTask(Server $server, Task $task)
     {
-        $this->appServer->task($server, $task);
+        try {
+            $msgHead = "task_pid: $server->worker_pid    task_id: $server->worker_id";
+
+            // 初始化请求数据
+            $taskData = $task->data;
+
+            $routeObject = Container::getTaskRouter()->taskRouter($taskData['task_uri'] ?? '');
+
+            // 初始化方法
+            $methodName = $routeObject->getMethod();
+            $taskClass = $routeObject->getTask();
+
+            // 初始化控制器
+            try {
+                if (class_exists($taskClass)) {
+                    /* @var AbstractController $controller */
+                    $task = new $taskClass($taskData);
+                    if (method_exists($task, $methodName)) {
+                        $returnData = $task->$methodName();
+                        if (!empty($returnData)) {
+                            $server->finish($returnData);
+                        }
+                    } else {
+                        echo "###########" . str_pad(
+                                "$msgHead  找不到task类的方法 uri:{$taskData['task_uri']}",
+                                $this->echoWidth - 22,
+                                ' ',
+                                STR_PAD_BOTH
+                            ) . "###########" . PHP_EOL;
+                        return;
+                    }
+                } else {
+                    echo "###########" . str_pad(
+                            "$msgHead  找不到task类 uri:{$taskData['task_uri']}",
+                            $this->echoWidth - 22,
+                            ' ',
+                            STR_PAD_BOTH
+                        ) . "###########" . PHP_EOL;
+                    return;
+                }
+            } catch (Throwable $e) {
+                echo "###########" . str_pad(
+                        "$msgHead  task任务出错 uri:{$taskData['task_uri']}",
+                        $this->echoWidth - 22,
+                        ' ',
+                        STR_PAD_BOTH
+                    ) . "###########" . PHP_EOL;
+                Container::getLog()->error(
+                    "task任务出错 uri:{$taskData['task_uri']}", [
+                    'message' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString()
+                ]);
+                return;
+            }
+        } catch (Throwable $error) {
+            echo "###########" . str_pad(
+                    "$msgHead  task任务出错 uri:{$taskData['task_uri']}",
+                    $this->echoWidth - 22,
+                    ' ',
+                    STR_PAD_BOTH
+                ) . "###########" . PHP_EOL;
+            Container::getLog()->error(
+                "task任务出错 uri:{$taskData['task_uri']}", [
+                'message' => $error->getMessage(),
+                'trace' => $error->getTraceAsString()
+            ]);
+            return;
+        }
     }
 
     /**
@@ -313,8 +409,6 @@ class BananaSwooleServer
                 $response->header('Access-Control-Allow-Headers', 'x-requested-with,User-Platform,Content-Type,X-Token');
             }
 
-//            $response->header('Content-type', 'application/json');
-
             //初始化请求实体类
             $cId = Coroutine::getuid();
             Container::getRequest()->setRequest($request, $this->server->worker_id, $cId);
@@ -323,7 +417,6 @@ class BananaSwooleServer
             // 标识此次fd为http请求;
             $this->bindTable->set($request->fd, ['http' => 1]);
 
-            /* @var Route $routeObject */
             $routeObject = Container::getRouter()->controllerRouter($request->server['request_uri']);
 
             // 初始化方法
@@ -349,22 +442,20 @@ class BananaSwooleServer
                 if (Container::getConfig()->get('app.debug', false)) {
                     $response->status(200);
                     $response->end("{$webE->getMessage()}<br>{$webE->getTraceAsString()}");
-                    return;
                 } else {
                     $response->status(500);
                     $response->end();
-                    return;
                 }
+                return;
             } catch (Throwable $e) {
                 if (Container::getConfig()->get('app.debug', false)) {
                     $response->status(200);
                     $response->end("{$e->getMessage()}<br>{$e->getTraceAsString()}");
-                    return;
                 } else {
                     $response->status(500);
                     $response->end();
-                    return;
                 }
+                return;
             }
 
             // 初始化控制器
@@ -376,39 +467,45 @@ class BananaSwooleServer
                         $returnData = $controller->$methodName();
                         if (!empty($returnData)) {
                             $response->status(200);
-                            $response->end(is_array($returnData) ? json_encode($returnData, JSON_UNESCAPED_UNICODE) : $returnData);
+                            if (is_array($returnData)) {
+                                $response->header('Content-type', 'application/json;charset=UTF-8');
+                                $response->end(json_encode($returnData, JSON_UNESCAPED_UNICODE));
+                            } else {
+                                $response->end($returnData);
+                            }
                         }
                     } else {
                         if (Container::getConfig()->get('app.debug', false)) {
                             $response->status(200);
+                            $response->header('Content-type', 'text/plain;charset=UTF-8');
                             $response->end("403找不到{$request->server['request_uri']}");
-                            return;
                         } else {
                             $response->status(403);
                             $response->end();
-                            return;
                         }
+                        return;
                     }
                 } else {
                     if (Container::getConfig()->get('app.debug', false)) {
                         $response->status(200);
+                        $response->header('Content-type', 'text/plain;charset=UTF-8');
                         $response->end("404找不到{$request->server['request_uri']}");
-                        return;
                     } else {
                         $response->status(404);
                         $response->end();
-                        return;
                     }
+                    return;
                 }
             } catch (Throwable $e) {
                 if (Container::getConfig()->get('app.debug', false)) {
+                    $response->status(200);
                     if ($e->getCode() != C_EXIT_CODE) {
-                        $response->status(200);
-                        $response->end($e->getMessage() . "\n" . $e->getTraceAsString());
+                        $response->header('Content-type', 'text/plain;charset=UTF-8');
+                        $response->end($e->getMessage() . "<br>" . $e->getTraceAsString());
                     } else {
-                        $response->status(200);
-                        $workerId = Container::getSwooleServer()->worker_id;
+                        $workerId = Container::getServer()->getSwooleServer()->worker_id;
                         $cId = Coroutine::getCid();
+                        $response->header('Content-type', 'text/plain;charset=UTF-8');
                         $response->end(Container::getResponse()->dumpFlush($workerId, $cId));
                     }
                 } else {
@@ -417,12 +514,10 @@ class BananaSwooleServer
                 }
                 return;
             }
-
-//            $this->appServer->request($request, $response);
         } catch (Throwable $error) {
-            $workerId = Container::getSwooleServer()->worker_id;
+            $workerId = Container::getServer()->getSwooleServer()->worker_id;
             $errorMsg = $error->getMessage();
-            echo "###########" . str_pad("worker_id: {$workerId} error", $this->echoWidth - 22, ' ', STR_PAD_BOTH) . "###########" . PHP_EOL;
+            echo "###########" . str_pad("worker_id: $workerId error", $this->echoWidth - 22, ' ', STR_PAD_BOTH) . "###########" . PHP_EOL;
             echo "$errorMsg" . PHP_EOL;
             $response->status(500);
             $response->end();
@@ -437,7 +532,59 @@ class BananaSwooleServer
      */
     public function onOpen(Server $server, Request $request)
     {
-        $this->appServer->open($server, $request);
+        // 初始化请求数据
+        $getData = $request->get ?: [];
+        $postData = $request->post ?: [];
+        $rawContentData = json_decode($request->rawContent(), true) ?: [];
+        $openData = array_merge($getData, $postData, $rawContentData);
+
+        // 选出所需通道
+        $channelObject = ChannelMap::route($openData);
+
+        // 过滤错误的连接
+        if (!$channelObject->getChannel()) {
+            $server->disconnect(
+                $request->fd,
+                Container::getConfig()->get('response.code.no_channel', 404),
+                "找不到fd对应的Channel"
+            );
+            return;
+        }
+
+        // open实体方法
+        try {
+            $handlerClass = $channelObject->getHandler();
+            // 初始化Handler
+            if (class_exists($handlerClass)) {
+                /* @var AbstractHandler $handler */
+                $handler = new $handlerClass();
+                if (method_exists($handlerClass, 'open')) {
+                    // fd绑定通道
+                    $this->bindTable->set($request->fd, $channelObject->toArray());
+                    // fd打开事件
+                    $handler->open($server, $request);
+                } else {
+                    $server->disconnect(
+                        $request->fd,
+                        Container::getConfig()->get('response.code.no_channel', 403),
+                        Container::getConfig()->get('app.debug', false) ? "找不到open方法" : '已断开连接！'
+                    );
+                }
+            } else {
+                $server->disconnect(
+                    $request->fd,
+                    Container::getConfig()->get('response.code.no_channel', 404),
+                    Container::getConfig()->get('app.debug', false) ? "找不到$handlerClass" : '已断开连接.'
+                );
+            }
+        } catch (Throwable $e) {
+            echo $e->getMessage() . PHP_EOL . $e->getTraceAsString();
+            $server->disconnect(
+                $request->fd,
+                Container::getConfig()->get('response.code.fatal_error', 500),
+                "已断开连接."
+            );
+        }
     }
 
 
@@ -448,7 +595,53 @@ class BananaSwooleServer
      */
     public function onMessage(Server $server, Frame $frame)
     {
-        $this->appServer->message($server, $frame);
+        $tableData = $this->bindTable->get($frame->fd);
+        try {
+            // 获取所需通道
+            $channelObject = new Channel();
+            $channelObject->setChannel($tableData['channel'] ?? '');
+            $channelObject->setHandler($tableData['handler'] ?? '');
+
+            if (!$channelObject->getChannel()) {
+                $server->disconnect(
+                    $frame->fd,
+                    Container::getConfig()->get('response.code.no_channel', 404),
+                    Container::getConfig()->get('app.debug', false) ? "找不到fd对应的Channel" : '已断开连接'
+                );
+                return;
+            }
+
+            // 初始化Handler
+            $handlerClass = $channelObject->getHandler();
+
+            // 初始化事件器
+            if (class_exists($handlerClass)) {
+                /* @var AbstractHandler $handler */
+                $handler = new $handlerClass();
+                if (method_exists($handlerClass, 'message')) {
+                    $handler->message($server, $frame);
+                } else {
+                    $server->disconnect(
+                        $frame->fd,
+                        Container::getConfig()->get('response.code.no_message_function', 403),
+                        Container::getConfig()->get('app.debug', true) ? "找不到message方法" : "已断开连接"
+                    );
+                }
+            } else {
+                $server->disconnect(
+                    $frame->fd,
+                    Container::getConfig()->get('response.code.no_handler_class', 404),
+                    Container::getConfig()->get('app.debug', true) ? "找不到$handlerClass" : "已断开连接!"
+                );
+            }
+        } catch (Throwable $e) {
+            echo $e->getMessage() . PHP_EOL . $e->getTraceAsString();
+            $server->disconnect(
+                $frame->fd,
+                Container::getConfig()->get('response.code.fatal_error', 500),
+                "已断开连接."
+            );
+        }
     }
 
     /**
@@ -458,7 +651,65 @@ class BananaSwooleServer
      */
     public function onClose(Server $server, int $fd)
     {
-        $this->appServer->close($server, $fd);
+        $tableData = $this->bindTable->get($fd) ?: [];
+        if (!isset($tableData['http'])) {
+            $this->bindTable->del($fd);
+            return;
+        }
+        if ($tableData['http'] == 1) {
+            $this->bindTable->del($fd);
+        } else {
+            try {
+                // 获取所需通道
+                $channelObject = new Channel();
+                $channelObject->setChannel($tableData['channel']);
+                $channelObject->setHandler($tableData['handler']);
+                if (!$channelObject->getChannel()) {
+                    echo "###########" . str_pad(
+                            "{$fd}找不到fd对应的Channel!",
+                            $this->echoWidth - 22,
+                            ' ',
+                            STR_PAD_BOTH
+                        ) . "###########" . PHP_EOL;
+                    return;
+                }
+                // 初始化Handler
+                $handlerClass = $channelObject->getHandler();
+
+                // fd解绑Channel
+                $this->bindTable->del($fd);
+
+                // 初始化事件器
+                if (class_exists($handlerClass)) {
+                    /* @var AbstractHandler $handler */
+                    $handler = new $handlerClass();
+                    if (method_exists($handlerClass, 'open')) {
+                        $handler->close($server, $fd);
+                    } else {
+                        echo "###########" . str_pad(
+                                "{$fd}找不到fd对应的close方法!",
+                                $this->echoWidth - 22,
+                                ' ',
+                                STR_PAD_BOTH
+                            ) . "###########" . PHP_EOL;
+                    }
+                } else {
+                    echo "###########" . str_pad(
+                            "{$fd}找不到fd对应的$handlerClass!",
+                            $this->echoWidth - 22,
+                            ' ',
+                            STR_PAD_BOTH
+                        ) . "###########" . PHP_EOL;
+                }
+            } catch (Throwable $e) {
+                echo "###########" . str_pad(
+                        "{$fd}找不到fd对应的{$e->getMessage()}!",
+                        $this->echoWidth - 22,
+                        ' ',
+                        STR_PAD_BOTH
+                    ) . "###########" . PHP_EOL;
+            }
+        }
     }
 
     /**
@@ -472,10 +723,8 @@ class BananaSwooleServer
      */
     public function onWorkerError(Server $server, int $workerId, int $workerPid, int $exitCode, int $signal)
     {
-        if ($server) {
-            $courseName = $server->taskworker ? 'task' : 'worker';
-            echo "###########" . str_pad("{$courseName}_pid: {$workerPid} {$courseName}_id: {$workerId} exitCode: {$exitCode} sign:{$signal}  error", $this->echoWidth - 22, ' ', STR_PAD_BOTH) . "###########" . PHP_EOL;
-        }
+        $courseName = $server->taskworker ? 'task' : 'worker';
+        echo "###########" . str_pad("{$courseName}_pid: $workerPid {$courseName}_id: $workerId exitCode: $exitCode sign:$signal  error", $this->echoWidth - 22, ' ', STR_PAD_BOTH) . "###########" . PHP_EOL;
     }
 
     /**
@@ -487,7 +736,7 @@ class BananaSwooleServer
     public function onWorkerStop(Server $server, int $workerId)
     {
         $courseName = $server->taskworker ? 'task' : 'worker';
-        echo "###########" . str_pad("{$courseName}_pid: {$server->worker_pid}    {$courseName}_id: {$workerId}    stop", $this->echoWidth - 22, ' ', STR_PAD_BOTH) . "###########" . PHP_EOL;
+        echo "###########" . str_pad($courseName . "_pid: " . $server->worker_pid . "    " . $courseName . "_id: " . $workerId . "    stop", $this->echoWidth - 22, ' ', STR_PAD_BOTH) . "###########" . PHP_EOL;
     }
 
     /**
@@ -501,6 +750,6 @@ class BananaSwooleServer
         $this->autoReload->reloadTickId && Timer::clear($this->autoReload->reloadTickId);
         $this->appServer->exit($server, $workerId);
         $courseName = $server->taskworker ? 'task' : 'worker';
-        echo "###########" . str_pad("{$courseName}_pid: {$server->worker_pid}    {$courseName}_id: {$workerId}    Exit", $this->echoWidth - 22, ' ', STR_PAD_BOTH) . "###########" . PHP_EOL;
+        echo "###########" . str_pad($courseName . "_pid: " . $server->worker_pid . "    " . $courseName . "_id: " . $workerId . "    Exit", $this->echoWidth - 22, ' ', STR_PAD_BOTH) . "###########" . PHP_EOL;
     }
 }

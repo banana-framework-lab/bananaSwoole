@@ -6,8 +6,7 @@
  * Time: 19:50
  */
 return [
-    'default_config_name' => 'default',
-    'default_init_list' => ['mysql', 'redis'],
+    'config_index' => 'default',
     'mysql' => [
         'size' => 5
     ],
