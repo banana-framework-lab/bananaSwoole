@@ -27,7 +27,7 @@ class Command
     /**
      * @var array $actionType
      */
-    private $actionType = ['start', 'stop', 'reload', 'command', 'process'];
+    private $actionType = ['start', 'stop', 'reload', 'command', 'process', 'shell', 'kill'];
 
     /**
      * @var string $actionName
@@ -90,12 +90,36 @@ class Command
                 }
                 break;
             case 'process':
+                $phpSrc = trim(exec('which php'));
+                $processNum = exec("ps -ef | grep 'php bananaSwoole shell' | grep '$this->serverName $this->processName' |grep -v \"grep\" | wc -l");
+                if ((int)$processNum <= 0) {
+                    $logDir = dirname(__FILE__) . "/../log/$this->serverName/Process/";
+                    if (!is_dir($logDir)) {
+                        mkdir($logDir, 0755, true);
+                    }
+                    $logDir .= "{$this->processName}Process.log";
+                    echo shell_exec("$phpSrc bananaSwoole shell $this->serverName $this->processName >> {$logDir}" . PHP_EOL);
+                } else {
+                    echo "bananaSwoole process $this->serverName $this->processName 已经启动,数量为$processNum" . PHP_EOL;
+                }
+                break;
+            case 'shell':
                 $processClass = "\\App\\$this->serverName\\Process\\{$this->processName}Process";
                 /* @var AbstractProcess $command */
                 if (method_exists($processClass, 'main')) {
                     (new Process(new $processClass()))->main();
                 } else {
                     echo "找不到{$processClass}" . PHP_EOL;
+                }
+                break;
+            case 'kill':
+                $processNum = exec("ps -ef | grep 'php bananaSwoole shell' | grep '$this->serverName $this->processName' |grep -v \"grep\" | wc -l");
+                echo $processNum;
+                if ((int)$processNum > 0) {
+                    $processIdList = exec("ps -ef | grep 'php bananaSwoole shell' | grep '$this->serverName $this->processName' |grep -v \"grep\" | awk '{print $2}'");
+                    var_dump($processIdList);
+                } else {
+                    echo "bananaSwoole process $this->serverName $this->processName 已经启动,数量为$processNum" . PHP_EOL;
                 }
                 break;
             default:

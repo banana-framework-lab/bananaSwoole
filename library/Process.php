@@ -40,7 +40,7 @@ class Process
 
         pcntl_sigprocmask(SIG_BLOCK, [SIGTERM]);
 
-        for ($i = 1; $i <= $this->childProcess->processNum; ++$i) {
+        for ($i = 1; $i <= $this->childProcess->processNum; $i++) {
             $pid = $this->spawnProcess($i);
             $this->childProcessPids[] = $pid;
         }
@@ -67,7 +67,7 @@ class Process
                 unset($this->childProcessPids[$idx]);
                 continue;
             }
-            $newPid = $this->spawnProcess($idx + 1);
+            $newPid = $this->spawnProcess(++$idx);
 
             echo "父进程 pid:{$this->pid} 新建子进程 pid: $newPid" . PHP_EOL;
 
@@ -76,6 +76,9 @@ class Process
         return $ret;
     }
 
+    /**
+     * @param $signal
+     */
     public function handleSignal($signal)
     {
         switch ($signal) {
