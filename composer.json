@@ -7,7 +7,8 @@
         "lustre/php-dfa-sensitive": "^1.4",
         "swoole/ide-helper": "~4.4.12",
         "ext-json": "*",
-        "ext-pcntl": "*"
+        "ext-pcntl": "*",
+        "ext-posix": "*"
     },
     "autoload": {
         "psr-4": {

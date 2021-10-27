@@ -20,12 +20,13 @@ abstract class AbstractProcess
 
     public $run;
 
+    public $processNum;
+
     abstract public function main();
 
-    public function __construct($pid, $pIndex)
+    public function __construct($processNum = 1)
     {
-        $this->pid = $pid;
-        $this->pIndex = $pIndex;
+        $this->processNum = $processNum;
         pcntl_signal(SIGTERM, [$this, "handleSignal"], false);
     }
 
@@ -36,5 +37,13 @@ abstract class AbstractProcess
                 $this->run = false;
                 break;
         }
+    }
+
+    public function exec($pIndex)
+    {
+        $this->pid = posix_getpid();
+        $this->pIndex = $pIndex;
+        $this->run = true;
+        $this->main();
     }
 }

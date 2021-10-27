@@ -9,6 +9,7 @@
 namespace Library;
 
 use Library\Abstracts\Command\AbstractCommand;
+use Library\Abstracts\Process\AbstractProcess;
 use swoole_process;
 
 class Command
@@ -26,7 +27,7 @@ class Command
     /**
      * @var array $actionType
      */
-    private $actionType = ['start', 'stop', 'reload', 'command'];
+    private $actionType = ['start', 'stop', 'reload', 'command', 'process'];
 
     /**
      * @var string $actionName
@@ -44,6 +45,11 @@ class Command
     private $commandName;
 
     /**
+     * @var string $processName
+     */
+    private $processName;
+
+    /**
      * Command constructor.
      * @param int $paramNumber
      * @param array $paramData
@@ -55,6 +61,7 @@ class Command
         $this->actionName = $this->paramData[1] ?? '';
         $this->serverName = ucfirst($this->paramData[2] ?? '');
         $this->commandName = ucfirst($this->paramData[3] ?? '');
+        $this->processName = ucfirst($this->paramData[3] ?? '');
 
         Container::loadCommonFile();
         Container::setConfig();
@@ -70,27 +77,40 @@ class Command
             echo "错误命令行为\n";
             return;
         }
-        if ($this->paramData[1] == 'command') {
-            $commandClass = "\\App\\$this->serverName\\Command\\{$this->commandName}Command";
-            /* @var AbstractCommand $command */
-            if (method_exists($commandClass, 'execute')) {
-                $command = new $commandClass();
-                $command->execute();
-            } else {
-                echo "找不到{$this->commandName}Command" . PHP_EOL;
-            }
-        } else {
-            switch ($this->actionName) {
-                case 'start' :
-                    $this->start();
-                    break;
-                case 'stop':
-                    $this->stop();
-                    break;
-                case 'reload':
-                    $this->reload();
-                    break;
-            }
+
+        switch ($this->paramData[1]) {
+            case 'command':
+                $commandClass = "\\App\\$this->serverName\\Command\\{$this->commandName}Command";
+                /* @var AbstractCommand $command */
+                if (method_exists($commandClass, 'execute')) {
+                    $command = new $commandClass();
+                    $command->execute();
+                } else {
+                    echo "找不到{$commandClass}" . PHP_EOL;
+                }
+                break;
+            case 'process':
+                $processClass = "\\App\\$this->serverName\\Process\\{$this->processName}Process";
+                /* @var AbstractProcess $command */
+                if (method_exists($processClass, 'main')) {
+                    (new Process(new $processClass()))->main();
+                } else {
+                    echo "找不到{$processClass}" . PHP_EOL;
+                }
+                break;
+            default:
+                switch ($this->actionName) {
+                    case 'start' :
+                        $this->start();
+                        break;
+                    case 'stop':
+                        $this->stop();
+                        break;
+                    case 'reload':
+                        $this->reload();
+                        break;
+                }
+                break;
         }
     }
 

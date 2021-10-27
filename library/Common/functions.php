@@ -88,7 +88,20 @@ function build_query_no_encode($param)
     return substr($pre_str, 0, -1);
 }
 
-function camelize($uncamelized_words, $separator = '_')
+function camelize($unCamelizeWords, $separator = '_')
 {
-    return str_replace($separator, '', lcfirst(ucwords(strtolower($uncamelized_words), $separator)));
+    return str_replace($separator, '', lcfirst(ucwords(strtolower($unCamelizeWords), $separator)));
+}
+
+function daemonize()
+{
+    if (pcntl_fork()) {
+        exit;
+    }
+
+    if (posix_setsid() < 0) {
+        exit;
+    }
+
+    return posix_getpid();
 }
