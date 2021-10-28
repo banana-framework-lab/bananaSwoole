@@ -58,7 +58,7 @@ class Process
                 continue;
             }
 
-            echo "父进程 pid:{$this->pid} 子进程退出 pid: $pid" . PHP_EOL;
+            echo date('Y-m-d H:i:s') . " 父进程 pid:{$this->pid} 子进程退出 pid:$pid" . PHP_EOL;
 
             $idx = array_search($pid, $this->childProcessPids);
             $ret[$idx] = $status;
@@ -69,7 +69,7 @@ class Process
             }
             $newPid = $this->spawnProcess(++$idx);
 
-            echo "父进程 pid:{$this->pid} 新建子进程 pid: $newPid" . PHP_EOL;
+            echo date('Y-m-d H:i:s') . " 父进程 pid:{$this->pid} 新建子进程 pid:$newPid" . PHP_EOL;
 
             $this->childProcessPids[$idx] = $newPid;
         }

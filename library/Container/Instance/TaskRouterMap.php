@@ -62,7 +62,7 @@ class TaskRouterMap
 
         $routerObject = new TaskRoute();
         $routerObject->setProject($requestUrlArray[0]);
-        $routerObject->setTask("\\App\\{$requestUrlArray[0]}\\Controller\\{$requestUrlArray[1]}Controller");
+        $routerObject->setTask("\\App\\{$requestUrlArray[0]}\\Task\\{$requestUrlArray[1]}Task");
         $routerObject->setMethod($requestUrlArray[2]);
         $routerObject->setRoute($requestUrl);
 

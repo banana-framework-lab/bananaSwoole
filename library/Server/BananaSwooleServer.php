@@ -426,7 +426,7 @@ class BananaSwooleServer
                 if (method_exists($formClass, $methodName)) {
                     $form = new $formClass($requestData);
                     $form->$methodName();
-                    $requestData = $form->takeMiddleData();
+                    $requestData = $form->getFormData();
                 }
             } catch (LogicException $webE) {
                 if (Container::getConfig()->get('app.debug', false)) {

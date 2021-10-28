@@ -7,7 +7,6 @@
 
 namespace Library\Abstracts\Model;
 
-use Library\Entity\Model\Database\EntityMongo;
 use MongoDB\Client;
 use MongoDB\Collection;
 use MongoDB\Driver\Manager;

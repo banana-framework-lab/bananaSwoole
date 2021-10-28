@@ -8,7 +8,6 @@
 
 namespace Library\Abstracts\Handler;
 
-use Library\Virtual\Object\AbstractMessageObject;
 use Swoole\Http\Request as SwooleHttpRequest;
 use Swoole\WebSocket\Server as SwooleSocketServer;
 use Swoole\WebSocket\Frame as SwooleSocketFrame;
@@ -46,10 +45,4 @@ abstract class AbstractHandler
      * @param int $fd
      */
     abstract public function close(SwooleSocketServer $server, int $fd);
-
-    /**
-     * 用户发消息消化
-     * @param AbstractMessageObject $messageObject
-     */
-    abstract public function consume(AbstractMessageObject $messageObject);
 }

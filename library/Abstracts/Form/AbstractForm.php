@@ -111,7 +111,7 @@ abstract class AbstractForm
      * @return array
      * @throws LogicException
      */
-    public function takeMiddleData(): array
+    public function getFormData(): array
     {
         $httpData = [];
 

@@ -121,7 +121,7 @@ class Command
                     exec('kill -9 ' . implode(' ', explode("\n", trim($processIdList))));
                     echo "已清理 bananaSwoole process $this->serverName $this->processName 进程数为:$processNum" . PHP_EOL;
                 } else {
-                    echo "bananaSwoole process $this->serverName $this->processName 没有启动" . PHP_EOL;
+                    echo "bananaSwoole process $this->serverName $this->processName 无启动进程" . PHP_EOL;
                 }
                 break;
             default:

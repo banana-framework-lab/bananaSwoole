@@ -15,7 +15,6 @@ use Swoole\Server\Task;
  */
 abstract class AbstractTask
 {
-
     /**
      * task对象
      * @var Task $task
