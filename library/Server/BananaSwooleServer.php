@@ -159,12 +159,13 @@ class BananaSwooleServer
      */
     public function run()
     {
+
         if (!$this->appServer) {
             echo "appServer对象不能为空" . PHP_EOL;
             exit;
         }
 
-        $pidFilePath = dirname(__FILE__) . "/../Runtime/Command/$this->serverName";
+
         $this->server->set([
             'worker_num' => $this->workerNum,
             'task_worker_num' => $this->taskNum,
@@ -173,7 +174,6 @@ class BananaSwooleServer
             'reload_async' => true,
             'max_wait_time' => 5,
             'log_level' => LOG_NOTICE,
-            'pid_file' => Container::getConfig()->get("swoole.$this->serverConfigIndex.pid_file", $pidFilePath),
             'hook_flags' => SWOOLE_HOOK_ALL,
             'enable_coroutine' => true
         ]);

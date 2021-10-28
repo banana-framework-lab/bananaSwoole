@@ -145,8 +145,20 @@ class Command
      */
     private function start()
     {
-        $filePath = dirname(__FILE__) . "/./../public/$this->serverName.php";
+        $filePath = dirname(__FILE__) . "/../public/$this->serverName.php";
         if (file_exists($filePath)) {
+
+            $pidFilePath = dirname(__FILE__) . "/../runtime/Server/";
+
+            if (!file_exists($pidFilePath)) {
+                mkdir($pidFilePath, 755, true);
+            }
+
+            $pidFilePath .= ".$this->serverName";
+            $pidFile = fopen($pidFilePath, "w");
+            fwrite($pidFile, posix_getpid());
+            fclose($pidFile);
+
             require $filePath;
         } else {
             echo "{$this->paramData[2]}服务不存在" . PHP_EOL;
@@ -158,11 +170,13 @@ class Command
      */
     private function stop()
     {
-        $filePath = dirname(__FILE__) . "/./../library/Runtime/Command/$this->serverName";
+        $filePath = dirname(__FILE__) . "/../runtime/Server/.$this->serverName";
+
         if (!file_exists($filePath)) {
-            echo "{$this->serverName}服务不存在" . PHP_EOL;
+            echo "无记录进程信息" . PHP_EOL;
             return;
         }
+
         $pid = intval(file_get_contents($filePath));
         if (!swoole_process::kill($pid, 0)) {
             echo "{$pid}进程不存在" . PHP_EOL;
@@ -190,7 +204,13 @@ class Command
      */
     private function reload()
     {
-        $filePath = dirname(__FILE__) . "/./../library/Runtime/Command/$this->serverName";
+        $filePath = dirname(__FILE__) . "/../runtime/Server/.$this->serverName";
+
+        if (!file_exists($filePath)) {
+            echo "无记录进程信息" . PHP_EOL;
+            return;
+        }
+
         $pid = intval(file_get_contents($filePath));
         if (!swoole_process::kill($pid, 0)) {
             echo "{$pid}进程不存在" . PHP_EOL;
