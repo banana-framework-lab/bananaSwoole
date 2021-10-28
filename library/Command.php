@@ -116,7 +116,7 @@ class Command
                 $processNum = exec("ps -ef | grep 'php bananaSwoole shell' | grep '$this->serverName $this->processName' |grep -v \"grep\" | wc -l");
                 echo $processNum;
                 if ((int)$processNum > 0) {
-                    $processIdList = exec("ps -ef | grep 'php bananaSwoole shell' | grep '$this->serverName $this->processName' |grep -v \"grep\" | awk '{print $2}'");
+                    $processIdList = shell_exec("ps -ef | grep 'php bananaSwoole shell' | grep '$this->serverName $this->processName' |grep -v \"grep\" | awk '{print $2}'");
                     var_dump($processIdList);
                 } else {
                     echo "bananaSwoole process $this->serverName $this->processName 已经启动,数量为$processNum" . PHP_EOL;

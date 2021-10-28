@@ -10,6 +10,7 @@ Thumbs.db
 
 # Config files
 /config
+/log
 
 #Runtime
 app/*/Runtime
