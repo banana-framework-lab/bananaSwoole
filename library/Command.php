@@ -27,7 +27,7 @@ class Command
     /**
      * @var array $actionType
      */
-    private $actionType = ['start', 'stop', 'reload', 'command', 'process', 'shell', 'kill'];
+    private $actionType = ['server', 'command', 'process', 'shell', 'kill'];
 
     /**
      * @var string $actionName
@@ -35,9 +35,14 @@ class Command
     private $actionName;
 
     /**
-     * @var string $serverName
+     * @var string $serverActionName
      */
-    private $serverName;
+    private $serverActionName;
+
+    /**
+     * @var $projectName
+     */
+    private $projectName;
 
     /**
      * @var string $commandName
@@ -50,6 +55,11 @@ class Command
     private $processName;
 
     /**
+     * @var $serverName
+     */
+    private $serverName;
+
+    /**
      * Command constructor.
      * @param int $paramNumber
      * @param array $paramData
@@ -59,9 +69,11 @@ class Command
         $this->paramNumber = $paramNumber;
         $this->paramData = $paramData;
         $this->actionName = $this->paramData[1] ?? '';
-        $this->serverName = ucfirst($this->paramData[2] ?? '');
+        $this->serverActionName = $this->paramData[2] ?? '';
+        $this->projectName = ucfirst($this->paramData[2] ?? '');
         $this->commandName = ucfirst($this->paramData[3] ?? '');
         $this->processName = ucfirst($this->paramData[3] ?? '');
+        $this->serverName = $this->paramData[3] ?? '';
 
         Container::loadCommonFile();
         Container::setConfig();
@@ -80,7 +92,7 @@ class Command
 
         switch ($this->actionName) {
             case 'command':
-                $commandClass = "\\App\\$this->serverName\\Command\\{$this->commandName}Command";
+                $commandClass = "\\App\\$this->projectName\\Command\\{$this->commandName}Command";
                 /* @var AbstractCommand $command */
                 if (method_exists($commandClass, 'execute')) {
                     $command = new $commandClass();
@@ -91,20 +103,20 @@ class Command
                 break;
             case 'process':
                 $phpSrc = trim(exec('which php'));
-                $processNum = exec("ps -ef | grep 'php bananaSwoole shell' | grep '$this->serverName $this->processName' | grep -v \"grep\" | wc -l");
+                $processNum = exec("ps -ef | grep 'php bananaSwoole shell' | grep '$this->projectName $this->processName' | grep -v \"grep\" | wc -l");
                 if ((int)$processNum <= 0) {
-                    $logDir = dirname(__FILE__) . "/../log/$this->serverName/Process/";
+                    $logDir = dirname(__FILE__) . "/../log/$this->projectName/Process/";
                     if (!is_dir($logDir)) {
                         mkdir($logDir, 0755, true);
                     }
                     $logDir .= "{$this->processName}Process.log";
-                    echo shell_exec("$phpSrc bananaSwoole shell $this->serverName $this->processName >> {$logDir}" . PHP_EOL);
+                    echo shell_exec("$phpSrc bananaSwoole shell $this->projectName $this->processName >> {$logDir}" . PHP_EOL);
                 } else {
-                    echo "bananaSwoole process $this->serverName $this->processName 已经启动,数量为$processNum" . PHP_EOL;
+                    echo "bananaSwoole process $this->projectName $this->processName 已经启动,数量为$processNum" . PHP_EOL;
                 }
                 break;
             case 'shell':
-                $processClass = "\\App\\$this->serverName\\Process\\{$this->processName}Process";
+                $processClass = "\\App\\$this->projectName\\Process\\{$this->processName}Process";
                 /* @var AbstractProcess $command */
                 if (method_exists($processClass, 'main')) {
                     (new Process(new $processClass()))->main();
@@ -113,19 +125,19 @@ class Command
                 }
                 break;
             case 'kill':
-                $processNum = exec("ps -ef | grep 'php bananaSwoole shell' | grep '$this->serverName $this->processName' | grep -v \"grep\" | wc -l");
+                $processNum = exec("ps -ef | grep 'php bananaSwoole shell' | grep '$this->projectName $this->processName' | grep -v \"grep\" | wc -l");
                 if ((int)$processNum > 0) {
                     ob_start();
-                    passthru("ps -ef | grep 'php bananaSwoole shell' | grep '$this->serverName $this->processName' | grep -v \"grep\" | awk '{print $2}'");
+                    passthru("ps -ef | grep 'php bananaSwoole shell' | grep '$this->projectName $this->processName' | grep -v \"grep\" | awk '{print $2}'");
                     $processIdList = ob_get_clean();
                     exec('kill -9 ' . implode(' ', explode("\n", trim($processIdList))));
-                    echo "已清理 bananaSwoole process $this->serverName $this->processName 进程数为:$processNum" . PHP_EOL;
+                    echo "已清理 bananaSwoole process $this->projectName $this->processName 进程数为:$processNum" . PHP_EOL;
                 } else {
-                    echo "bananaSwoole process $this->serverName $this->processName 无启动进程" . PHP_EOL;
+                    echo "bananaSwoole process $this->projectName $this->processName 无启动进程" . PHP_EOL;
                 }
                 break;
-            default:
-                switch ($this->actionName) {
+            case 'server':
+                switch ($this->serverActionName) {
                     case 'start' :
                         $this->start();
                         break;
@@ -134,6 +146,9 @@ class Command
                         break;
                     case 'reload':
                         $this->reload();
+                        break;
+                    default:
+                        echo "{$this->serverActionName}是错误命令行为..." . PHP_EOL;
                         break;
                 }
                 break;
