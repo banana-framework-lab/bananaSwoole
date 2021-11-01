@@ -13,7 +13,7 @@ class IndexProcess extends AbstractProcess
 
     public function main()
     {
-        echo 'fuck' . PHP_EOL;
+        bananaSwoole(false, 'string');
         sleep(3);
     }
 }
