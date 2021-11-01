@@ -12,6 +12,7 @@ use Swoole\Table;
 use Swoole\WebSocket\Server as SwooleSocketServer;
 use Swoole\Http\Request as SwooleRequest;
 use Swoole\Http\Response as SwooleResponse;
+use Throwable;
 
 abstract class AbstractSwooleServer
 {
@@ -44,6 +45,12 @@ abstract class AbstractSwooleServer
      * @param int $workerId
      */
     abstract public function exit(SwooleSocketServer $server, int $workerId);
+
+    /**
+     * @param Throwable $exception
+     * @return array
+     */
+    abstract public function getExceptionResponse(Throwable $exception);
 
     /**
      * 使用session
