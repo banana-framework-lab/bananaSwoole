@@ -27,7 +27,7 @@ class Command
     /**
      * @var array $actionType
      */
-    private $actionType = ['server', 'command', 'process', 'shell', 'kill'];
+    private $actionType = ['server', 'command', 'process', 'shell'];
 
     /**
      * @var string $actionName
@@ -70,9 +70,9 @@ class Command
         $this->paramData = $paramData;
         $this->actionName = $this->paramData[1] ?? '';
         $this->serverActionName = $this->paramData[2] ?? '';
-        $this->projectName = ucfirst($this->paramData[2] ?? '');
-        $this->commandName = ucfirst($this->paramData[3] ?? '');
-        $this->processName = ucfirst($this->paramData[3] ?? '');
+        $this->projectName = ucfirst($this->paramData[3] ?? '');
+        $this->commandName = ucfirst($this->paramData[4] ?? '');
+        $this->processName = ucfirst($this->paramData[4] ?? '');
         $this->serverName = $this->paramData[3] ?? '';
 
         Container::loadCommonFile();
@@ -102,17 +102,36 @@ class Command
                 }
                 break;
             case 'process':
-                $phpSrc = trim(exec('which php'));
-                $processNum = exec("ps -ef | grep 'php bananaSwoole shell' | grep '$this->projectName $this->processName' | grep -v \"grep\" | wc -l");
-                if ((int)$processNum <= 0) {
-                    $logDir = dirname(__FILE__) . "/../log/$this->projectName/Process/";
-                    if (!is_dir($logDir)) {
-                        mkdir($logDir, 0755, true);
-                    }
-                    $logDir .= "{$this->processName}Process.log";
-                    echo shell_exec("$phpSrc bananaSwoole shell $this->projectName $this->processName >> {$logDir}" . PHP_EOL);
-                } else {
-                    echo "bananaSwoole process $this->projectName $this->processName 已经启动,数量为$processNum" . PHP_EOL;
+                switch ($this->serverActionName) {
+                    case 'start':
+                        $phpSrc = trim(exec('which php'));
+                        $processNum = exec("ps -ef | grep 'php bananaSwoole shell' | grep '$this->projectName $this->processName' | grep -v \"grep\" | wc -l");
+                        if ((int)$processNum <= 0) {
+                            $logDir = dirname(__FILE__) . "/../log/$this->projectName/Process/";
+                            if (!is_dir($logDir)) {
+                                mkdir($logDir, 0755, true);
+                            }
+                            $logDir .= "{$this->processName}Process.log";
+                            echo shell_exec("$phpSrc bananaSwoole shell start $this->projectName $this->processName >> {$logDir}" . PHP_EOL);
+                        } else {
+                            echo "bananaSwoole process $this->projectName $this->processName 已经启动,数量为$processNum" . PHP_EOL;
+                        }
+                        break;
+                    case 'kill':
+                        $processNum = exec("ps -ef | grep 'php bananaSwoole shell start' | grep '$this->projectName $this->processName' | grep -v \"grep\" | wc -l");
+                        if ((int)$processNum > 0) {
+                            ob_start();
+                            passthru("ps -ef | grep 'php bananaSwoole shell start' | grep '$this->projectName $this->processName' | grep -v \"grep\" | awk '{print $2}'");
+                            $processIdList = ob_get_clean();
+                            exec('kill -9 ' . implode(' ', explode("\n", trim($processIdList))));
+                            echo "已清理 bananaSwoole process $this->projectName $this->processName 进程数为:$processNum" . PHP_EOL;
+                        } else {
+                            echo "bananaSwoole process $this->projectName $this->processName 无启动进程" . PHP_EOL;
+                        }
+                        break;
+                    default:
+                        echo "{$this->serverActionName}是错误命令行为." . PHP_EOL;
+                        break;
                 }
                 break;
             case 'shell':
@@ -122,18 +141,6 @@ class Command
                     (new Process(new $processClass()))->main();
                 } else {
                     echo "找不到{$processClass}" . PHP_EOL;
-                }
-                break;
-            case 'kill':
-                $processNum = exec("ps -ef | grep 'php bananaSwoole shell' | grep '$this->projectName $this->processName' | grep -v \"grep\" | wc -l");
-                if ((int)$processNum > 0) {
-                    ob_start();
-                    passthru("ps -ef | grep 'php bananaSwoole shell' | grep '$this->projectName $this->processName' | grep -v \"grep\" | awk '{print $2}'");
-                    $processIdList = ob_get_clean();
-                    exec('kill -9 ' . implode(' ', explode("\n", trim($processIdList))));
-                    echo "已清理 bananaSwoole process $this->projectName $this->processName 进程数为:$processNum" . PHP_EOL;
-                } else {
-                    echo "bananaSwoole process $this->projectName $this->processName 无启动进程" . PHP_EOL;
                 }
                 break;
             case 'server':
