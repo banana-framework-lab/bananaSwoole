@@ -139,12 +139,10 @@ class BananaSwooleServer
      */
     public function run()
     {
-
         if (!$this->appServer) {
             echo "appServer对象不能为空" . PHP_EOL;
             exit;
         }
-
 
         $this->server->set([
             'worker_num' => $this->workerNum,
