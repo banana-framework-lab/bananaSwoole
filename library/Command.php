@@ -105,7 +105,7 @@ class Command
                 switch ($this->serverActionName) {
                     case 'start':
                         $phpSrc = trim(exec('which php'));
-                        $processNum = exec("ps -ef | grep 'php bananaSwoole shell' | grep '$this->projectName $this->processName' | grep -v \"grep\" | wc -l");
+                        $processNum = exec("ps -ef | grep 'php bananaSwoole shell start' | grep '$this->projectName $this->processName' | grep -v \"grep\" | wc -l");
                         if ((int)$processNum <= 0) {
                             $logDir = dirname(__FILE__) . "/../log/$this->projectName/Process/";
                             if (!is_dir($logDir)) {
@@ -114,7 +114,7 @@ class Command
                             $logDir .= "{$this->processName}Process.log";
                             echo shell_exec("$phpSrc bananaSwoole shell start $this->projectName $this->processName >> {$logDir}" . PHP_EOL);
                         } else {
-                            echo "bananaSwoole process $this->projectName $this->processName 已经启动,数量为$processNum" . PHP_EOL;
+                            echo "bananaSwoole process start $this->projectName $this->processName 已经启动,数量为$processNum" . PHP_EOL;
                         }
                         break;
                     case 'kill':
@@ -124,9 +124,9 @@ class Command
                             passthru("ps -ef | grep 'php bananaSwoole shell start' | grep '$this->projectName $this->processName' | grep -v \"grep\" | awk '{print $2}'");
                             $processIdList = ob_get_clean();
                             exec('kill -9 ' . implode(' ', explode("\n", trim($processIdList))));
-                            echo "已清理 bananaSwoole process $this->projectName $this->processName 进程数为:$processNum" . PHP_EOL;
+                            echo "已清理 bananaSwoole process start $this->projectName $this->processName 进程数为:$processNum" . PHP_EOL;
                         } else {
-                            echo "bananaSwoole process $this->projectName $this->processName 无启动进程" . PHP_EOL;
+                            echo "bananaSwoole process start $this->projectName $this->processName 无启动进程" . PHP_EOL;
                         }
                         break;
                     default:

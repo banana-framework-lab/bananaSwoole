@@ -10,7 +10,8 @@
     "ext-pcntl": "*",
     "ext-posix": "*",
     "ext-curl": "*",
-    "ext-mongodb": "*"
+    "ext-mongodb": "*",
+    "ext-redis": "*"
   },
   "autoload": {
     "psr-4": {

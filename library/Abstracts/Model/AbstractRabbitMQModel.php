@@ -56,7 +56,6 @@ abstract class AbstractRabbitMQModel
     {
         $this->checkConfig();
 
-        /* @var AMQPChannel $channel */
         $channel = $this->connection->channel();
 
         $channel->queue_declare($this->queue, false, true, false, false);
@@ -99,7 +98,6 @@ abstract class AbstractRabbitMQModel
     {
         $this->checkConfig();
 
-        /* @var AMQPChannel $channel */
         $channel = $this->connection->channel();
 
         $channel->queue_declare($this->queue, false, true, false, false);
@@ -126,12 +124,12 @@ abstract class AbstractRabbitMQModel
      * @param array $message_data
      * @param int $ttl 单位：秒
      * @param int $max_delay_second 单位：秒
+     * @param bool $need_time_suffix
      */
-    public function delayProduce(array $message_data, int $ttl, int $max_delay_second = 0)
+    public function delayProduce(array $message_data, int $ttl, int $max_delay_second = 0, $need_time_suffix = false)
     {
         $this->checkConfig();
 
-        /* @var AMQPChannel $channel */
         $channel = $this->connection->channel();
 
         $delay_tale = new AMQPTable();
@@ -139,10 +137,12 @@ abstract class AbstractRabbitMQModel
         $delay_tale->set('x-dead-letter-routing-key', "delay_{$this->queue}");
         $delay_tale->set('x-message-ttl', ($max_delay_second > 0 ? $max_delay_second : self::MAX_DEFAULT_DELAY_SECOND) * 1000);
 
-        $channel->queue_declare("ttl_{$this->queue}", false, true, false, false, false, $delay_tale);
+        $suffix = $need_time_suffix ? "_{$ttl}" : '';
+
+        $channel->queue_declare("ttl_{$this->queue}{$suffix}", false, true, false, false, false, $delay_tale);
         // 这里是ttl队列，所以交换机这里要durable是false
-        $channel->exchange_declare("ttl_{$this->exchange_name}", 'direct', false, false, false);
-        $channel->queue_bind("ttl_{$this->queue}", "ttl_{$this->exchange_name}", "ttl_{$this->queue}");
+        $channel->exchange_declare("ttl_{$this->exchange_name}{$suffix}", 'direct', false, false, false);
+        $channel->queue_bind("ttl_{$this->queue}{$suffix}", "ttl_{$this->exchange_name}{$suffix}", "ttl_{$this->queue}{$suffix}");
 
         $channel->queue_declare("delay_{$this->queue}", false, true, false, false, false);
         $channel->exchange_declare("delay_{$this->exchange_name}", 'direct', false, true, false);
@@ -158,7 +158,7 @@ abstract class AbstractRabbitMQModel
             ]
         );
 
-        $channel->basic_publish($message, "ttl_{$this->exchange_name}", "ttl_{$this->queue}");
+        $channel->basic_publish($message, "ttl_{$this->exchange_name}{$suffix}", "ttl_{$this->queue}{$suffix}");
 
         $channel->close();
     }
@@ -172,7 +172,6 @@ abstract class AbstractRabbitMQModel
     {
         $this->checkConfig();
 
-        /* @var AMQPChannel $channel */
         $channel = $this->connection->channel();
 
         $channel->queue_declare("delay_{$this->queue}", false, true, false, false);
@@ -187,14 +186,14 @@ abstract class AbstractRabbitMQModel
         $callback = function ($message) use ($digest_function) {
 
             /* @var AMQPChannel $channel */
-            $channel = $message->get('channel');
+            $channel = $message->delivery_info['channel'];
 
             $message_data = unserialize($message->body);
 
             $digest_result = $digest_function($message_data);
 
             if ($digest_result) {
-                $channel->basic_ack($message->get('delivery_tag'));
+                $channel->basic_ack($message->delivery_info['delivery_tag']);
             }
         };
 
