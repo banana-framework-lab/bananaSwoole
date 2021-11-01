@@ -75,28 +75,20 @@ class BananaSwooleServer
      */
     protected $echoWidth = 75;
 
-    /**
-     * @var int $cliParamNumber
-     */
-    protected $cliParamNumber;
-
-    /**
-     * @var array $cliParamData
-     */
-    protected $cliParamData;
-
-    /**
-     * @var string $serverName
-     */
-    protected $serverName;
-
 
     /**
      * BananaSwooleServer constructor.
      * @param string $serverConfigIndex
      */
-    public function __construct(string $serverConfigIndex)
+    public function __construct(string $serverConfigIndex = '')
     {
+        if (!$serverConfigIndex) {
+            $bt = debug_backtrace();
+            $caller = array_shift($bt);
+            $fileName = explode('/', $caller['file']);
+            $serverConfigIndex = str_replace('.php', '', array_pop($fileName));
+        }
+
         $this->serverConfigIndex = $serverConfigIndex;
         Container::setServerConfigIndex($this->serverConfigIndex);
         Container::setConfig();
@@ -108,18 +100,6 @@ class BananaSwooleServer
         Container::setSever($this->serverConfigIndex);
 
         $this->autoReload = new AutoReload();
-
-        global $argc;
-        $this->cliParamNumber = $argc;
-
-        global $argv;
-        $this->cliParamData = $argv;
-
-        if ($this->cliParamData[0] != 'bananaSwoole') {
-            $this->serverName = str_replace('.php', '', $this->cliParamData[0]);
-        } else {
-            $this->serverName = $this->cliParamData[2];
-        }
     }
 
     /**
@@ -131,7 +111,7 @@ class BananaSwooleServer
     {
         $this->appServer = $appServer;
         $this->server = Container::getServer()->getSwooleServer();
-        $this->workerNum = Container::getConfig()->get("swoole.$this->serverConfigIndex.worker_num", 4);
+        $this->workerNum = Container::getConfig()->get("swoole.$this->serverConfigIndex.worker_num", 1);
         $this->taskNum = Container::getConfig()->get("swoole.$this->serverConfigIndex.task_num", ($this->workerNum) * 4);
 
         // bindTable初始化
@@ -207,7 +187,7 @@ class BananaSwooleServer
 
             if (!$server->taskworker && $workerId <= 0) {
                 $this->workStartEcho = new WorkStartEcho();
-                $this->workStartEcho->serverType = 'SwooleServer';
+                $this->workStartEcho->serverType = $this->serverConfigIndex;
                 $this->workStartEcho->port = Container::getConfig()->get("swoole.$this->serverConfigIndex.port", 9501);
                 $this->workStartEcho->taskNum = $this->taskNum;
                 $this->workStartEcho->workerNum = $this->workerNum;
@@ -240,7 +220,7 @@ class BananaSwooleServer
             // Pool默认启动
             $defaultInitList = ['mysql', 'redis', 'rabbit', 'mongo'];
             foreach ($defaultInitList as $initPool) {
-                $default_name = Container::getConfig()->get('pool.config_index', 'default');
+                $default_name = Container::getConfig()->get("pool.{$initPool}.index", 'default');
                 if (Container::getConfig()->get("$initPool.$default_name")) {
                     $poolName = ucfirst(strtolower($initPool));
                     if (method_exists(Container::class, "set{$poolName}Pool")) {

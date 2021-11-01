@@ -27,7 +27,7 @@ class Config
     {
         $handler = opendir(dirname(__FILE__) . '/../../../config');
         while (($fileName = readdir($handler)) !== false) {
-            if ($fileName != "." && $fileName != "..") {
+            if ($fileName != "." && $fileName != ".." && $fileName != "example") {
                 $fileIndex = (explode('.', $fileName))[0];
                 if ($fileIndex != 'swoole') {
                     $fileData = include dirname(__FILE__) . '/../../../config/' . $fileName;

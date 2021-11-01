@@ -1,25 +1,11 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Administrator
- * Date: 2019/10/22
- * Time: 17:27
- */
+
 return [
+    // 是否自动重启
     'is_auto_reload' => true,
-    'server_id' => 1,
+    // 是否测试模式(测试模式下会打印错误栈)
     'debug' => false,
-    'server_name' => 'www.banana.com',
     'allow_origin' => [
-        'http://www.bananaswoole.com',
-        'http://www.bananaphp.com',
-        'http://www.banana.com',
-        'http://www.fuck.com',
-        'http://127.0.0.1',
-        'http://localhost:9502',
-        'http://localhost',
-        'http://fuck.bananaswoole.com',
-    ],
-    'success_code' => 1,
-    'fail_code' => 0,
+        'http://www.bananaswoole.com'
+    ]
 ];
