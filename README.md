@@ -80,35 +80,35 @@ $server->run();
 ###### 指令操作步骤
 1.cd到项目的bin目录路径下
 2.执行相关指令操作
-```
-// 指令格式如下
+```shell script
+# 指令格式如下
 php bananaSwoole [server] [action] [server] [scrpit]
 ```
 
 ###### 命令启动有3中action形式
 
 1. server
-```
-// 启动在public中的swoole服务
+```shell script
+# 启动在public中的swoole服务
 php bananaSwoole server start swoole
 
-// 停止在public中的swoole服务
+# 停止在public中的swoole服务
 php bananaSwoole server stop swoole
 
-// 热重启在public中的swoole服务
+# 热重启在public中的swoole服务
 php bananaSwoole server reload swoole
 ```
 2.command
-```
-// 停止在指定Index服务中的Command指令任务
+```shell script
+# 停止在指定Index服务中的Command指令任务
 php bananaSwoole command start Index Command
 ```
 
 2.process
-```
-// 启动在指定Index服务中的Process指令任务
+```shell script
+# 启动在指定Index服务中的Process指令任务
 php bananaSwoole process start Index Process
 
-// 停止在指定Index服务中的Process指令任务
+# 停止在指定Index服务中的Process指令任务
 php bananaSwoole process kill Index Process
 ```
