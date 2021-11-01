@@ -12,6 +12,9 @@ Thumbs.db
 config/*
 !config/example
 
+# log
+log/*
+
 #Runtime
 app/*/Runtime
 */*/File
