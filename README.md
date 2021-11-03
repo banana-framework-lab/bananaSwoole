@@ -82,7 +82,7 @@ $server->run();
 2.执行相关指令操作
 ```shell script
 # 指令格式如下
-php bananaSwoole [server] [action] [server] [scrpit]
+php bananaSwoole [server] [action] [project] [scrpit]
 ```
 
 ###### 命令启动有3中action形式
