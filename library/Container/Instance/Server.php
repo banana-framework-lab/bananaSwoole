@@ -25,7 +25,7 @@ class Server
     public function __construct(string $serverConfigIndex)
     {
         $port = Container::getConfig()->get("swoole.{$serverConfigIndex}.port", 9501);
-        $portStatus = trim(shell_exec('netstat -anp | grep ":80"'));
+        $portStatus = trim(shell_exec("netstat -anp | grep \":{$port}}\""));
         if (!$portStatus) {
             $this->instance = new SwooleServer("0.0.0.0", $port, SWOOLE_PROCESS);
         } else {
