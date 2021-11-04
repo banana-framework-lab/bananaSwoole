@@ -24,11 +24,14 @@ class Server
      */
     public function __construct(string $serverConfigIndex)
     {
-        $this->instance = new SwooleServer(
-            "0.0.0.0",
-            Container::getConfig()->get("swoole.{$serverConfigIndex}.port", 9501),
-            SWOOLE_PROCESS
-        );
+        $port = Container::getConfig()->get("swoole.{$serverConfigIndex}.port", 9501);
+        $portStatus = trim(shell_exec('netstat -anp | grep ":80"'));
+        if (!$portStatus) {
+            $this->instance = new SwooleServer("0.0.0.0", $port, SWOOLE_PROCESS);
+        } else {
+            echo "{$port}已被占用" . PHP_EOL;
+            exit;
+        }
     }
 
     /**

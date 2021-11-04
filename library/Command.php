@@ -171,18 +171,6 @@ class Command
         if ((int)$processNum <= 1) {
             $filePath = dirname(__FILE__) . "/../public/$this->serverName.php";
             if (file_exists($filePath)) {
-
-                $pidFilePath = dirname(__FILE__) . "/../runtime/Server/";
-
-                if (!file_exists($pidFilePath)) {
-                    mkdir($pidFilePath, 755, true);
-                }
-
-                $pidFilePath .= ".$this->serverName";
-                $pidFile = fopen($pidFilePath, "w");
-                fwrite($pidFile, posix_getpid());
-                fclose($pidFile);
-
                 require $filePath;
             } else {
                 echo "{$this->serverName}服务不存在" . PHP_EOL;
