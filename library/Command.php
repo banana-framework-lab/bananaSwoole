@@ -167,23 +167,28 @@ class Command
      */
     private function start()
     {
-        $filePath = dirname(__FILE__) . "/../public/$this->serverName.php";
-        if (file_exists($filePath)) {
+        $processNum = exec("ps -ef | grep 'php bananaSwoole server start' | grep '$this->serverName' | grep -v \"grep\" | wc -l");
+        if ((int)$processNum <= 0) {
+            $filePath = dirname(__FILE__) . "/../public/$this->serverName.php";
+            if (file_exists($filePath)) {
 
-            $pidFilePath = dirname(__FILE__) . "/../runtime/Server/";
+                $pidFilePath = dirname(__FILE__) . "/../runtime/Server/";
 
-            if (!file_exists($pidFilePath)) {
-                mkdir($pidFilePath, 755, true);
+                if (!file_exists($pidFilePath)) {
+                    mkdir($pidFilePath, 755, true);
+                }
+
+                $pidFilePath .= ".$this->serverName";
+                $pidFile = fopen($pidFilePath, "w");
+                fwrite($pidFile, posix_getpid());
+                fclose($pidFile);
+
+                require $filePath;
+            } else {
+                echo "{$this->serverName}服务不存在" . PHP_EOL;
             }
-
-            $pidFilePath .= ".$this->serverName";
-            $pidFile = fopen($pidFilePath, "w");
-            fwrite($pidFile, posix_getpid());
-            fclose($pidFile);
-
-            require $filePath;
         } else {
-            echo "{$this->paramData[2]}服务不存在" . PHP_EOL;
+            echo "bananaSwoole server start serverName 已经启动" . PHP_EOL;
         }
     }
 
