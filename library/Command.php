@@ -188,7 +188,7 @@ class Command
                 echo "{$this->serverName}服务不存在" . PHP_EOL;
             }
         } else {
-            echo "bananaSwoole server start serverName 已经启动" . PHP_EOL;
+            echo "bananaSwoole server start {$this->serverName} 已经启动" . PHP_EOL;
         }
     }
 
