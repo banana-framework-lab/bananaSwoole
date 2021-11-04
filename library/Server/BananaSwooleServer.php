@@ -143,7 +143,7 @@ class BananaSwooleServer
             exit;
         }
 
-        $pidFilePath = dirname(__FILE__) . "/../runtime/Server/";
+        $pidFilePath = dirname(__FILE__) . "/../../runtime/Server/";
 
         if (!file_exists($pidFilePath)) {
             mkdir($pidFilePath, 755, true);
