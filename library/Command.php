@@ -104,8 +104,8 @@ class Command
             case 'process':
                 switch ($this->serverActionName) {
                     case 'start':
-                        $phpSrc = trim(exec('which php'));
-                        $processNum = exec("ps -ef | grep 'php bananaSwoole shell start' | grep '$this->projectName $this->processName' | grep -v \"grep\" | wc -l");
+                        $phpSrc = trim(shell_exec('which php'));
+                        $processNum =  trim(shell_exec("ps -ef | grep 'php bananaSwoole shell start' | grep '$this->projectName $this->processName' | grep -v \"grep\" | wc -l"));
                         if ((int)$processNum <= 0) {
                             $logDir = dirname(__FILE__) . "/../log/$this->projectName/Process/";
                             if (!is_dir($logDir)) {
@@ -118,7 +118,7 @@ class Command
                         }
                         break;
                     case 'kill':
-                        $processNum = exec("ps -ef | grep 'php bananaSwoole shell start' | grep '$this->projectName $this->processName' | grep -v \"grep\" | wc -l");
+                        $processNum = trim(shell_exec("ps -ef | grep 'php bananaSwoole shell start' | grep '$this->projectName $this->processName' | grep -v \"grep\" | wc -l"));
                         if ((int)$processNum > 0) {
                             ob_start();
                             passthru("ps -ef | grep 'php bananaSwoole shell start' | grep '$this->projectName $this->processName' | grep -v \"grep\" | awk '{print $2}'");
@@ -167,8 +167,8 @@ class Command
      */
     private function start()
     {
-        $processNum = exec("ps -ef | grep 'php bananaSwoole server start' | grep '$this->serverName' | grep -v \"grep\" | wc -l");
-        if ((int)$processNum <= 0) {
+        $processNum = trim(shell_exec("ps -ef | grep 'php bananaSwoole server start' | grep '{$this->serverName}' | grep -v \"grep\" | wc -l"));
+        if ((int)$processNum <= 1) {
             $filePath = dirname(__FILE__) . "/../public/$this->serverName.php";
             if (file_exists($filePath)) {
 
