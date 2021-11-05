@@ -388,6 +388,12 @@ class BananaSwooleServer
                 $response->header('Access-Control-Allow-Headers', 'x-requested-with,User-Platform,Content-Type,X-Token');
             }
 
+            if ($request->server['request_method'] == 'OPTIONS') {
+                $response->status(200);
+                $response->end();
+                return;
+            }
+
             //初始化请求实体类
             $cId = Coroutine::getuid();
             Container::getRequest()->setRequest($request, $this->server->worker_id, $cId);
