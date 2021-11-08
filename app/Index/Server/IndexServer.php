@@ -3,6 +3,7 @@ namespace App\Index\Server;
 
 use Library\Abstracts\Server\AbstractSwooleServer;
 use Swoole\WebSocket\Server as SwooleSocketServer;
+use Throwable;
 
 class IndexServer extends AbstractSwooleServer
 {
@@ -19,5 +20,10 @@ class IndexServer extends AbstractSwooleServer
      */
     public function exit(SwooleSocketServer $server, int $workerId)
     {
+    }
+
+    public function getExceptionResponse(Throwable $exception)
+    {
+        // TODO: Implement getExceptionResponse() method.
     }
 }

@@ -379,13 +379,19 @@ class BananaSwooleServer
                 return;
             }
 
-            $allowOrigins = Container::getConfig()->get('app.allow_origin', []);
+            $allowOrigins = Container::getConfig()->get('app.access_control_allow_origin', []);
+            $allowMethods = implode(',', Container::getConfig()->get('app.access_control_allow_methods', [
+                'GET', 'POST', 'DELETE', 'PUT', 'PATCH', 'OPTIONS'
+            ]));
+            $allowHeaders = implode(',', Container::getConfig()->get('app.access_control_allow_headers', [
+                'x-requested-with', 'User-Platform', 'Content-Type'
+            ]));
 
             if (isset($request->header['origin']) && in_array(strtolower($request->header['origin']), $allowOrigins)) {
                 $response->header('Access-Control-Allow-Origin', $request->header['origin']);
                 $response->header('Access-Control-Allow-Credentials', 'true');
-                $response->header('Access-Control-Allow-Methods', 'GET, POST, DELETE, PUT, PATCH, OPTIONS');
-                $response->header('Access-Control-Allow-Headers', 'x-requested-with,User-Platform,Content-Type,X-Token');
+                $response->header('Access-Control-Allow-Methods', $allowMethods);
+                $response->header('Access-Control-Allow-Headers', $allowHeaders);
             }
 
             if ($request->server['request_method'] == 'OPTIONS') {
