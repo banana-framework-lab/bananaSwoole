@@ -9,6 +9,7 @@
 namespace Library;
 
 use Exception;
+use Library\Container\Instance\ChannelRouterMap;
 use Library\Container\Instance\Config;
 use Library\Container\Instance\Log;
 use Library\Container\Instance\TaskRouterMap;
@@ -156,6 +157,12 @@ class Container
     static private $taskRouter;
 
     /**
+     * websocket路由对象
+     * @var ChannelRouterMap $taskRouter
+     */
+    static private $channelRouter;
+
+    /**
      * 设置路由对象
      */
     static public function setRouter()
@@ -187,6 +194,23 @@ class Container
     static public function getTaskRouter(): TaskRouterMap
     {
         return self::$taskRouter;
+    }
+
+    /**
+     * 设置websocket路由对象
+     */
+    static public function setChannelRouter()
+    {
+        self::$channelRouter = new ChannelRouterMap();
+    }
+
+    /**
+     * 返回websocket路由对象
+     * @return ChannelRouterMap
+     */
+    static public function getChannelRouter(): ChannelRouterMap
+    {
+        return self::$channelRouter;
     }
 
     /**

@@ -8,6 +8,7 @@
 
 namespace Library\Abstracts\Server;
 
+use Library\Exception\LogicException;
 use Swoole\Table;
 use Swoole\WebSocket\Server as SwooleSocketServer;
 use Swoole\Http\Request as SwooleRequest;

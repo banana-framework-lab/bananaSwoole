@@ -8,7 +8,7 @@ use Library\Abstracts\Handler\AbstractHandler;
 use Library\Abstracts\Server\AbstractSwooleServer;
 use Library\Container;
 use Library\Container\Channel;
-use Library\Container\Instance\ChannelMap;
+use Library\Container\Instance\ChannelRouterMap;
 use Library\Exception\LogicException;
 use Library\Server\Functions\AutoReload;
 use Library\Server\Functions\WorkStartEcho;
@@ -94,6 +94,8 @@ class BananaSwooleServer
         Container::setRequest();
         Container::setResponse();
         Container::setRouter();
+        Container::setTaskRouter();
+        Container::setChannelRouter();
 
         Container::getConfig()->initSwooleConfig();
         Container::setSever($this->serverConfigIndex);
@@ -379,19 +381,13 @@ class BananaSwooleServer
                 return;
             }
 
-            $allowOrigins = Container::getConfig()->get('app.access_control_allow_origin', []);
-            $allowMethods = implode(',', Container::getConfig()->get('app.access_control_allow_methods', [
-                'GET', 'POST', 'DELETE', 'PUT', 'PATCH', 'OPTIONS'
-            ]));
-            $allowHeaders = implode(',', Container::getConfig()->get('app.access_control_allow_headers', [
-                'x-requested-with', 'User-Platform', 'Content-Type'
-            ]));
+            $allowOrigins = Container::getConfig()->get('app.allow_origin', []);
 
             if (isset($request->header['origin']) && in_array(strtolower($request->header['origin']), $allowOrigins)) {
                 $response->header('Access-Control-Allow-Origin', $request->header['origin']);
                 $response->header('Access-Control-Allow-Credentials', 'true');
-                $response->header('Access-Control-Allow-Methods', $allowMethods);
-                $response->header('Access-Control-Allow-Headers', $allowHeaders);
+                $response->header('Access-Control-Allow-Methods', 'GET, POST, DELETE, PUT, PATCH, OPTIONS');
+                $response->header('Access-Control-Allow-Headers', 'x-requested-with,User-Platform,Content-Type,X-Token');
             }
 
             if ($request->server['request_method'] == 'OPTIONS') {
@@ -541,7 +537,7 @@ class BananaSwooleServer
         $openData = array_merge($getData, $postData, $rawContentData);
 
         // 选出所需通道
-        $channelObject = ChannelMap::route($openData);
+        $channelObject = Container::getChannelRouter()->channelRoute($openData);
 
         // 过滤错误的连接
         if (!$channelObject->getChannel()) {

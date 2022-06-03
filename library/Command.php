@@ -10,6 +10,7 @@ namespace Library;
 
 use Library\Abstracts\Command\AbstractCommand;
 use Library\Abstracts\Process\AbstractProcess;
+use Swoole\Coroutine;
 use swoole_process;
 
 class Command
@@ -95,8 +96,10 @@ class Command
                 $commandClass = "\\App\\$this->projectName\\Command\\{$this->commandName}Command";
                 /* @var AbstractCommand $command */
                 if (method_exists($commandClass, 'execute')) {
-                    $command = new $commandClass();
-                    $command->execute();
+                    Coroutine::create(function () use($commandClass) {
+                        $command = new $commandClass();
+                        $command->execute();
+                    });
                 } else {
                     echo "找不到{$commandClass}" . PHP_EOL;
                 }
