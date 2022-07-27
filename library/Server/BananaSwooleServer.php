@@ -8,7 +8,7 @@ use Library\Abstracts\Handler\AbstractHandler;
 use Library\Abstracts\Server\AbstractSwooleServer;
 use Library\Container;
 use Library\Container\Channel;
-use Library\Container\Instance\ChannelRouterMap;
+use Library\Container\Instance\ChannelMap;
 use Library\Exception\LogicException;
 use Library\Server\Functions\AutoReload;
 use Library\Server\Functions\WorkStartEcho;
@@ -94,8 +94,6 @@ class BananaSwooleServer
         Container::setRequest();
         Container::setResponse();
         Container::setRouter();
-        Container::setTaskRouter();
-        Container::setChannelRouter();
 
         Container::getConfig()->initSwooleConfig();
         Container::setSever($this->serverConfigIndex);
@@ -537,7 +535,7 @@ class BananaSwooleServer
         $openData = array_merge($getData, $postData, $rawContentData);
 
         // 选出所需通道
-        $channelObject = Container::getChannelRouter()->channelRoute($openData);
+        $channelObject = ChannelMap::route($openData);
 
         // 过滤错误的连接
         if (!$channelObject->getChannel()) {
