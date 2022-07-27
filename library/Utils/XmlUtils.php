@@ -6,22 +6,22 @@
  * Time: 10:11
  */
 
-namespace Library\App\Service;
+namespace Library\Utils;
 
 use SimpleXMLElement;
 
 
-class XmlService
+class XmlUtils
 {
     /**
      * 静态对象
-     * @var XmlService $instance
+     * @var XmlUtils $instance
      */
     protected static $instance = null;
 
     /**
      * 获取实例
-     * @return XmlService
+     * @return XmlUtils
      */
     public static function instance()
     {

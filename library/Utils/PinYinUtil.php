@@ -6,20 +6,20 @@
  * Time: 14:12
  */
 
-namespace Library\App\Service;
+namespace Library\Utils;
 
 
-class PinYinService
+class PinYinUtil
 {
     /**
      * 静态对象
-     * @var PinYinService
+     * @var PinYinUtil
      */
     protected static $instance = null;
 
     /**
      * 获取实例
-     * @return PinYinService|static
+     * @return PinYinUtil|static
      */
     public static function instance()
     {

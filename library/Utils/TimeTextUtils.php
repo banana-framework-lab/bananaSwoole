@@ -6,9 +6,9 @@
  * Time: 14:29
  */
 
-namespace Library\App\Service;
+namespace Library\Utils;
 
-class TimeTextService
+class TimeTextUtils
 {
     /**
      * 静态对象

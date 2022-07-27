@@ -11,7 +11,8 @@
     "ext-posix": "*",
     "ext-curl": "*",
     "ext-mongodb": "*",
-    "ext-redis": "*"
+    "ext-redis": "*",
+    "ext-simplexml": "*"
   },
   "autoload": {
     "psr-4": {
