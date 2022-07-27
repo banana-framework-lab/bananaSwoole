@@ -34,7 +34,7 @@ abstract class AbstractHttpModel
      * @param array $headers
      * @return string
      */
-    function postCurl(string $url, $postData, int $timeout = 5, array $headers = []): string
+    public function postCurl(string $url, $postData, int $timeout = 5, array $headers = []): string
     {
         $ch = curl_init();  //初始化curl
         curl_setopt($ch, CURLOPT_URL, $url);  //抓取指定网页
@@ -60,7 +60,7 @@ abstract class AbstractHttpModel
      * @param array $headers
      * @return string
      */
-    function getCurl($url, int $timeout = 5, array $headers = []): string
+    public function getCurl($url, int $timeout = 5, array $headers = []): string
     {
         $ch = curl_init();  //初始化curl
         curl_setopt($ch, CURLOPT_URL, $url);  //抓取指定网页
